@@ -1,0 +1,8 @@
+/.vs
+/llvm/obj
+/llvm/bin
+/thinSDK/obj
+/thinSDK/.vs
+/thinSDK/bin
+/thinWallet/bin
+/thinWallet/obj
