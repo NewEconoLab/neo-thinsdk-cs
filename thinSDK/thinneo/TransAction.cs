@@ -220,9 +220,13 @@ namespace ThinNeo
                 //ContractTransaction 就是最常见的转账交易
                 //他没有自己的独特处理
             }
-            else
+            else if(type== TransactionType.InvocationTransaction)
             {
                 extdata.Serialize(this,writer);
+            }
+            else
+            {
+                throw new Exception("未编写针对这个交易类型的代码");
             }
             #region write attribute
             var countAttributes = (uint)attributes.Length;

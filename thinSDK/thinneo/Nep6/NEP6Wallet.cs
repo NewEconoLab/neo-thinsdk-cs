@@ -14,7 +14,7 @@ namespace ThinNeo.NEP6
     {
 
         private readonly string path;
-        private readonly ScryptParameters scrypt;
+        public readonly ScryptParameters scrypt;
         public readonly Dictionary<string, NEP6Account> accounts;
 
         public NEP6Wallet(string path)

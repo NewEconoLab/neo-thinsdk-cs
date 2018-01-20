@@ -1,7 +1,6 @@
 ﻿
 namespace ThinNeo.NEP6
 {
-    //这东西根本没在用
     public class ScryptParameters
     {
         public static ScryptParameters Default { get; } = new ScryptParameters(16384, 8, 8);

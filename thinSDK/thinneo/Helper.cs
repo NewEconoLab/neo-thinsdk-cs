@@ -15,6 +15,24 @@ namespace ThinNeo
         static RIPEMD160Managed ripemd160 = new RIPEMD160Managed();
         //static System.Security.Cryptography.RIPEMD160 ripemd160 = System.Security.Cryptography.RIPEMD160.Create();
 
+        public static string GetWifFromPrivateKey(byte[] prikey)
+        {
+            if (prikey.Length != 32)
+                throw new Exception("error prikey.");
+            byte[] data = new byte[34];
+            data[0] = 0x80;
+            data[33] = 0x01;
+            for(var i=0;i<32;i++)
+            {
+                data[i + 1] = prikey[i];
+            }
+            byte[] checksum = sha256.ComputeHash(data);
+            checksum = sha256.ComputeHash(checksum);
+            checksum = checksum.Take(4).ToArray();
+            byte[] alldata = data.Concat(checksum).ToArray();
+            string wif = Base58.Encode(alldata);
+            return wif;
+        }
         public static byte[] GetPrivateKeyFromWIF(string wif)
         {
             if (wif == null) throw new ArgumentNullException();
@@ -316,7 +334,7 @@ namespace ThinNeo
             Buffer.BlockCopy(encryptedkey, 0, buffer, 7, encryptedkey.Length);
             return Base58CheckEncode(buffer);
         }
-        public static byte[] GetPrivateKeyFromNEP2(string nep2, string passphrase)
+        public static byte[] GetPrivateKeyFromNEP2(string nep2, string passphrase, int N = 16384, int r = 8, int p = 8)
         {
             if (nep2 == null) throw new ArgumentNullException(nameof(nep2));
             if (passphrase == null) throw new ArgumentNullException(nameof(passphrase));
@@ -325,7 +343,7 @@ namespace ThinNeo
                 throw new FormatException();
             byte[] addresshash = new byte[4];
             Buffer.BlockCopy(data, 3, addresshash, 0, 4);
-            byte[] derivedkey = SCrypt.DeriveKey(Encoding.UTF8.GetBytes(passphrase), addresshash, 16384, 8, 8, 64);
+            byte[] derivedkey = SCrypt.DeriveKey(Encoding.UTF8.GetBytes(passphrase), addresshash, N, r, p, 64);
             byte[] derivedhalf1 = derivedkey.Take(32).ToArray();
             byte[] derivedhalf2 = derivedkey.Skip(32).ToArray();
             byte[] encryptedkey = new byte[32];
@@ -335,7 +353,7 @@ namespace ThinNeo
             var address = GetAddressFromPublicKey(pubkey);
             var hash = Sha256(Encoding.ASCII.GetBytes(address));
             hash = Sha256(hash);
-            for (var i=0;i<4;i++)
+            for (var i = 0; i < 4; i++)
             {
                 if (hash[i] != addresshash[i])
                     throw new Exception("check error.");

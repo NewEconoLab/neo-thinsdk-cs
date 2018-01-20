@@ -14,6 +14,10 @@ namespace ThinNeo.NEP6
             this.nep2key = nep2key;
         }
 
+        public override string ToString()
+        {
+            return ThinNeo.Helper.GetAddressFromScriptHash(this.ScriptHash)+" "+((this.nep2key!=null)?"[have key]":"[no key]");
+        }
 
 
         public static NEP6Account FromJson(MyJson.JsonNode_Object json, NEP6Wallet wallet)
@@ -32,10 +36,10 @@ namespace ThinNeo.NEP6
         }
 
 
-        public byte[] GetPrivate(string password)
+        public byte[] GetPrivate(ThinNeo.NEP6.ScryptParameters sp, string password)
         {
             if (nep2key == null) return null;
-            return Helper.GetPrivateKeyFromNEP2(nep2key, password);
+            return Helper.GetPrivateKeyFromNEP2(nep2key, password, sp.N, sp.R, sp.P);
         }
 
         public MyJson.JsonNode_Object ToJson()

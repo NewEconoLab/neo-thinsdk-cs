@@ -1,0 +1,48 @@
+﻿<Page x:Class="thinWallet.Page_FuncTest_Wallet"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:thinWallet"
+      mc:Ignorable="d" 
+      d:DesignHeight="346.025" d:DesignWidth="617.803"
+      Title="Page_FuncTest1">
+    <Grid>
+        <TabControl>
+            <TabItem Header="Prikey->Nep2">
+                <Grid Background="#FFE5E5E5">
+
+                    <TextBox x:Name="tonep2_textWif" HorizontalAlignment="Left" Height="23" Margin="142,49,0,0" TextWrapping="Wrap" Text="L2CmHCqgeNHL1i9XFhTLzUXsdr5LGjag4d56YY98FqEi4j5d83Mv" VerticalAlignment="Top" Width="396" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="tonep2_textPass" HorizontalAlignment="Left" Height="23" Margin="244,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="143"/>
+                    <ListBox x:Name="tonep2_listWifOut" HorizontalAlignment="Left" Height="141" Margin="142,147,0,0" VerticalAlignment="Top" Width="396"/>
+                    <Button Content="->nep2" HorizontalAlignment="Left" Margin="142,109,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_5"/>
+                    <Label Content="type a WIF below" HorizontalAlignment="Left" Margin="142,18,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                    <Label Content="password" HorizontalAlignment="Left" Margin="142,77,0,0" VerticalAlignment="Top"/>
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="Nep2->Prikey">
+                <Grid Background="#FFE5E5E5">
+
+                    <TextBox x:Name="fromnep2_textNep2" HorizontalAlignment="Left" Height="23" Margin="142,49,0,0" TextWrapping="Wrap" Text="6PYT8kA52Q1AAsdAk8bPB7irFrKfAt33f9us5YgP4BMqhpmXDEmzmEurK4" VerticalAlignment="Top" Width="396" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="fromnep2_textPass" HorizontalAlignment="Left" Height="23" Margin="244,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="143"/>
+                    <ListBox x:Name="fromnep2_listOut" HorizontalAlignment="Left" Height="141" Margin="142,147,0,0" VerticalAlignment="Top" Width="396"/>
+                    <Button Content="->prikey" HorizontalAlignment="Left" Margin="142,109,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_6"/>
+                    <Label Content="type a Nep2 below" HorizontalAlignment="Left" Margin="142,18,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+                    <Label Content="password" HorizontalAlignment="Left" Margin="142,77,0,0" VerticalAlignment="Top"/>
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="Load Nep6 File">
+                <Grid Background="#FFE5E5E5">
+
+                    <ListBox x:Name="nep6_listOut" HorizontalAlignment="Left" Height="141" Margin="142,35,0,0" VerticalAlignment="Top" Width="396"/>
+                    <Button Content="load" HorizontalAlignment="Left" Margin="142,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+                    <Button Content="得到私钥" HorizontalAlignment="Left" Margin="142,181,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
+                    <Label x:Name="labelPri" Content="Label" HorizontalAlignment="Left" Margin="142,206,0,0" VerticalAlignment="Top" Width="396"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Page>
