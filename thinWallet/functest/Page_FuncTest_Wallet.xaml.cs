@@ -98,12 +98,12 @@ namespace thinWallet
                 return;
             if (acc.nep2key == null)
                 return;
-            Dialog_Input_password dlg = new Dialog_Input_password();
-            if (dlg.ShowDialog() == true)
+            var pass = Dialog_Input_password.ShowDialog(null);
+            if (pass != null)
             {
                 try
                 {
-                    var prikey = acc.GetPrivate(nep6wallet.scrypt, dlg.password);
+                    var prikey = acc.GetPrivate(nep6wallet.scrypt, pass);
                     labelPri.Content = ThinNeo.Helper.GetWifFromPrivateKey(prikey);
                 }
                 catch

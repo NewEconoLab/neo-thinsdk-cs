@@ -1,0 +1,64 @@
+﻿<Window x:Class="thinWallet.Window_thinwallet"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:thinWallet"
+        mc:Ignorable="d"
+        Title="Window_thinwallet" Height="475.555" Width="854.444" Foreground="White" Background="Black" WindowStartupLocation="CenterOwner" FontSize="15">
+    <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="back1.jpg" Stretch="UniformToFill"/>
+        </Grid.Background>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25*"/>
+            <ColumnDefinition Width="25*"/>
+            <ColumnDefinition Width="50*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="140"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <GroupBox Header="Key Information" Grid.ColumnSpan="2" Background="#3F00FF00" FontSize="15" >
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25*"/>
+                    <RowDefinition Height="25*"/>
+                    <RowDefinition Height="25*"/>
+                    <RowDefinition Height="25*"/>
+                </Grid.RowDefinitions>
+                <TextBlock  x:Name="labelAccount" Text="no key" Foreground="White" FontSize="15"></TextBlock>
+                <Button Content="用WIF导入Key(Import key from WIF String)" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" Click="Button_Click" FontSize="15"/>
+                <Button Content="用NEP2导入Key(Import key from Nep2 String)" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" Click="Button_Click_1" FontSize="15"/>
+                <Button Content="用NEP6钱包导入Key(Import key from Nep6 String)" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" FontSize="15" />
+            </Grid>
+        </GroupBox >
+        <GroupBox Header="ServerInfo"  Grid.Column="2" Grid.ColumnSpan="2" Background="#3F8B05E8" FontSize="15">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25*"/>
+                    <RowDefinition Height="25*"/>
+                    <RowDefinition Height="25*"/>
+                    <RowDefinition Height="25*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="API for UTXO(testnet)" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"  Foreground="White" FontSize="15"/>
+                <TextBlock Text="http://47.96.168.8:81/api/testnet" Grid.Row="1" HorizontalAlignment="Left" Margin="36,0,0,0" VerticalAlignment="Top" Foreground="White" FontSize="15"/>
+                <TextBlock Text="RPC Node(testnet)" Grid.Row="2" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.213,-0.261" Foreground="White" FontSize="15"/>
+                <TextBlock Text="http://47.96.168.8:20332" Grid.Row="3"  HorizontalAlignment="Left" Margin="36,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.213,-0.261" Foreground="White" FontSize="15"/>
+
+
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="账户基本情况" Grid.ColumnSpan="1" Grid.Row="1" Background="#3F0000FF" FontSize="15" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20*"/>
+                    <RowDefinition Height="173*"/>
+                </Grid.RowDefinitions>
+                <Button Content="增加关注的nep5资产"></Button>
+                <TreeView Grid.Row="1" Background="#7FFFFFFF"></TreeView>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</Window>

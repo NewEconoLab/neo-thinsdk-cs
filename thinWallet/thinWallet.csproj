@@ -55,7 +55,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Dialog Input password.xaml.cs">
+    <Compile Include="dialog\Dialog Input_Nep2.xaml.cs">
+      <DependentUpon>Dialog Input_Nep2.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialog\Dialog Input.xaml.cs">
+      <DependentUpon>Dialog Input.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialog\Dialog Input password.xaml.cs">
       <DependentUpon>Dialog Input password.xaml</DependentUpon>
     </Compile>
     <Compile Include="functest\Page_FuncTest_Wallet.xaml.cs">
@@ -64,10 +70,21 @@
     <Compile Include="functest\Page_FuncTest_Crypt.xaml.cs">
       <DependentUpon>Page_FuncTest_Crypt.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Window_funcTest.xaml.cs">
+    <Compile Include="functest\Window_funcTest.xaml.cs">
       <DependentUpon>Window_funcTest.xaml</DependentUpon>
     </Compile>
-    <Page Include="Dialog Input password.xaml">
+    <Compile Include="thinwallet\Window_thinwallet.xaml.cs">
+      <DependentUpon>Window_thinwallet.xaml</DependentUpon>
+    </Compile>
+    <Page Include="dialog\Dialog Input_Nep2.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialog\Dialog Input.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialog\Dialog Input password.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -91,7 +108,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Window_funcTest.xaml">
+    <Page Include="functest\Window_funcTest.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="thinwallet\Window_thinwallet.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -121,13 +142,16 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="thinwallet\" />
+    <Resource Include="thinwallet\back1.jpg" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\thinSDK\thinSDK.csproj">
       <Project>{9abeef32-2bfc-4d02-bae0-4073f44afebf}</Project>
       <Name>thinSDK</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="thinwallet\back2.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

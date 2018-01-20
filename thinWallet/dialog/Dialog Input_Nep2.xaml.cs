@@ -17,22 +17,40 @@ namespace thinWallet
     /// <summary>
     /// Dialog_Input_password.xaml 的交互逻辑
     /// </summary>
-    public partial class Dialog_Input_password : Window
+    public partial class Dialog_Input_Nep2 : Window
     {
-        public Dialog_Input_password()
+        public Dialog_Input_Nep2()
         {
             InitializeComponent();
         }
-        public string password;
+
+        public byte[] prikey = null;
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            password = this.pbox.Password;
-            this.DialogResult = true;
+            try
+            {
+                prikey = ThinNeo.Helper.GetPrivateKeyFromNEP2(this.tbox.Text, this.pbox.Password);
+                this.DialogResult = true;
+            }
+            catch
+            {
+                this.DialogResult = false;
+            }
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             this.DialogResult = false;
+        }
+        public static byte[] ShowDialog(Window owner)
+        {
+            var d = new Dialog_Input_Nep2();
+            d.Owner = owner;
+            if (d.ShowDialog() == true)
+            {
+                return d.prikey;
+            }
+            return null;
         }
     }
 }

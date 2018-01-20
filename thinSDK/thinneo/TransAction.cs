@@ -180,7 +180,7 @@ namespace ThinNeo
             var slen = Transaction.readVarInt(reader);
             script = new byte[slen];
             reader.Read(script, 0, (int)slen);
-            if(trans.version>=1)
+            if (trans.version >= 1)
             {
                 var bs = new byte[8];
                 reader.Read(bs, 0, 8);
@@ -220,9 +220,9 @@ namespace ThinNeo
                 //ContractTransaction 就是最常见的转账交易
                 //他没有自己的独特处理
             }
-            else if(type== TransactionType.InvocationTransaction)
+            else if (type == TransactionType.InvocationTransaction)
             {
-                extdata.Serialize(this,writer);
+                extdata.Serialize(this, writer);
             }
             else
             {
@@ -359,7 +359,7 @@ namespace ThinNeo
             }
             if (extdata != null)
             {
-                extdata.Deserialize(this,ms);
+                extdata.Deserialize(this, ms);
             }
             //attributes
             var countAttributes = readVarInt(ms);
@@ -499,21 +499,41 @@ namespace ThinNeo
             return value;
         }
 
+        //增加个人账户见证人（就是用这个人的私钥对交易签个名，signdata传进来）
         public void AddWitness(byte[] signdata, byte[] pubkey, string addrs)
         {
-            byte[] msg = null;
-            using (var ms = new System.IO.MemoryStream())
-            {
-                SerializeUnsigned(ms);
-                msg = ms.ToArray();
+            {//额外的验证
+                byte[] msg = null;
+                using (var ms = new System.IO.MemoryStream())
+                {
+                    SerializeUnsigned(ms);
+                    msg = ms.ToArray();
+                }
+                bool bsign = ThinNeo.Helper.VerifySignature(msg, signdata, pubkey);
+                if (bsign == false)
+                    throw new Exception("wrong sign");
+
+                var addr = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+                if (addr != addrs)
+                    throw new Exception("wrong script");
             }
-            bool bsign = ThinNeo.Helper.VerifySignature(msg, signdata, pubkey);
-            if (bsign == false)
-                throw new Exception("wrong sign");
-            var hash = ThinNeo.Helper.GetScriptFromPublicKey(pubkey);
-            var addr = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
-            if (addr != addrs)
-                throw new Exception("wrong script");
+
+            var vscript = ThinNeo.Helper.GetScriptFromPublicKey(pubkey);
+
+            //iscript 对个人账户见证人他是一条pushbytes 指令
+
+            var sb = new Neo.ScriptBuilder();
+            sb.EmitPushBytes(signdata);
+
+            var iscript = sb.ToArray();
+
+            AddWitnessScript(vscript, iscript);
+        }
+
+        //增加智能合约见证人
+        public void AddWitnessScript(byte[] vscript, byte[] iscript)
+        {
+            var scripthash = ThinNeo.Helper.GetScriptHashFromScript(vscript);
             List<Witness> wit = null;
             if (witnesses == null)
             {
@@ -523,23 +543,32 @@ namespace ThinNeo
             {
                 wit = new List<Witness>(witnesses);
             }
+            Witness newwit = new Witness();
+            newwit.VerificationScript = vscript;
+            newwit.InvocationScript = iscript;
             foreach (var w in wit)
             {
-                if (w.Address == addr)
+                if (w.Address == newwit.Address)
                     throw new Exception("alread have this witness");
             }
-            Witness newwit = new Witness();
-            newwit.VerificationScript = new byte[pubkey.Length + 2];
-            newwit.VerificationScript[0] = (byte)pubkey.Length;
-            Array.Copy(pubkey, 0, newwit.VerificationScript, 1, pubkey.Length);
-            newwit.VerificationScript[newwit.VerificationScript.Length - 1] = 0xac;//checksig code
 
-            //make push signdata
-            newwit.InvocationScript = new byte[signdata.Length + 1];
-            newwit.InvocationScript[0] = (byte)signdata.Length;
-            Array.Copy(signdata, 0, newwit.InvocationScript, 1, signdata.Length);
             wit.Add(newwit);
             witnesses = wit.ToArray();
+
+        }
+
+        //TXID
+        public byte[] GetHash()
+        {
+            using (var ms = new System.IO.MemoryStream())
+            {
+                this.SerializeUnsigned(ms);
+
+                var data=ThinNeo.Helper.Sha256(ms.ToArray());
+                data = ThinNeo.Helper.Sha256(data);
+                return data;
+            }
+
         }
     }
 }

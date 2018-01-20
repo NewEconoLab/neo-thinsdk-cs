@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -9,38 +10,40 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace thinWallet
 {
     /// <summary>
-    /// MainWindow.xaml 的交互逻辑
+    /// Dialog_Input_password.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class Dialog_Input_password : Window
     {
-        public MainWindow()
+        public Dialog_Input_password()
         {
             InitializeComponent();
         }
-
+        public string password;
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            this.Hide();
-
-            Window_funcTest dlg = new Window_funcTest();
-            dlg.ShowDialog();
-            this.Show();
-
+            password = this.pbox.Password;
+            this.DialogResult = true;
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            this.Hide();
-            Window_thinwallet dlg = new Window_thinwallet();
-            dlg.Owner = this;
-            dlg.ShowDialog();
-            this.Show();
+            this.DialogResult = false;
+        }
+        public static string ShowDialog(Window owner)
+        {
+            var d = new Dialog_Input_password();
+            d.Owner = owner;
+
+            if (d.ShowDialog() == true)
+            {
+                return d.password;
+            }
+            return null;
         }
     }
 }
