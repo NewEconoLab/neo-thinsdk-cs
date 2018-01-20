@@ -45,7 +45,7 @@ namespace thinWallet
             }
         }
 
-        //导入WIF 
+        //import WIF 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             var wif = Dialog_Input.ShowDialog(this,"input WIF");
@@ -64,10 +64,21 @@ namespace thinWallet
             update_labelAccount();
         }
 
-        //导入Nep2
+        //import Nep2
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             var pkey = Dialog_Input_Nep2.ShowDialog(this);
+            if (pkey != null)
+            {
+                this.privatekey = pkey;
+            }
+            update_labelAccount();
+
+        }
+        //import nep6
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            var pkey = Dialog_Import_Nep6.ShowDialog(this);
             if (pkey != null)
             {
                 this.privatekey = pkey;

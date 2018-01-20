@@ -55,6 +55,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="dialog\Dialog Import_Nep6.xaml.cs">
+      <DependentUpon>Dialog Import_Nep6.xaml</DependentUpon>
+    </Compile>
     <Compile Include="dialog\Dialog Input_Nep2.xaml.cs">
       <DependentUpon>Dialog Input_Nep2.xaml</DependentUpon>
     </Compile>
@@ -76,6 +79,10 @@
     <Compile Include="thinwallet\Window_thinwallet.xaml.cs">
       <DependentUpon>Window_thinwallet.xaml</DependentUpon>
     </Compile>
+    <Page Include="dialog\Dialog Import_Nep6.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="dialog\Dialog Input_Nep2.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

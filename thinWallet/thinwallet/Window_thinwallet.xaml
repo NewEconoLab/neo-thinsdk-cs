@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:thinWallet"
         mc:Ignorable="d"
-        Title="Window_thinwallet" Height="475.555" Width="854.444" Foreground="White" Background="Black" WindowStartupLocation="CenterOwner" FontSize="15">
+        Title="Window_thinwallet" Height="600" Width="1280" Foreground="White" Background="Black" WindowStartupLocation="CenterOwner" FontSize="15">
     <Grid>
         <Grid.Background>
             <ImageBrush ImageSource="back1.jpg" Stretch="UniformToFill"/>
@@ -31,7 +31,7 @@
                 <TextBlock  x:Name="labelAccount" Text="no key" Foreground="White" FontSize="15"></TextBlock>
                 <Button Content="用WIF导入Key(Import key from WIF String)" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" Click="Button_Click" FontSize="15"/>
                 <Button Content="用NEP2导入Key(Import key from Nep2 String)" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" Click="Button_Click_1" FontSize="15"/>
-                <Button Content="用NEP6钱包导入Key(Import key from Nep6 String)" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" FontSize="15" />
+                <Button Content="用NEP6钱包导入Key(Import key from Nep6 String)" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" FontSize="15" Click="Button_Click_2" />
             </Grid>
         </GroupBox >
         <GroupBox Header="ServerInfo"  Grid.Column="2" Grid.ColumnSpan="2" Background="#3F8B05E8" FontSize="15">
