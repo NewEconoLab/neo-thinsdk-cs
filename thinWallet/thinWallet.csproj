@@ -38,6 +38,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -55,6 +56,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="dialog\Dialog_wait.xaml.cs">
+      <DependentUpon>Dialog_wait.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialog\Dialog_Script_Make.xaml.cs">
+      <DependentUpon>Dialog_Script_Make.xaml</DependentUpon>
+    </Compile>
     <Compile Include="dialog\Dialog Import_Nep6.xaml.cs">
       <DependentUpon>Dialog Import_Nep6.xaml</DependentUpon>
     </Compile>
@@ -76,9 +83,20 @@
     <Compile Include="functest\Window_funcTest.xaml.cs">
       <DependentUpon>Window_funcTest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="www\www.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="thinwallet\Window_thinwallet.xaml.cs">
       <DependentUpon>Window_thinwallet.xaml</DependentUpon>
     </Compile>
+    <Page Include="dialog\Dialog_wait.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialog\Dialog_Script_Make.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="dialog\Dialog Import_Nep6.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -159,6 +177,21 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="thinwallet\back2.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="thinwallet\logo01.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="thinwallet\logo02.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="thinwallet\logo04.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="thinwallet\btn1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="thinwallet\back3.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

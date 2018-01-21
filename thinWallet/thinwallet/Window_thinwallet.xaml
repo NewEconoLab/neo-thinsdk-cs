@@ -5,21 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:thinWallet"
         mc:Ignorable="d"
-        Title="Window_thinwallet" Height="600" Width="1280" Foreground="White" Background="Black" WindowStartupLocation="CenterOwner" FontSize="15">
+        Title="Window_thinwallet" Height="700" Width="1280" Foreground="White" Background="Black" WindowStartupLocation="CenterOwner" FontSize="15" Loaded="Window_Loaded">
     <Grid>
         <Grid.Background>
             <ImageBrush ImageSource="back1.jpg" Stretch="UniformToFill"/>
         </Grid.Background>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="25*"/>
-            <ColumnDefinition Width="25*"/>
-            <ColumnDefinition Width="50*"/>
+            <ColumnDefinition Width="443*"/>
+            <ColumnDefinition Width="193*"/>
+            <ColumnDefinition Width="636*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="140"/>
+            <RowDefinition Height="150"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <GroupBox Header="Key Information" Grid.ColumnSpan="2" Background="#3F00FF00" FontSize="15" >
+        <GroupBox Header="Key Information" Grid.ColumnSpan="2" Background="#3F00FF00" FontSize="15" Margin="2" >
             <Grid>
 
                 <Grid.RowDefinitions>
@@ -34,23 +34,36 @@
                 <Button Content="用NEP6钱包导入Key(Import key from Nep6 String)" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" FontSize="15" Click="Button_Click_2" />
             </Grid>
         </GroupBox >
-        <GroupBox Header="ServerInfo"  Grid.Column="2" Grid.ColumnSpan="2" Background="#3F8B05E8" FontSize="15">
+        <GroupBox Header="ServerInfo"  Grid.Column="2" Background="#3F8B05E8" FontSize="15" Margin="2">
             <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="68"/>
+                    <ColumnDefinition Width="313*"/>
+                    <ColumnDefinition Width="120"/>
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="25*"/>
                     <RowDefinition Height="25*"/>
                     <RowDefinition Height="25*"/>
                     <RowDefinition Height="25*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="API for UTXO(testnet)" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"  Foreground="White" FontSize="15"/>
-                <TextBlock Text="http://47.96.168.8:81/api/testnet" Grid.Row="1" HorizontalAlignment="Left" Margin="36,0,0,0" VerticalAlignment="Top" Foreground="White" FontSize="15"/>
-                <TextBlock Text="RPC Node(testnet)" Grid.Row="2" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.213,-0.261" Foreground="White" FontSize="15"/>
-                <TextBlock Text="http://47.96.168.8:20332" Grid.Row="3"  HorizontalAlignment="Left" Margin="36,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.213,-0.261" Foreground="White" FontSize="15"/>
-
-
+                <TextBlock Text="API for UTXO(testnet)" Grid.Column="2" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"  Foreground="White" FontSize="15"/>
+                <TextBlock x:Name="labelApi" Text="http://47.96.168.8:81/api/testnet"  Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" Margin="36,0,0,0" VerticalAlignment="Top" Foreground="White" FontSize="15"/>
+                <TextBlock Text="RPC Node(testnet)" Grid.Row="2"  Grid.Column="2" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.213,-0.261" Foreground="White" FontSize="15"/>
+                <TextBlock x:Name="labelRPC" Text="http://47.96.168.8:20332" Grid.Row="3"   Grid.Column="2" HorizontalAlignment="Left" Margin="36,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.213,-0.261" Foreground="White" FontSize="15"/>
+                <Image Grid.Column="1" Grid.Row="0"  Grid.RowSpan="2"  Source="logo02.png" Margin="2" />
+                <Image Grid.Column="1" Grid.Row="2"  Grid.RowSpan="2" Source="logo04.png" Margin="2" />
+                <Button Grid.Row="1" Grid.RowSpan="2" Click="Button_Click_3">
+                    <Image Source="btn1.png"></Image>
+                </Button>
+                <TextBlock Text="ChangeNet"></TextBlock>
+                <TextBlock Text="切换网络" Grid.Row="3"></TextBlock>
+                <TextBlock x:Name="stateAPI" Text="State" Grid.Column="3" Grid.RowSpan="2"></TextBlock>
+                <TextBlock x:Name="stateRPC" Text="State" Grid.Column="3" Grid.Row="2" Grid.RowSpan="2"></TextBlock>
             </Grid>
         </GroupBox>
-        <GroupBox Header="账户基本情况" Grid.ColumnSpan="1" Grid.Row="1" Background="#3F0000FF" FontSize="15" >
+        <GroupBox Header="AccountInfo" Grid.ColumnSpan="1" Grid.Row="1" Background="#3F0000FF" FontSize="15" Margin="2" >
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="20*"/>
@@ -58,6 +71,57 @@
                 </Grid.RowDefinitions>
                 <Button Content="增加关注的nep5资产"></Button>
                 <TreeView Grid.Row="1" Background="#7FFFFFFF"></TreeView>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="MakeTransAction" Grid.Row="1" Grid.Column="1" BorderThickness="1" Margin="2" Grid.ColumnSpan="2" Background="#80CB5353" >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="189*"/>
+                    <ColumnDefinition Width="201*"/>
+                    <ColumnDefinition Width="206*"/>
+                    <ColumnDefinition Width="217*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="263*"/>
+                    <RowDefinition Height="126*"/>
+                </Grid.RowDefinitions>
+                <GroupBox Header="Inputs" BorderThickness="0" Background="#7F040404" Margin="1"/>
+                <GroupBox Header="Script" Grid.Column="1" Background="#7F000000" BorderThickness="0" Margin="1" Grid.ColumnSpan="2">
+                    <Grid>
+
+                        <TabControl Background="{x:Null}" BorderThickness="0">
+                            <TabItem Header="ContractTransaction">
+                                <TextBlock Text="ContractTransaction No need Script." Foreground="White"></TextBlock>
+                            </TabItem>
+                            <TabItem Header="InvocationTransaction">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="194*"/>
+                                        <ColumnDefinition Width="195*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="18"/>
+                                        <RowDefinition Height="68*"/>
+                                        <RowDefinition Height="24"/>
+                                        <RowDefinition Height="24"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="ScriptCode" Foreground="White" Grid.ColumnSpan="2" ></TextBlock>
+                                    <ListBox x:Name="listCode"  Background="{x:Null}" Grid.Row="1" Grid.RowSpan="1" Grid.ColumnSpan="2"></ListBox>
+                                    <Button Content="MakeScript" Grid.Row="2" Grid.Column="0" Margin="5,0" Click="Button_Click_4"></Button>
+                                    <Button Content="TestScript" Grid.Row="2" Grid.Column="1" Margin="5,0"></Button>
+                                    <TextBlock Text="Fee:" Grid.Row="3" Foreground="White"></TextBlock>
+                                    <TextBlock Text="TestState:" Grid.Column="1" Grid.Row="3" Foreground="White"></TextBlock>
+
+                                </Grid>
+
+                            </TabItem>
+
+                        </TabControl>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Outputs" Grid.Column="3" Background="#7E000000" BorderThickness="0" Margin="1"></GroupBox>
+                <GroupBox Header="Coins" Grid.Row="1" Background="#4405FF10" BorderThickness="0" Margin="1" Grid.ColumnSpan="2" ></GroupBox>
+                <GroupBox Header="Publish" Grid.Row="1" Grid.Column="2" Background="#4405FF10" BorderThickness="0" Margin="1" Grid.ColumnSpan="2" ></GroupBox>
             </Grid>
         </GroupBox>
     </Grid>

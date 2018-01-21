@@ -1,0 +1,21 @@
+﻿<Window x:Class="thinWallet.Dialog_Wait"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:thinWallet"
+        mc:Ignorable="d"
+        Title="Dialog_Wait" Height="216.667" Width="300" Background="Black" Foreground="White" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False" WindowStyle="None" Loaded="Window_Loaded">
+    <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="../thinwallet/back2.jpg" Stretch="UniformToFill"/>
+        </Grid.Background>
+        <GroupBox Header="wait" Background="#7F373C07" Margin="17,19,19,31" BorderBrush="{x:Null}" BorderThickness="0">
+            <Grid>
+                <Label x:Name="waitfor" Content="waitfor" HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top" Foreground="White"/>
+                <Label x:Name="waittime" Content="waittime" HorizontalAlignment="Left" Margin="10,72,0,0" VerticalAlignment="Top" Foreground="White"/>
+            </Grid>
+        </GroupBox>
+
+    </Grid>
+</Window>
