@@ -80,85 +80,105 @@
                 <TreeView x:Name="treeCoins" Grid.Row="1" Background="#7FFFFFFF" Grid.ColumnSpan="3" MouseMove="treeCoins_MouseMove"></TreeView>
             </Grid>
         </GroupBox>
-        <GroupBox Header="MakeTransAction" Grid.Row="1" Grid.Column="1" BorderThickness="1" Margin="2" Grid.ColumnSpan="2" Background="#80CB5353" >
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="189*"/>
-                    <ColumnDefinition Width="201*"/>
-                    <ColumnDefinition Width="206*"/>
-                    <ColumnDefinition Width="217*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="186*"/>
-                    <RowDefinition Height="145*"/>
-                    <RowDefinition Height="158*"/>
-                </Grid.RowDefinitions>
-                <GroupBox Header="Inputs" BorderThickness="0" Background="#7F040404" Margin="1" Grid.RowSpan="1">
+        <GroupBox Header="Main Panel" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="#3F8F6565" Margin="2" Foreground="White">
+            <TabControl Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="{x:Null}" Margin="2" Foreground="White">
+                <TabItem Header="Make Tansaction">
+                    <TabItem.Background>
+                        <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+                            <GradientStop Color="#FFF0F0F0" Offset="0"/>
+                            <GradientStop Color="#FFE5E5E5" Offset="1"/>
+                        </LinearGradientBrush>
+                    </TabItem.Background>
 
-                    <ListBox x:Name="listInput" Background="{x:Null}" AllowDrop="True" DragOver="ListBox_DragOver" Drop="ListBox_Drop" Foreground="White" Grid.RowSpan="1">
-                        <ListBox.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Name="delete" Header="Delete select Input" Click="delete_Click"/>
-                            </ContextMenu>
-                        </ListBox.ContextMenu>
-                    </ListBox>
-
-                </GroupBox>
-                <GroupBox Header="Total Spend" Grid.Row="1" BorderThickness="0" Background="#7F040404" Margin="1" >
-                    <ListBox x:Name="listSpend" Background="{x:Null}" AllowDrop="True" DragOver="ListBox_DragOver" Drop="ListBox_Drop" Foreground="White" Grid.Row="2" Grid.RowSpan="1">
-                    </ListBox>
-                </GroupBox>
-                <GroupBox Header="Script" Grid.Column="1" Background="#7F000000" BorderThickness="0" Margin="1" Grid.ColumnSpan="2" Grid.RowSpan="2">
                     <Grid>
-
-                        <TabControl Background="{x:Null}" BorderThickness="0">
-                            <TabItem Header="ContractTransaction">
-                                <TextBlock Text="ContractTransaction No need Script." Foreground="White"></TextBlock>
-                            </TabItem>
-                            <TabItem Header="InvocationTransaction">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="194*"/>
-                                        <ColumnDefinition Width="195*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="18"/>
-                                        <RowDefinition Height="68*"/>
-                                        <RowDefinition Height="24"/>
-                                        <RowDefinition Height="24"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="ScriptCode" Foreground="White" Grid.ColumnSpan="2" ></TextBlock>
-                                    <ListBox x:Name="listCode"  Background="{x:Null}" Grid.Row="1" Grid.RowSpan="1" Grid.ColumnSpan="2"></ListBox>
-                                    <Button Content="MakeScript" Grid.Row="2" Grid.Column="0" Margin="5,0" Click="Button_Click_4"></Button>
-                                    <Button Content="TestScript" Grid.Row="2" Grid.Column="1" Margin="5,0"></Button>
-                                    <TextBlock Text="Fee:" Grid.Row="3" Foreground="White"></TextBlock>
-                                    <TextBlock Text="TestState:" Grid.Column="1" Grid.Row="3" Foreground="White"></TextBlock>
-
-                                </Grid>
-
-                            </TabItem>
-
-                        </TabControl>
-                    </Grid>
-                </GroupBox>
-                <GroupBox Header="Outputs" Grid.Column="3" Background="#7E000000" BorderThickness="0" Margin="1" Grid.RowSpan="1">
-                    <ListBox x:Name="listOutput" Background="{x:Null}" AllowDrop="True" DragOver="ListBox_DragOver" Drop="ListBox_Drop" Foreground="White" Grid.Row="2" Grid.RowSpan="1">
-                    </ListBox>
-                </GroupBox>
-                <GroupBox Header="Publish" Grid.Column="3" Background="#7EFFFFFF" BorderThickness="0" Margin="1" Grid.Row="1"  Grid.RowSpan="1">
-                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="419*"/>
+                            <ColumnDefinition Width="281*"/>
+                            <ColumnDefinition Width="113*"/>
+                        </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="28"/>
-                            <RowDefinition Height="28"/>
-                            <RowDefinition Height="68*"/>
+                            <RowDefinition Height="162*"/>
+                            <RowDefinition Height="154*"/>
+                            <RowDefinition Height="81*"/>
+                            <RowDefinition Height="56"/>
+
                         </Grid.RowDefinitions>
-                        <Button Content="Sign and Broadcast" Grid.RowSpan="1" Margin="2"></Button>
-                        <Button Content="See Detail" Grid.Row="1" Grid.RowSpan="1" Margin="2"></Button>
+                        <GroupBox Header="Inputs" BorderThickness="0" Background="#7F040404" Margin="1" Grid.RowSpan="1" Foreground="White">
+
+                            <ListBox x:Name="listInput" Background="{x:Null}" AllowDrop="True" DragOver="ListBox_DragOver" Drop="ListBox_Drop" Foreground="White" Grid.RowSpan="1">
+                                <ListBox.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Delete select Input" Click="delete_Click"/>
+                                        <MenuItem Header="Add Utxo From SmartContract" Click="MenuItem_Click_2"/>
+                                    </ContextMenu>
+                                </ListBox.ContextMenu>
+                            </ListBox>
+
+                        </GroupBox>
+
+                        <GroupBox Header="Script" Grid.Column="1" Grid.ColumnSpan="2" Background="#7F000000" BorderThickness="0" Margin="1" Grid.RowSpan="3" Foreground="White">
+                            <Grid>
+
+                                <TabControl Background="{x:Null}" BorderThickness="0">
+                                    <TabItem Header="ContractTransaction">
+                                        <TextBlock Text="ContractTransaction No need Script." Foreground="White"></TextBlock>
+                                    </TabItem>
+                                    <TabItem Header="InvocationTransaction">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="194*"/>
+                                                <ColumnDefinition Width="195*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="18"/>
+                                                <RowDefinition Height="68*"/>
+                                                <RowDefinition Height="24"/>
+                                                <RowDefinition Height="24"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="ScriptCode" Foreground="White" Grid.ColumnSpan="2" ></TextBlock>
+                                            <ListBox x:Name="listCode"  Background="{x:Null}" Grid.Row="1" Grid.RowSpan="1" Grid.ColumnSpan="2" Foreground="White"></ListBox>
+                                            <Button Content="MakeScript" Grid.Row="2" Grid.Column="0" Margin="5,0" Click="Button_Click_4"></Button>
+                                            <Button Content="TestScript" Grid.Row="2" Grid.Column="1" Margin="5,0"></Button>
+                                            <TextBlock Text="Fee:" Grid.Row="3" Foreground="White"></TextBlock>
+                                            <TextBlock Text="TestState:" Grid.Column="1" Grid.Row="3" Foreground="White"></TextBlock>
+
+                                        </Grid>
+
+                                    </TabItem>
+
+                                </TabControl>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="Outputs" Grid.Column="0" Grid.Row="1" Background="#7E000000" BorderThickness="0" Margin="1" Grid.RowSpan="1" Foreground="White">
+                            <ListBox x:Name="listOutput" Background="{x:Null}" AllowDrop="True" DragOver="ListBox_DragOver" Drop="ListBox_Drop" Foreground="White" Grid.Row="2" Grid.RowSpan="1">
+                                <ListBox.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Delete select output" Click="MenuItem_Click"/>
+                                        <MenuItem Header="Add output" Click="MenuItem_Click_1" />
+                                    </ContextMenu>
+                                </ListBox.ContextMenu>
+                            </ListBox>
+                        </GroupBox>
+                        <GroupBox Header="Witness" Grid.Column="0" Grid.Row="2" Background="#7E000000" BorderThickness="0" Margin="1" Grid.RowSpan="2" Foreground="White">
+                            <ListBox x:Name="listWitness" Background="{x:Null}" AllowDrop="True" DragOver="ListBox_DragOver" Drop="ListBox_Drop" Foreground="White" Grid.Row="2" Grid.RowSpan="1">
+                            </ListBox>
+                        </GroupBox>
+                        <GroupBox Header="Publish" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="0" Margin="1" Grid.Row="3"  Grid.RowSpan="1" Background="#7E000000" Foreground="White">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="173*"/>
+                                    <ColumnDefinition Width="133*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Content="Sign and Broadcast" Grid.RowSpan="1" Margin="2" Grid.ColumnSpan="1"></Button>
+                                <Button Content="See Detail" Grid.Column="1" Grid.RowSpan="1" Margin="2" Grid.ColumnSpan="1"></Button>
+                            </Grid>
+                        </GroupBox>
                     </Grid>
-                </GroupBox>
-                <GroupBox Header="Coins" Grid.Row="2" Background="#4405FF10" BorderThickness="0" Margin="1" Grid.ColumnSpan="2" ></GroupBox>
-                <GroupBox Header="Publish" Grid.Row="2" Grid.Column="2" Background="#4405FF10" BorderThickness="0" Margin="1"  Grid.ColumnSpan="2" ></GroupBox>
-            </Grid>
+
+                </TabItem>
+                <TabItem  Header="Transaction list"></TabItem>
+                <TabItem Header="DApp Function"></TabItem>
+            </TabControl>
         </GroupBox>
     </Grid>
 </Window>

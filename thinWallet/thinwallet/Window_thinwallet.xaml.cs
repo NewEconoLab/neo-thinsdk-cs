@@ -337,23 +337,196 @@ namespace thinWallet
         private void ListBox_Drop(object sender, DragEventArgs e)
         {
             Tools.UTXOCoin coin = e.Data.GetData(typeof(Tools.UTXOCoin)) as Tools.UTXOCoin;
-            foreach (Tools.UTXOCoin itemcoin in listInput.Items)
+            foreach (Tools.Input itemcoin in listInput.Items)
             {
-                if (itemcoin.fromID == coin.fromID && itemcoin.fromN == coin.fromN)
+                if (itemcoin.Coin.fromID == coin.fromID && itemcoin.Coin.fromN == coin.fromN)
                 {
                     MessageBox.Show("already have this input.");
                     return;
                 }
             }
-            listInput.Items.Add(coin.Clone());
+            var input = new Tools.Input();
+            input.Coin = coin.Clone();
+            var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
+            input.From = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+            input.IsSmartContract = false;
+            listInput.Items.Add(input);
+            updateOutput();
         }
 
         private void delete_Click(object sender, RoutedEventArgs e)
         {
-            Tools.UTXOCoin coin = listInput.SelectedItem as Tools.UTXOCoin;
+            Tools.Input coin = listInput.SelectedItem as Tools.Input;
             if (coin == null)
                 return;
             listInput.Items.Remove(coin);
+            updateOutput();
+        }
+        void _updateOutput()
+        {
+            Dictionary<string, Dictionary<string, decimal>> incoins = new Dictionary<string, Dictionary<string, decimal>>();
+            Dictionary<string, bool> witnesses = new Dictionary<string, bool>();
+            foreach (Tools.Input input in listInput.Items)
+            {
+                if (incoins.ContainsKey(input.From) == false)
+                {
+                    incoins[input.From] = new Dictionary<string, decimal>();
+                }
+                witnesses[input.From] = input.IsSmartContract;
+
+                var incoin = incoins[input.From];
+                if (incoin.ContainsKey(input.Coin.assetID) == false)
+                    incoin[input.Coin.assetID] = input.Coin.value;
+                else
+                    incoin[input.Coin.assetID] += input.Coin.value;
+            }
+
+            {//处理见证人
+                List<string> witness = new List<string>();
+                List<Tools.Witnees> needdelw = new List<Tools.Witnees>();
+
+                foreach (Tools.Witnees w in listWitness.Items)
+                {                        
+                    //无用鉴证人清除
+                    if (w.IsSmartContract == false && witnesses.ContainsKey(w.address) == false)
+                    {
+                        needdelw.Add(w);
+                    }
+                    else
+                    {
+                        witness.Add(w.address);
+                    }
+                }
+                foreach(var d in needdelw)
+                {
+                    listWitness.Items.Remove(d);
+                }
+
+                foreach(var f in witnesses.Keys)
+                {
+                    if(witness.Contains(f)==false)
+                    {
+                        Tools.Witnees wit = new Tools.Witnees();
+                        wit.IsSmartContract = witnesses[f];
+                        wit.address = f;
+                        wit.iscript = null;
+                        listWitness.Items.Add(wit);
+                    }
+                }
+            }
+            //去除无法完成的输出
+            List<Tools.Output> needdel = new List<Tools.Output>();
+            foreach (Tools.Output output in listOutput.Items)
+            {
+                bool bCon = false;
+                foreach (var incoin in incoins)
+                {
+                    if (incoin.Value.ContainsKey(output.assetID))
+                    {
+                        bCon = true;
+                        break;
+                    }
+                }
+                if (bCon == false)
+                    needdel.Add(output);
+            }
+            foreach (var del in needdel)
+            {
+                listOutput.Items.Remove(del);
+            }
+
+            //交换合约(utxo来自多个人)，不自动找零
+            if (incoins.Count > 1)
+            {
+                return;
+            }
+
+            //清除找零
+            needdel.Clear();
+            foreach (Tools.Output output in listOutput.Items)
+            {
+                if (output.isTheChange)
+                    needdel.Add(output);
+            }
+            foreach (var del in needdel)
+            {
+                listOutput.Items.Remove(del);
+            }
+
+
+            var moneys = incoins.First().Value;
+            foreach (var money in moneys)
+            {
+                decimal value = 0;
+                foreach (Tools.Output output in listOutput.Items)
+                {
+                    if (output.assetID == money.Key)
+                    {
+                        value += (decimal)output.Fix8 / (decimal)100000000.0;
+                    }
+                }
+                decimal last = money.Value - value;
+                if (last > 0)
+                {
+                    Tools.Output vout = new Tools.Output();
+                    vout.assetID = money.Key;
+                    vout.isTheChange = true;
+                    vout.Target = incoins.First().Key;
+                    vout.Fix8 = new System.Numerics.BigInteger(last * 100000000);
+                    listOutput.Items.Add(vout);
+                }
+                else if (last < 0)
+                {
+                    throw new Exception("too mush output money.");
+                }
+            }
+        }
+        void updateOutput()
+        {
+            try
+            {
+                listOutput.Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+                _updateOutput();
+            }
+            catch
+            {
+                listOutput.Foreground = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+            }
+        }
+
+        //delete output
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Tools.Output output = listOutput.SelectedItem as Tools.Output;
+            if (output == null)
+                return;
+            if (output.isTheChange)
+                return;
+            listOutput.Items.Remove(output);
+            updateOutput();
+        }
+        //增加输出
+        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        {
+            List<string> assets = new List<string>();
+            //弹出输出对话框
+            foreach (Tools.Input i in this.listInput.Items)
+            {
+                if (assets.Contains(i.Coin.assetID) == false)
+                    assets.Add(i.Coin.assetID);
+            }
+            var output = Dialog_Transfer_Target.ShowDialog(this, assets.ToArray());
+            if (output != null)
+            {
+                listOutput.Items.Add(output);
+            }
+            updateOutput();
+
+        }
+
+        private void MenuItem_Click_2(object sender, RoutedEventArgs e)
+        {
+            //从智能合约添加输入，弹出对话框
         }
     }
 }

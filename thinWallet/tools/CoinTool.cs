@@ -128,11 +128,40 @@ namespace thinWallet.Tools
 
             }
         }
-        public void ParseNep5(MyJson.JsonNode_Object json)
-        {
 
+    }
+    public class Input
+    {
+        public UTXOCoin Coin;//币
+        public string From;//来源，需要这个人或者脚本做witness
+        public bool IsSmartContract;
+        public override string ToString()
+        {
+            return Coin.ToString();
         }
     }
+    public class Witnees
+    {
+        public string address;
+        public bool IsSmartContract;
+        public byte[] iscript;//如果是智能合约见证人，就需要独特的iscript
+        public override string ToString()
+        {
+            return (IsSmartContract?"(SmartContract)":"(AddSign)") + address;
+        }
+    }
+    public class Output
+    {
+        public bool isTheChange = false;//是否是找零
+        public string Target;//接收者
+        public string assetID;
+        public System.Numerics.BigInteger Fix8;//fix8 number
+        public override string ToString()
+        {
+            return (isTheChange ?  "(ChangeBack:": "(" ) + CoinTool.GetName(assetID) + ")" + (((decimal)Fix8) / (decimal)100000000.0).ToString() + " ==>" + Target;
+        }
+    }
+
 
     public class UTXOCoin
     {

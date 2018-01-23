@@ -59,6 +59,9 @@
     <Compile Include="dialog\Dialog Config_Nep5.xaml.cs">
       <DependentUpon>Dialog Config_Nep5.xaml</DependentUpon>
     </Compile>
+    <Compile Include="dialog\Dialog Transer_Taget.xaml.cs">
+      <DependentUpon>Dialog Transer_Taget.xaml</DependentUpon>
+    </Compile>
     <Compile Include="dialog\Dialog_wait.xaml.cs">
       <DependentUpon>Dialog_wait.xaml</DependentUpon>
     </Compile>
@@ -94,6 +97,10 @@
       <DependentUpon>Window_thinwallet.xaml</DependentUpon>
     </Compile>
     <Page Include="dialog\Dialog Config_Nep5.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialog\Dialog Transer_Taget.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
