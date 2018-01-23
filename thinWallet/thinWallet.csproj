@@ -86,8 +86,8 @@
     <Compile Include="functest\Window_funcTest.xaml.cs">
       <DependentUpon>Window_funcTest.xaml</DependentUpon>
     </Compile>
-    <Compile Include="www\CoinTool.cs" />
-    <Compile Include="www\www.cs">
+    <Compile Include="tools\CoinTool.cs" />
+    <Compile Include="tools\www.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="thinwallet\Window_thinwallet.xaml.cs">

@@ -314,5 +314,46 @@ namespace thinWallet
 
             Tools.CoinTool.Save();
         }
+
+        private void treeCoins_MouseMove(object sender, MouseEventArgs e)
+        {
+            TreeViewItem item = treeCoins.SelectedItem as TreeViewItem;
+            if (item == null)
+                return;
+            var coin = item.Tag as Tools.UTXOCoin;
+            if (coin == null)
+                return;
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                DragDrop.DoDragDrop(this, coin, DragDropEffects.Copy);
+            }
+        }
+
+        private void ListBox_DragOver(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void ListBox_Drop(object sender, DragEventArgs e)
+        {
+            Tools.UTXOCoin coin = e.Data.GetData(typeof(Tools.UTXOCoin)) as Tools.UTXOCoin;
+            foreach (Tools.UTXOCoin itemcoin in listInput.Items)
+            {
+                if (itemcoin.fromID == coin.fromID && itemcoin.fromN == coin.fromN)
+                {
+                    MessageBox.Show("already have this input.");
+                    return;
+                }
+            }
+            listInput.Items.Add(coin.Clone());
+        }
+
+        private void delete_Click(object sender, RoutedEventArgs e)
+        {
+            Tools.UTXOCoin coin = listInput.SelectedItem as Tools.UTXOCoin;
+            if (coin == null)
+                return;
+            listInput.Items.Remove(coin);
+        }
     }
 }

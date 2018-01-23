@@ -140,6 +140,19 @@ namespace thinWallet.Tools
         public int fromN;
         public string assetID;
         public decimal value;
+        public override string ToString()
+        {
+            return "(" + CoinTool.GetName(assetID) + ")" + value + " <==" + fromID.Substring(0, 6) + "...." + fromID.Substring(fromID.Length - 4) + "[" + fromN + "]";
+        }
+        public UTXOCoin Clone()
+        {
+            UTXOCoin coin = new UTXOCoin();
+            coin.fromID = this.fromID;
+            coin.fromN = this.fromN;
+            coin.assetID = this.assetID;
+            coin.value = this.value;
+            return coin;
+        }
     }
 
     public class CoinType

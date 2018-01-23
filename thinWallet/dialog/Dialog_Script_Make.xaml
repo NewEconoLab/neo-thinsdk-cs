@@ -49,7 +49,7 @@
             </Grid>
         </GroupBox>
         <GroupBox Header="AVM(Bin)" Margin="25,2,2,25" Background="#7F070B5D" BorderThickness="0" Grid.Row="1" Grid.ColumnSpan="1">
-            <TextBlock x:Name="asmBinText" Text="ASM"></TextBlock>
+            <TextBlock  x:Name="asmBinText" Text="ASM" xml:space="preserve" TextWrapping="Wrap" ></TextBlock>
         </GroupBox>
         <GroupBox Header="AVM(ASM)" Margin="2,2,25,25" Background="#7FD8D81E" BorderThickness="0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1">
             <ListBox x:Name="asmList" Background="{x:Null}"></ListBox>
