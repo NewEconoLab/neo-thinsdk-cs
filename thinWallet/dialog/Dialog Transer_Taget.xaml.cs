@@ -66,7 +66,7 @@ namespace thinWallet
                 var hash = ThinNeo.Helper.GetPublicKeyHashFromAddress(this.tboxAddr.Text);
                 this.output.assetID = (this.tokens.SelectedItem as Asset).assetid;
                 this.output.Target = ThinNeo.Helper.GetAddressFromScriptHash(hash);
-                this.output.Fix8 = new System.Numerics.BigInteger(decimal.Parse(tboxValue.Text) * (decimal)100000000.0);
+                this.output.Fix8 = decimal.Parse(tboxValue.Text) ;
                 if (this.output.Fix8 <= 0)
                     throw new Exception("must have a value greatthan zero.");
                 this.DialogResult = true;

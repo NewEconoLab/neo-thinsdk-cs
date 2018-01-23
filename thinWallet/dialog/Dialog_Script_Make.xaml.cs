@@ -46,7 +46,7 @@ namespace thinWallet
             }
             return null;
         }
-        MyJson.IJsonNode api_getScript(byte[] scripthash)
+        MyJson.IJsonNode rpc_getScript(byte[] scripthash)
         {
             System.Net.WebClient wc = new System.Net.WebClient();
             var url = this.rpcurl;
@@ -70,7 +70,7 @@ namespace thinWallet
             try
             {
                 var sh = ThinNeo.Helper.HexString2Bytes(textScriptHash.Text);
-                var json = api_getScript(sh);
+                var json = rpc_getScript(sh);
                 if (json == null)
                 {
                     info1.Text = "no script";

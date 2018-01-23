@@ -386,7 +386,7 @@ namespace thinWallet
                 List<Tools.Witnees> needdelw = new List<Tools.Witnees>();
 
                 foreach (Tools.Witnees w in listWitness.Items)
-                {                        
+                {
                     //无用鉴证人清除
                     if (w.IsSmartContract == false && witnesses.ContainsKey(w.address) == false)
                     {
@@ -397,14 +397,14 @@ namespace thinWallet
                         witness.Add(w.address);
                     }
                 }
-                foreach(var d in needdelw)
+                foreach (var d in needdelw)
                 {
                     listWitness.Items.Remove(d);
                 }
 
-                foreach(var f in witnesses.Keys)
+                foreach (var f in witnesses.Keys)
                 {
-                    if(witness.Contains(f)==false)
+                    if (witness.Contains(f) == false)
                     {
                         Tools.Witnees wit = new Tools.Witnees();
                         wit.IsSmartContract = witnesses[f];
@@ -462,7 +462,7 @@ namespace thinWallet
                 {
                     if (output.assetID == money.Key)
                     {
-                        value += (decimal)output.Fix8 / (decimal)100000000.0;
+                        value += (decimal)output.Fix8;
                     }
                 }
                 decimal last = money.Value - value;
@@ -472,7 +472,7 @@ namespace thinWallet
                     vout.assetID = money.Key;
                     vout.isTheChange = true;
                     vout.Target = incoins.First().Key;
-                    vout.Fix8 = new System.Numerics.BigInteger(last * 100000000);
+                    vout.Fix8 = last;
                     listOutput.Items.Add(vout);
                 }
                 else if (last < 0)
@@ -527,6 +527,107 @@ namespace thinWallet
         private void MenuItem_Click_2(object sender, RoutedEventArgs e)
         {
             //从智能合约添加输入，弹出对话框
+        }
+        byte[] rpc_getScript(byte[] scripthash)
+        {
+            System.Net.WebClient wc = new System.Net.WebClient();
+            var url = this.labelRPC.Text;
+            //url = "http://127.0.0.1:20332/";//本地测试
+
+            var sid = ThinNeo.Helper.Bytes2HexString(scripthash);
+            var str = WWW.MakeRpcUrl(url, "getcontractstate", new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(sid) });
+            var result = WWW.GetWithDialog(this, str);
+            if (result != null)
+            {
+
+                var json = MyJson.Parse(result);
+                if (json.AsDict().ContainsKey("error"))
+                    return null;
+                var script = json.AsDict()["result"].AsDict()["script"].AsString();
+                return ThinNeo.Helper.HexString2Bytes(script);
+            }
+            return null;
+        }
+        bool rpc_SendRaw(byte[] rawdata)
+        {
+            var sid = ThinNeo.Helper.Bytes2HexString(rawdata);
+
+            var url = this.labelRPC.Text;
+            var str = WWW.MakeRpcUrl(url, "sendrawtransaction", new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(sid) });
+            var result = WWW.GetWithDialog(this, str);
+            var json = MyJson.Parse(result);
+            if (json.AsDict().ContainsKey("error"))
+                return false;
+            return json.AsDict()["result"].AsBool();
+        }
+        private void Button_Click_7(object sender, RoutedEventArgs e)
+        {//sign and broadcast 
+            ThinNeo.Transaction trans = new ThinNeo.Transaction();
+            trans.attributes = new ThinNeo.Attribute[0];
+            if (tabCType.SelectedIndex == 0)
+                trans.type = ThinNeo.TransactionType.ContractTransaction;
+            else if (tabCType.SelectedIndex == 1)
+                trans.type = ThinNeo.TransactionType.InvocationTransaction;
+
+            trans.inputs = new ThinNeo.TransactionInput[this.listInput.Items.Count];
+            trans.outputs = new ThinNeo.TransactionOutput[this.listOutput.Items.Count];
+            trans.witnesses = new ThinNeo.Witness[this.listWitness.Items.Count];
+            for (var i = 0; i < listInput.Items.Count; i++)
+            {
+                var item = listInput.Items[i] as Tools.Input;
+                var input = new ThinNeo.TransactionInput();
+                input.index = (ushort)item.Coin.fromN;
+                input.hash = ThinNeo.Helper.HexString2Bytes(item.Coin.fromID).Reverse().ToArray();//反转
+                trans.inputs[i] = input;
+            }
+            for (var i = 0; i < listOutput.Items.Count; i++)
+            {
+                var item = listOutput.Items[i] as Tools.Output;
+                var output = new ThinNeo.TransactionOutput();
+                output.assetId = ThinNeo.Helper.HexString2Bytes(item.assetID).Reverse().ToArray();//反转
+                output.toAddress = ThinNeo.Helper.GetPublicKeyHashFromAddress(item.Target);
+                output.value = item.Fix8;
+                trans.outputs[i] = output;
+            }
+            for (var i = 0; i < listWitness.Items.Count; i++)
+            {
+                var item = listWitness.Items[i] as Tools.Witnees;
+                var witness = new ThinNeo.Witness();
+
+                if (item.IsSmartContract)
+                {
+                    if (item.iscript == null)
+                    {
+                        throw new Exception("a smartContract witness not set InvocationScript.");
+                    }
+                    var s = ThinNeo.Helper.GetPublicKeyHashFromAddress(item.address);
+                    witness.VerificationScript = rpc_getScript(s);
+                    witness.InvocationScript = item.iscript;
+                    return;
+                }
+                else //个人鉴证人
+                {
+                    var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
+                    var addr = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+                    if (item.address != addr)
+                    {
+                        MessageBox.Show("the key is no match with your witness.");
+                    }
+
+                    witness.VerificationScript = ThinNeo.Helper.GetScriptFromPublicKey(pubkey);
+
+                    var signdata = ThinNeo.Helper.Sign(trans.GetMessage(), this.privatekey);
+                    var sb = new Neo.ScriptBuilder();
+                    sb.EmitPushBytes(signdata);
+
+                    witness.InvocationScript = sb.ToArray();
+                }
+                trans.witnesses[i] = witness;
+
+            }
+
+            var rawdata = trans.GetRawData();
+            rpc_SendRaw(rawdata);
         }
     }
 }

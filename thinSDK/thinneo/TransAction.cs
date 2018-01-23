@@ -499,6 +499,26 @@ namespace ThinNeo
             return value;
         }
 
+        public byte[] GetMessage()
+        {
+            byte[] msg = null;
+            using (var ms = new System.IO.MemoryStream())
+            {
+                SerializeUnsigned(ms);
+                msg = ms.ToArray();
+            }
+            return msg;
+        }
+        public byte[] GetRawData()
+        {
+            byte[] msg = null;
+            using (var ms = new System.IO.MemoryStream())
+            {
+                Serialize(ms);
+                msg = ms.ToArray();
+            }
+            return msg;
+        }
         //增加个人账户见证人（就是用这个人的私钥对交易签个名，signdata传进来）
         public void AddWitness(byte[] signdata, byte[] pubkey, string addrs)
         {
@@ -560,14 +580,10 @@ namespace ThinNeo
         //TXID
         public byte[] GetHash()
         {
-            using (var ms = new System.IO.MemoryStream())
-            {
-                this.SerializeUnsigned(ms);
-
-                var data=ThinNeo.Helper.Sha256(ms.ToArray());
-                data = ThinNeo.Helper.Sha256(data);
-                return data;
-            }
+            var msg = GetMessage();
+            var data = ThinNeo.Helper.Sha256(msg);
+            data = ThinNeo.Helper.Sha256(data);
+            return data;
 
         }
     }

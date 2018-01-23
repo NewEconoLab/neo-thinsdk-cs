@@ -119,7 +119,7 @@
                         <GroupBox Header="Script" Grid.Column="1" Grid.ColumnSpan="2" Background="#7F000000" BorderThickness="0" Margin="1" Grid.RowSpan="3" Foreground="White">
                             <Grid>
 
-                                <TabControl Background="{x:Null}" BorderThickness="0">
+                                <TabControl x:Name="tabCType" Background="{x:Null}" BorderThickness="0">
                                     <TabItem Header="ContractTransaction">
                                         <TextBlock Text="ContractTransaction No need Script." Foreground="White"></TextBlock>
                                     </TabItem>
@@ -169,7 +169,7 @@
                                     <ColumnDefinition Width="173*"/>
                                     <ColumnDefinition Width="133*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Content="Sign and Broadcast" Grid.RowSpan="1" Margin="2" Grid.ColumnSpan="1"></Button>
+                                <Button Content="Sign and Broadcast" Grid.RowSpan="1" Margin="2" Grid.ColumnSpan="1" Click="Button_Click_7"></Button>
                                 <Button Content="See Detail" Grid.Column="1" Grid.RowSpan="1" Margin="2" Grid.ColumnSpan="1"></Button>
                             </Grid>
                         </GroupBox>

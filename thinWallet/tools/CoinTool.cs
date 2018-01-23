@@ -155,10 +155,10 @@ namespace thinWallet.Tools
         public bool isTheChange = false;//是否是找零
         public string Target;//接收者
         public string assetID;
-        public System.Numerics.BigInteger Fix8;//fix8 number
+        public ThinNeo.Fixed8 Fix8;//fix8 number
         public override string ToString()
         {
-            return (isTheChange ?  "(ChangeBack:": "(" ) + CoinTool.GetName(assetID) + ")" + (((decimal)Fix8) / (decimal)100000000.0).ToString() + " ==>" + Target;
+            return (isTheChange ?  "(ChangeBack:": "(" ) + CoinTool.GetName(assetID) + ")" + Fix8.ToString() + " ==>" + Target;
         }
     }
 
