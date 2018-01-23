@@ -173,8 +173,8 @@ namespace ThinNeo
 
     public class InvokeTransData : IExtData
     {
-        byte[] script;
-        Fixed8 gas;
+        public byte[] script;
+        public Fixed8 gas;
         public void Deserialize(Transaction trans, Stream reader)
         {
             var slen = Transaction.readVarInt(reader);

@@ -201,7 +201,7 @@ namespace thinWallet
                     AddParam(sb, list[i]);
 
                 }
-                var scripthash = ThinNeo.Helper.HexString2Bytes(textScriptHash.Text);
+                var scripthash = ThinNeo.Helper.HexString2Bytes(textScriptHash.Text).Reverse().ToArray();
                 sb.EmitAppCall(scripthash);
                 this.script = sb.ToArray();
                 var ops = ThinNeo.Compiler.Avm2Asm.Trans(this.script);

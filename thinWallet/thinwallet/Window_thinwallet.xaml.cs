@@ -163,18 +163,26 @@ namespace thinWallet
             }
         }
 
-        private void Button_Click_4(object sender, RoutedEventArgs e)
+        byte[] lastScript;
+        decimal? lastFee = null;
+        void updateScript()
         {
-            var script = Dialog_Script_Make.ShowDialog(this, this.labelRPC.Text);
-            if (script != null)
+            if (lastScript != null)
             {
-                var ops = ThinNeo.Compiler.Avm2Asm.Trans(script);
+                var ops = ThinNeo.Compiler.Avm2Asm.Trans(lastScript);
                 listCode.Items.Clear();
                 foreach (var o in ops)
                 {
                     listCode.Items.Add(o);
                 }
             }
+        }
+        private void Button_Click_4(object sender, RoutedEventArgs e)
+        {
+            lastScript = Dialog_Script_Make.ShowDialog(this, this.labelRPC.Text);
+            lastFee = null;
+            labelFee.Text = "Fee:";
+            updateScript();
         }
         MyJson.IJsonNode api_getUTXO()
         {
@@ -562,13 +570,48 @@ namespace thinWallet
         }
         private void Button_Click_7(object sender, RoutedEventArgs e)
         {//sign and broadcast 
+            try
+            {
+                signAndBroadcast();
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show("signAndBroadcast:" + err.Message);
+            }
+        }
+        void signAndBroadcast()
+        {
+            if(this.listInput.Items.Count==0)
+            {
+                MessageBox.Show("no input");
+                return;
+            }
+            if (this.listOutput.Items.Count == 0)
+            {
+                MessageBox.Show("no output");
+                return;
+            }
+            if (this.listWitness.Items.Count == 0)
+            {
+                MessageBox.Show("no witness");
+                return;
+            }
             ThinNeo.Transaction trans = new ThinNeo.Transaction();
             trans.attributes = new ThinNeo.Attribute[0];
             if (tabCType.SelectedIndex == 0)
                 trans.type = ThinNeo.TransactionType.ContractTransaction;
             else if (tabCType.SelectedIndex == 1)
-                trans.type = ThinNeo.TransactionType.InvocationTransaction;
+            {
+                if (lastScript == null)
+                    throw new Exception("need script");
+                if (lastFee.HasValue == false)
+                    throw new Exception("need test script");
 
+                trans.type = ThinNeo.TransactionType.InvocationTransaction;
+                trans.extdata = new ThinNeo.InvokeTransData();
+                (trans.extdata as ThinNeo.InvokeTransData).script = lastScript;
+                (trans.extdata as ThinNeo.InvokeTransData).gas = lastFee.Value;
+            }
             trans.inputs = new ThinNeo.TransactionInput[this.listInput.Items.Count];
             trans.outputs = new ThinNeo.TransactionOutput[this.listOutput.Items.Count];
             trans.witnesses = new ThinNeo.Witness[this.listWitness.Items.Count];
@@ -627,7 +670,45 @@ namespace thinWallet
             }
 
             var rawdata = trans.GetRawData();
-            rpc_SendRaw(rawdata);
+            bool b = rpc_SendRaw(rawdata);
+            if (b)
+            {
+                var hash = trans.GetHash();
+                var str = ThinNeo.Helper.Bytes2HexString(hash.Reverse().ToArray());
+                MessageBox.Show("txid=" + str);
+            }
+            else
+            {
+                MessageBox.Show("transaction error");
+            }
+        }
+
+        private void Button_Click_8(object sender, RoutedEventArgs e)
+        {
+            listTestScript.Items.Clear();
+
+            try
+            {
+                var symbol = ThinNeo.Helper.Bytes2HexString(lastScript);
+                var str = WWW.MakeRpcUrl(labelRPC.Text, "invokescript", new MyJson.JsonNode_ValueString(symbol));
+                var resultstr = WWW.GetWithDialog(this, str);
+                var json = MyJson.Parse(resultstr).AsDict();
+                var gas = json["result"].AsDict()["gas_consumed"].ToString();
+                lastFee = decimal.Parse(gas);
+                labelFee.Text = "Fee:" + lastFee;
+                StringBuilder sb = new StringBuilder();
+                json["result"].AsDict().ConvertToStringWithFormat(sb, 4);
+                var lines = sb.ToString().Split('\n');
+                foreach (var l in lines)
+                {
+                    listTestScript.Items.Add(l);
+                }
+            }
+            catch (Exception err)
+            {
+                listTestScript.Items.Add("error:" + err.Message);
+            }
+
         }
     }
 }
