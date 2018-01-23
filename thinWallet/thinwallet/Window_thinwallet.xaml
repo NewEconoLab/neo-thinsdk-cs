@@ -29,9 +29,9 @@
                     <RowDefinition Height="25*"/>
                 </Grid.RowDefinitions>
                 <TextBlock  x:Name="labelAccount" Text="no key" Foreground="White" FontSize="15"></TextBlock>
-                <Button Content="用WIF导入Key(Import key from WIF String)" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" Click="Button_Click" FontSize="15"/>
-                <Button Content="用NEP2导入Key(Import key from Nep2 String)" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" Click="Button_Click_1" FontSize="15"/>
-                <Button Content="用NEP6钱包导入Key(Import key from Nep6 String)" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" FontSize="15" Click="Button_Click_2" />
+                <Button Content="Import key from WIF String" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" Click="Button_Click" FontSize="15"/>
+                <Button Content="Import key from Nep2 String" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" Click="Button_Click_1" FontSize="15"/>
+                <Button Content="Import key from Nep6 File" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="1" Margin="2" FontSize="15" Click="Button_Click_2" />
             </Grid>
         </GroupBox >
         <GroupBox Header="ServerInfo"  Grid.Column="2" Background="#3F8B05E8" FontSize="15" Margin="2">
@@ -65,12 +65,19 @@
         </GroupBox>
         <GroupBox Header="AccountInfo" Grid.ColumnSpan="1" Grid.Row="1" Background="#3F0000FF" FontSize="15" Margin="2" >
             <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="117*"/>
+                    <ColumnDefinition Width="189*"/>
+                    <ColumnDefinition Width="121*"/>
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="20*"/>
+                    <RowDefinition Height="26"/>
                     <RowDefinition Height="173*"/>
                 </Grid.RowDefinitions>
-                <Button Content="增加关注的nep5资产"></Button>
-                <TreeView Grid.Row="1" Background="#7FFFFFFF"></TreeView>
+                <Button Content="Refresh" Grid.ColumnSpan="1" Click="Button_Click_5" Height="26" VerticalAlignment="Top" HorizontalAlignment="Right" Width="117"></Button>
+                <TextBlock x:Name="infoAssetHeight" Text="RefreshHeight:" Grid.Column="1"></TextBlock>
+                <Button Content="Config NEP5" Grid.Column="2" Click="Button_Click_6"></Button>
+                <TreeView x:Name="treeCoins" Grid.Row="1" Background="#7FFFFFFF" Grid.ColumnSpan="3"></TreeView>
             </Grid>
         </GroupBox>
         <GroupBox Header="MakeTransAction" Grid.Row="1" Grid.Column="1" BorderThickness="1" Margin="2" Grid.ColumnSpan="2" Background="#80CB5353" >

@@ -75,6 +75,8 @@ namespace thinWallet
                     if (v.Value.nep2key != null)
                         this.listAccount.Items.Add(v.Value);
                 }
+                if (this.listAccount.Items.Count > 0)
+                    this.listAccount.SelectedIndex = 0;
             }
         }
     }

@@ -19,6 +19,7 @@ namespace thinWallet
         public static async Task<string> Get(string url)
         {
             System.Net.WebClient wc = new System.Net.WebClient();
+            wc.Encoding = Encoding.UTF8;
             var result = await wc.DownloadStringTaskAsync(url);
             return result;
         }

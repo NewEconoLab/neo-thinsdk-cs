@@ -56,6 +56,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="dialog\Dialog Config_Nep5.xaml.cs">
+      <DependentUpon>Dialog Config_Nep5.xaml</DependentUpon>
+    </Compile>
     <Compile Include="dialog\Dialog_wait.xaml.cs">
       <DependentUpon>Dialog_wait.xaml</DependentUpon>
     </Compile>
@@ -83,12 +86,17 @@
     <Compile Include="functest\Window_funcTest.xaml.cs">
       <DependentUpon>Window_funcTest.xaml</DependentUpon>
     </Compile>
+    <Compile Include="www\CoinTool.cs" />
     <Compile Include="www\www.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="thinwallet\Window_thinwallet.xaml.cs">
       <DependentUpon>Window_thinwallet.xaml</DependentUpon>
     </Compile>
+    <Page Include="dialog\Dialog Config_Nep5.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="dialog\Dialog_wait.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
