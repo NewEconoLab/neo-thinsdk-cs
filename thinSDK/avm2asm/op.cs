@@ -65,8 +65,12 @@ namespace ThinNeo.Compiler
             var name = "";
             if (this.error)
                 name = "[E]";
+            if (this.code == OpCode.PUSHT)
+                return "PUSH1(true)";
+            if (this.code == OpCode.PUSHF)
+                return "PUSH0(false)";
             if (code > OpCode.PUSHBYTES1 && code < OpCode.PUSHBYTES75)
-                return name + "PUSHBYTES" + (code - OpCode.PUSHBYTES1);
+                return name + "PUSHBYTES" + (code - OpCode.PUSHBYTES1 + 1);
             else
                 return name + code.ToString();
         }
