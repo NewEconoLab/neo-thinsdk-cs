@@ -217,7 +217,7 @@ namespace thinWallet
             var pubkeyhash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
 
             var asset = ThinNeo.Helper.HexString2Bytes(nep5asset);
-            Neo.ScriptBuilder sb = new Neo.ScriptBuilder();
+            ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder();
             sb.EmitPushBytes(pubkeyhash);
             sb.EmitPushNumber(1);
             sb.Emit(ThinNeo.VM.OpCode.PACK);
@@ -660,7 +660,7 @@ namespace thinWallet
                     witness.VerificationScript = ThinNeo.Helper.GetScriptFromPublicKey(pubkey);
 
                     var signdata = ThinNeo.Helper.Sign(trans.GetMessage(), this.privatekey);
-                    var sb = new Neo.ScriptBuilder();
+                    var sb = new ThinNeo.ScriptBuilder();
                     sb.EmitPushBytes(signdata);
 
                     witness.InvocationScript = sb.ToArray();

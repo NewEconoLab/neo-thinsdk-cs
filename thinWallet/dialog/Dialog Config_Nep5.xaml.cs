@@ -93,7 +93,7 @@ namespace thinWallet
         static byte[] createNep5FindScript(string _assetid)
         {
             var asset = ThinNeo.Helper.HexString2Bytes(_assetid);
-            Neo.ScriptBuilder sb = new Neo.ScriptBuilder();
+            ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder();
             sb.EmitPushNumber(0);
             sb.Emit(ThinNeo.VM.OpCode.PACK);
             sb.EmitPushString("name"); //name//totalSupply//symbol//decimals

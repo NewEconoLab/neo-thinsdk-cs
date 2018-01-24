@@ -125,62 +125,6 @@ namespace thinWallet
             }
         }
 
-        void AddParam(Neo.ScriptBuilder builder, MyJson.IJsonNode param)
-        {
-            if (param is MyJson.JsonNode_ValueNumber)//bool 或小整数
-            {
-                var num = param as MyJson.JsonNode_ValueNumber;
-                if (num.isBool)
-                {
-                    builder.EmitPushBool(num.AsBool());
-                }
-                else
-                {
-                    builder.EmitPushNumber(num.AsInt());
-                }
-            }
-            else if (param is MyJson.JsonNode_Array)
-            {
-                var list = param.AsList();
-                for (var i = list.Count - 1; i >= 0; i--)
-                {
-                    AddParam(builder, list[i]);
-                }
-                builder.EmitPushNumber(param.AsList().Count);
-                builder.Emit(ThinNeo.VM.OpCode.PACK);
-            }
-            else if (param is MyJson.JsonNode_ValueString)//复杂格式
-            {
-                var str = param.AsString();
-                if (str[0] != '(')
-                    throw new Exception("must start with:(str) or (hex) or (hexbig) or (int)");
-                if (str.IndexOf("(str)") == 0)
-                {
-                    builder.EmitPushString(str.Substring(5));
-                }
-                else if (str.IndexOf("(int)") == 0)
-                {
-                    var num = System.Numerics.BigInteger.Parse(str.Substring(5));
-                    builder.EmitPushNumber(num);
-                }
-                else if (str.IndexOf("(hex)") == 0)
-                {
-                    var hex = ThinNeo.Helper.HexString2Bytes(str.Substring(5));
-                    builder.EmitPushBytes(hex);
-                }
-                else if (str.IndexOf("(hexbig)") == 0)
-                {
-                    var hex = ThinNeo.Helper.HexString2Bytes(str.Substring(8));
-                    builder.EmitPushBytes(hex.Reverse().ToArray());
-                }
-                else
-                    throw new Exception("must start with:(str) or (hex) or (hexbig) or (int)");
-            }
-            else
-            {
-                throw new Exception("should not pass a {}");
-            }
-        }
         private void jsonParam_TextChanged(object sender, TextChangedEventArgs e)
         {
 
@@ -194,12 +138,11 @@ namespace thinWallet
 
                 var json = MyJson.Parse(jsonParam.Text).AsList();
                 jsonParam.Foreground = new SolidColorBrush(Color.FromRgb(0, 0, 0));
-                Neo.ScriptBuilder sb = new Neo.ScriptBuilder();
+                ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder();
                 var list = json.AsList();
                 for (int i = list.Count - 1; i >= 0; i--)
                 {
-                    AddParam(sb, list[i]);
-
+                    sb.EmitParamJson(list[i]);
                 }
                 var scripthash = ThinNeo.Helper.HexString2Bytes(textScriptHash.Text).Reverse().ToArray();
                 sb.EmitAppCall(scripthash);

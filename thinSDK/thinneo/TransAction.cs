@@ -542,7 +542,7 @@ namespace ThinNeo
 
             //iscript 对个人账户见证人他是一条pushbytes 指令
 
-            var sb = new Neo.ScriptBuilder();
+            var sb = new ThinNeo.ScriptBuilder();
             sb.EmitPushBytes(signdata);
 
             var iscript = sb.ToArray();

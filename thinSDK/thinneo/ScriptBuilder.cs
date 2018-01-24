@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ThinNeo.VM;
 
-namespace Neo
+namespace ThinNeo
 {
 
     public class ScriptBuilder : IDisposable
@@ -109,6 +109,70 @@ namespace Neo
             arg[0] = (byte)api_bytes.Length;
             Buffer.BlockCopy(api_bytes, 0, arg, 1, api_bytes.Length);
             return Emit(OpCode.SYSCALL, arg);
+        }
+
+        public ScriptBuilder EmitParamJson(MyJson.IJsonNode param)
+        {
+            if (param is MyJson.JsonNode_ValueNumber)//bool 或小整数
+            {
+                var num = param as MyJson.JsonNode_ValueNumber;
+                if (num.isBool)
+                {
+                    this.EmitPushBool(num.AsBool());
+                }
+                else
+                {
+                    this.EmitPushNumber(num.AsInt());
+                }
+            }
+            else if (param is MyJson.JsonNode_Array)
+            {
+                var list = param.AsList();
+                for (var i = list.Count - 1; i >= 0; i--)
+                {
+                    EmitParamJson(list[i]);
+                }
+                this.EmitPushNumber(param.AsList().Count);
+                this.Emit(ThinNeo.VM.OpCode.PACK);
+            }
+            else if (param is MyJson.JsonNode_ValueString)//复杂格式
+            {
+                var str = param.AsString();
+                if (str[0] != '(')
+                    throw new Exception("must start with:(str) or (hex) or (hexrev) or (int) or (addr)");
+                if (str.IndexOf("(str)") == 0)
+                {
+                    this.EmitPushString(str.Substring(5));
+                }
+                else if (str.IndexOf("(int)") == 0)
+                {
+                    var num = System.Numerics.BigInteger.Parse(str.Substring(5));
+                    this.EmitPushNumber(num);
+                }
+                else if (str.IndexOf("(hex)") == 0)
+                {
+                    var hex = ThinNeo.Helper.HexString2Bytes(str.Substring(5));
+                    this.EmitPushBytes(hex);
+                }
+                else if (str.IndexOf("(hexrev)") == 0)
+                {
+                    var hex = ThinNeo.Helper.HexString2Bytes(str.Substring(8));
+                    this.EmitPushBytes(hex.Reverse().ToArray());
+                }
+                else if (str.IndexOf("(addr)") == 0)
+                {
+                    var addr = (str.Substring(6));
+                    var hex = ThinNeo.Helper.GetPublicKeyHashFromAddress(addr);
+                    this.EmitPushBytes(hex);
+                }
+                else
+                    throw new Exception("must start with:(str) or (hex) or (hexbig) or (int)");
+            }
+            else
+            {
+                throw new Exception("should not pass a {}");
+            }
+            return this;
         }
 
         public byte[] ToArray()
