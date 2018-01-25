@@ -12,6 +12,12 @@ namespace thinWallet.Tools
         public string symbol;
         public int decimals;
     }
+    public class TranInfo
+    {
+        public string txid;
+        public ThinNeo.TransactionType type;
+        public DateTime time;
+    }
 
     public class CoinTool
     {
@@ -67,7 +73,25 @@ namespace thinWallet.Tools
                 assetUTXO[id] = rname;
             }
         }
-        public static void Save()
+        public static List<TranInfo> TxHistory = new List<TranInfo>();
+        public static List<string> UtxoHistory = new List<string>();
+        public static string RecordTran(ThinNeo.Transaction trans)
+        {
+            var txid = ThinNeo.Helper.Bytes2HexString(trans.GetHash().Reverse().ToArray());
+            TranInfo info = new TranInfo();
+            info.time = DateTime.Now;
+            info.type = trans.type;
+            info.txid = txid;
+            TxHistory.Add(info);
+            foreach (var input in trans.inputs)
+            {
+                var txid2 = ThinNeo.Helper.Bytes2HexString(input.hash.Reverse().ToArray());
+                var strutxo = txid2 + "_" + input.index;
+                UtxoHistory.Add(strutxo);
+            }
+            return txid;
+        }
+        public static void SaveNep5()
         {
             MyJson.JsonNode_Object mapInfo = new MyJson.JsonNode_Object();
             foreach (var item in assetNep5)
@@ -81,7 +105,33 @@ namespace thinWallet.Tools
             System.IO.File.Delete("nep5config.json");
             System.IO.File.WriteAllText("nep5config.json", mapInfo.ToString(), System.Text.Encoding.UTF8);
         }
-        public static void Load()
+        public static void SaveRecord()
+        {
+            MyJson.JsonNode_Array traninfo = new MyJson.JsonNode_Array();
+            foreach (var item in TxHistory)
+            {
+                MyJson.JsonNode_Object jsonItem = new MyJson.JsonNode_Object();
+                traninfo.Add(jsonItem);
+                jsonItem["txid"] = new MyJson.JsonNode_ValueString(item.txid);
+                jsonItem["type"] = new MyJson.JsonNode_ValueString(item.type.ToString());
+                jsonItem["time"] = new MyJson.JsonNode_ValueString("utc_" + item.time.ToFileTimeUtc());
+            }
+            MyJson.JsonNode_Array utxospentinfos = new MyJson.JsonNode_Array();
+
+            foreach (var item in UtxoHistory)
+            {
+                MyJson.JsonNode_ValueString jsonItem = new MyJson.JsonNode_ValueString(item);
+                utxospentinfos.Add(jsonItem);
+            }
+            MyJson.JsonNode_Object record = new MyJson.JsonNode_Object();
+            record["trans"] = traninfo;
+            record["utxos"] = utxospentinfos;
+
+            System.IO.File.Delete("records.json");
+            System.IO.File.WriteAllText("records.json", record.ToString(), System.Text.Encoding.UTF8);
+
+        }
+        public static void LoadNep5()
         {
             try
             {
@@ -100,6 +150,38 @@ namespace thinWallet.Tools
             {
 
             }
+        }
+        public static void LoadRecord()
+        {
+            try
+            {
+                TxHistory.Clear();
+                UtxoHistory.Clear();
+                var str = System.IO.File.ReadAllText("records.json", System.Text.Encoding.UTF8);
+                var record = MyJson.Parse(str).AsDict();
+                foreach (var item in record["trans"].AsList())
+                {
+
+                    var newitem = new TranInfo();
+                    TxHistory.Add(newitem);
+                    newitem.txid = item.AsDict()["txid"].AsString();
+                    newitem.type = (ThinNeo.TransactionType)Enum.Parse(typeof(ThinNeo.TransactionType), item.AsDict()["type"].AsString());
+                    newitem.time = DateTime.FromFileTimeUtc(long.Parse(item.AsDict()["time"].AsString().Substring(4)));
+                }
+                foreach (var item in record["uxtos"].AsList())
+                {
+                    UtxoHistory.Add(item.AsString());
+                }
+            }
+            catch
+            {
+
+            }
+        }
+        public static void Load()
+        {
+            LoadNep5();
+            LoadRecord();
         }
     }
     public class Asset
@@ -147,7 +229,7 @@ namespace thinWallet.Tools
         public byte[] iscript;//如果是智能合约见证人，就需要独特的iscript
         public override string ToString()
         {
-            return (IsSmartContract?"(SmartContract)":"(AddSign)") + address;
+            return (IsSmartContract ? "(SmartContract)" : "(AddSign)") + address;
         }
     }
     public class Output
@@ -158,7 +240,7 @@ namespace thinWallet.Tools
         public ThinNeo.Fixed8 Fix8;//fix8 number
         public override string ToString()
         {
-            return (isTheChange ?  "(ChangeBack:": "(" ) + CoinTool.GetName(assetID) + ")" + Fix8.ToString() + " ==>" + Target;
+            return (isTheChange ? "(ChangeBack:" : "(") + CoinTool.GetName(assetID) + ")" + Fix8.ToString() + " ==>" + Target;
         }
     }
 

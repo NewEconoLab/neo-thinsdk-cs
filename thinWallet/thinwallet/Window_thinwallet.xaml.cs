@@ -97,6 +97,7 @@ namespace thinWallet
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             Tools.CoinTool.Load();
+            this.UpdateTranData();
 
 
             DispatcherTimer timer = new DispatcherTimer();
@@ -167,6 +168,7 @@ namespace thinWallet
         decimal? lastFee = null;
         void updateScript()
         {
+            listCode.Items.Clear();
             if (lastScript != null)
             {
                 var ops = ThinNeo.Compiler.Avm2Asm.Trans(lastScript);
@@ -320,7 +322,7 @@ namespace thinWallet
         {
             Dialog_Config_Nep5.ShowDialog(this, this.labelRPC.Text);
 
-            Tools.CoinTool.Save();
+            Tools.CoinTool.SaveNep5();
         }
 
         private void treeCoins_MouseMove(object sender, MouseEventArgs e)
@@ -579,9 +581,27 @@ namespace thinWallet
                 MessageBox.Show("signAndBroadcast:" + err.Message);
             }
         }
+        void UpdateTranData()
+        {
+            foreach (var his in Tools.CoinTool.TxHistory)
+            {
+
+                dataTran.Items.Add(new { txid = his.txid, time = his.time, type = his.type });
+            }
+        }
+        void ClearTran()
+        {
+            this.listInput.Items.Clear();
+            this.listOutput.Items.Clear();
+            this.listWitness.Items.Clear();
+
+            lastScript = null;
+            lastFee = null;
+            updateScript();
+        }
         void signAndBroadcast()
         {
-            if(this.listInput.Items.Count==0)
+            if (this.listInput.Items.Count == 0)
             {
                 MessageBox.Show("no input");
                 return;
@@ -673,14 +693,17 @@ namespace thinWallet
             bool b = rpc_SendRaw(rawdata);
             if (b)
             {
-                var hash = trans.GetHash();
-                var str = ThinNeo.Helper.Bytes2HexString(hash.Reverse().ToArray());
+                var str = Tools.CoinTool.RecordTran(trans);
+                this.UpdateTranData();
+
+                Tools.CoinTool.SaveRecord();
                 MessageBox.Show("txid=" + str);
             }
             else
             {
                 MessageBox.Show("transaction error");
             }
+            ClearTran();
         }
 
         private void Button_Click_8(object sender, RoutedEventArgs e)
@@ -708,6 +731,25 @@ namespace thinWallet
             {
                 listTestScript.Items.Add("error:" + err.Message);
             }
+
+        }
+
+        //双击交易
+        private void dataTran_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var obj = dataTran.SelectedItem as dynamic;
+            if (obj == null)
+                return;
+            string txid = obj.txid;
+            System.Diagnostics.Process.Start("http://be.nel.group/page/txInfo.html?txid=" + txid);
+        }
+
+        private void Hyperlink_Click(object sender, RoutedEventArgs e)
+        {
+            if (labelAccount.Text == "nokey")
+                return;
+            var addr = labelAccount.Text.Split(' ')[0];
+            System.Diagnostics.Process.Start("http://be.nel.group/page/address.html?addr=" + addr);
 
         }
     }

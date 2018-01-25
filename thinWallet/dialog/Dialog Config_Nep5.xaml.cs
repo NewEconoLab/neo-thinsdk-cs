@@ -62,7 +62,7 @@ namespace thinWallet
             if (MessageBox.Show("delete it?", "", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 Tools.CoinTool.assetNep5.Remove(sitem.Tag as string);
-                Tools.CoinTool.Save();
+                Tools.CoinTool.SaveNep5();
                 updateNep5List();
             }
         }
