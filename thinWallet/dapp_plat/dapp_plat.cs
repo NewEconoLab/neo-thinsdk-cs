@@ -88,6 +88,10 @@ namespace thinWallet.dapp_plat
 
     public class DApp_SimplePlugin
     {
+        public override string ToString()
+        {
+            return Title;
+        }
         public string Title;
         public DApp_Func[] funcs;
         public void LoadJson(string jsonstr)

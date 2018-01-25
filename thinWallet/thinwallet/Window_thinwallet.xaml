@@ -198,27 +198,30 @@
 
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="598*"/>
+                            <ColumnDefinition Width="173*"/>
+                            <ColumnDefinition Width="425*"/>
                             <ColumnDefinition Width="205*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="57*"/>
+                            <RowDefinition Height="28"/>
+                            <RowDefinition Height="28"/>
                             <RowDefinition Height="221*"/>
                             <RowDefinition Height="176*"/>
                         </Grid.RowDefinitions>
-                        <GroupBox Grid.Column="1" Header="Values" Foreground="White" BorderBrush="White" BorderThickness="0,0,0,0" Background="#7FFFFFFF" Margin="2,0" Grid.RowSpan="2">
+                        <GroupBox Grid.Column="2" Header="Values" Foreground="White" BorderBrush="White" BorderThickness="0,0,0,0" Background="#7FFFFFFF" Margin="2,0" Grid.RowSpan="3">
                             <ListBox Background="{x:Null}"></ListBox>
                         </GroupBox>
-                        <GroupBox Header="Dapp" Grid.Column="0"  Grid.Row="1"  Foreground="White" BorderBrush="White" BorderThickness="0,0,0,0" Background="#7FFFFFFF" Margin="2,0">
+                        <GroupBox Header="Dapp" Grid.Column="0"  Grid.Row="2"  Foreground="White" BorderBrush="White" BorderThickness="0,0,0,0" Background="#7FFFFFFF" Margin="2,0" Grid.ColumnSpan="2">
+                            <TabControl x:Name="dappfuncs" Background="{x:Null}"></TabControl>
                         </GroupBox>
-                        <TabControl x:Name="dappTab" Background="{x:Null}" Foreground="White" Grid.Column="0" Grid.RowSpan="1" Grid.ColumnSpan="1">
-                            <TabItem Header="Page0" >
-                                <Grid>
-                                    <TextBlock Text="Make DApp simple by json." Foreground="White" Grid.ColumnSpan="2"></TextBlock>
-                                </Grid>
-                            </TabItem>
-                        </TabControl>
-                        <GroupBox Header="Execute" Grid.Row="2" BorderThickness="0,0,0,1" Background="#3F62FFA2" Grid.ColumnSpan="2">
+                        <TextBlock Grid.Row="0" Text="NEL Dapp.SJ Version 0.1" Foreground="#FFFF8000" TextAlignment="Center" Grid.ColumnSpan="2">
+                            <TextBlock.Effect>
+                                <DropShadowEffect/>
+                            </TextBlock.Effect></TextBlock>
+
+                        <TextBlock Grid.Row="1" Text="Select a Simple Dapp" Foreground="White" TextAlignment="Center"></TextBlock>
+                        <ComboBox x:Name="comboDApp" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Margin="2"></ComboBox>
+                        <GroupBox Header="Execute" Grid.Row="3" BorderThickness="0,0,0,1" Background="#3F62FFA2" Grid.ColumnSpan="3">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="284*"/>

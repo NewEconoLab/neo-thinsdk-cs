@@ -10,32 +10,33 @@ namespace thinWallet
     public partial class Window_thinwallet : Window
     {
         DApp_Plat DApp_Plat = new DApp_Plat();
-
+        bool dApp_Init = false;
         void UpdatePlugins()
         {
+            if (!dApp_Init)
+            {
+                dApp_Init = true;
+                this.comboDApp.SelectionChanged += (s, e) =>
+                  {
+                      var plugin = (this.comboDApp.SelectedItem as ComboBoxItem).Content as DApp_SimplePlugin;
+                      if (plugin != null)
+                      {
+                          dappfuncs.Items.Clear();
+                          foreach (var f in plugin.funcs)
+                          {
+                              var tabItem = new TabItem();
+                              tabItem.Header = f.name;
+                              dappfuncs.Items.Add(tabItem);
+                              UpdateFuncUI(tabItem, f);
+                          }
+                      }
+                  };
+            }
             foreach (var m in DApp_Plat.plugins)
             {
-                var item = new System.Windows.Controls.TabItem();
-                item.Header = m.Title;
-
-                item.Tag = m;
-                this.dappTab.Items.Add(item);
-
-                var tab = new TabControl();
-                item.Content = tab;
-                tab.Background = null;
-
-                foreach (var f in m.funcs)
-                {
-                    var tabItem = new TabItem();
-                    tabItem.Header = f.name;
-                    tab.Items.Add(tabItem);
-                    UpdateFuncUI(tabItem, f);
-                }
-
-
-                //var text = new TextBlock();
-                //text.Text= m.d
+                var item = new ComboBoxItem();
+                item.Content = m;
+                this.comboDApp.Items.Add(item);
             }
         }
         System.Windows.Media.SolidColorBrush white
@@ -64,7 +65,7 @@ namespace thinWallet
             text.Foreground = white;
 
             var y = text.Height;
-            foreach(var i in func.inputs)
+            foreach (var i in func.inputs)
             {
                 var label = new TextBlock();
                 label.Text = i.desc;
@@ -74,7 +75,7 @@ namespace thinWallet
                 Canvas.SetLeft(label, 0);
                 Canvas.SetTop(label, y);
 
-                if (i.type=="string"||i.type=="address")
+                if (i.type == "string" || i.type == "address")
                 {
                     TextBox tbox = new TextBox();
                     tbox.Width = 300;

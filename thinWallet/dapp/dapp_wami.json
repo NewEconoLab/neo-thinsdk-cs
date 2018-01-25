@@ -1,5 +1,8 @@
 ﻿{
   "title": "WHO AM I",
+  "contracts": {
+    "base": "0x42832a25cf11d0ceee5629cb8b4daee9bac207ca"
+  },
   "funcs": [
     {
       "name": "check",
@@ -13,14 +16,11 @@
         }
       ],
       "call": {
-        "type": "invokescript",
+        "type": "getstorage",
         "scriptcall": "",
         "scriptparam": [
-          "(str)getname",
-          [
-            "(addr)%input:address%",
-            "(hex)%keyinfo:pubkey%"
-          ]
+          "(uint160)%contracts.base%",
+          "(addr)%inputs:address%"
         ]
       },
       "results": [
@@ -49,7 +49,7 @@
       ],
       "call": {
         "type": "invoketransaction",
-        "scriptcall": "",
+        "scriptcall": "(hexbig)%contracts.base%",
         "scriptparam": [
           "(str)getname",
           [
