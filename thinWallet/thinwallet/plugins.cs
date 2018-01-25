@@ -1,6 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using thinWallet.dapp_plat;
+using System.Collections.Generic;
+using System;
+using System.Linq;
 
 namespace thinWallet
 {
@@ -9,30 +12,253 @@ namespace thinWallet
     /// </summary>
     public partial class Window_thinwallet : Window
     {
-        DApp_Plat DApp_Plat = new DApp_Plat();
-        bool dApp_Init = false;
-        void UpdatePlugins()
+        DApp_Plat dapp_plat = new DApp_Plat();
+        bool dapp_Init = false;
+        public class DappValue
         {
-            if (!dApp_Init)
+            public string value;
+            public bool error = false;
+        }
+        Dictionary<string, DappValue> dapp_values = new Dictionary<string, DappValue>();
+        //change dapp function
+        private void dappfuncs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var plugin = dappfuncs.Tag as DApp_SimplePlugin;
+            var func = (dappfuncs.SelectedItem as TabItem).Tag as DApp_Func;
+            var items = (((dappfuncs.SelectedItem as TabItem).Content as ScrollViewer).Content as Canvas).Children;
+            foreach (var input in func.inputs)
             {
-                dApp_Init = true;
+                if (string.IsNullOrEmpty(input.id) == false)
+                {
+                    if (dapp_values.ContainsKey(input.id) == false)
+                    {
+                        dapp_values[input.id] = new DappValue();
+                        dapp_values[input.id].value = new MyJson.JsonNode_ValueString(input.value).ToString();
+                        dapp_values[input.id].error = false;
+                    }
+                }
+            }
+            foreach (FrameworkElement ui in items)
+            {
+                if (ui.Tag is DApp_Input)
+                {
+                    var input = ui.Tag as DApp_Input;
+                    try
+                    {
+                        var value = dapp_getValue(ui, input.type);
+                        this.dapp_values[input.id].value = value;
+                        this.dapp_values[input.id].error = false;
+                    }
+                    catch (Exception err)
+                    {
+                        this.dapp_values[input.id].value = err.Message;
+                        this.dapp_values[input.id].error = true;
+                    }
+                }
+            }
+            dapp_updateValuesUI();
+        }
+
+        //UI execute pressed
+        private void Execute_Dapp_Function(object sender, RoutedEventArgs e)
+        {
+            var plugin = dappfuncs.Tag as DApp_SimplePlugin;
+            if (plugin == null)
+                return;
+            var func = (dappfuncs.SelectedItem as TabItem).Tag as DApp_Func;
+            if (func.call.type == DApp_Call.Type.getstorage)
+            {
+                try
+                {
+                    var json = MyJson.Parse(func.call.scriptparam).AsList();
+                    var scripthash = dapp_getCallParam(json[0].AsString());
+                    var key = dapp_getCallParam(json[1].AsString());
+                    var result = rpc_getStorage(scripthash, key);
+                    if (result == null)
+                        this.dapp_result_raw.Text = "(null)";
+                    else
+                        this.dapp_result_raw.Text = ThinNeo.Helper.Bytes2HexString(result);
+
+                    this.dapp_result.Items.Clear();
+                    if (func.results.Length > 0)
+                    {
+                        var outvalue = "";
+                        try
+                        {
+                            outvalue = dapp_getResultValue(func.results[0].type, result);
+                        }
+                        catch(Exception err)
+                        {
+                            outvalue = "err:" + err.Message;
+                        }
+                        this.dapp_result.Items.Add(func.results[0].desc + "=" + outvalue);
+                    }
+                }
+                catch (Exception err)
+                {
+                    this.dapp_result_raw.Text = "error=" + err.Message + "\r\n" + err.StackTrace;
+                }
+            }
+            else if (func.call.type == DApp_Call.Type.invokescript)
+            {
+
+            }
+            else if (func.call.type == DApp_Call.Type.sendrawtransaction)
+            {
+
+            }
+        }
+        byte[] rpc_getStorage(byte[] scripthash, byte[] key)
+        {
+            System.Net.WebClient wc = new System.Net.WebClient();
+            var url = this.labelRPC.Text;
+            var shstr = ThinNeo.Helper.Bytes2HexString(scripthash.Reverse().ToArray());
+            var keystr = ThinNeo.Helper.Bytes2HexString(key);
+            var str = WWW.MakeRpcUrl(url, "getstorage", new MyJson.JsonNode_ValueString(shstr), new MyJson.JsonNode_ValueString(keystr));
+            var result = WWW.GetWithDialog(this, str);
+            if (result != null)
+            {
+
+                var json = MyJson.Parse(result);
+                if (json.AsDict().ContainsKey("error"))
+                    return null;
+                var script = json.AsDict()["result"].AsString();
+                return ThinNeo.Helper.HexString2Bytes(script);
+            }
+            return null;
+        }
+
+        byte[] dapp_getCallParam(string text)
+        {
+            var str = text;
+            if (text.Contains("%"))
+            {
+                var ss = text.Split(new char[] { '%' }, StringSplitOptions.RemoveEmptyEntries);
+                if (ss.Length != 2)
+                {
+                    throw new Exception("not a vaild text:" + text);
+                }
+
+                str = ss[0] + dapp_getRefValues(ss[1]);
+            }
+            var bytes = ThinNeo.ScriptBuilder.GetParamBytes(str);
+            return bytes;
+        }
+        string dapp_getRefValues(string info)
+        {
+            var plugin = dappfuncs.Tag as DApp_SimplePlugin;
+            var func = (dappfuncs.SelectedItem as TabItem).Tag as DApp_Func;
+
+            info = info.Replace(" ", "");
+            var pointstr = info.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+            if (pointstr[0] == "consts")
+            {
+                if (plugin.consts.ContainsKey(pointstr[1]))
+                {
+                    return plugin.consts[pointstr[1]];
+                }
+                else
+                {
+                    throw new Exception("not have const:" + info);
+                }
+            }
+            else if (pointstr[0] == "inputs")
+            {
+                if (this.dapp_values.ContainsKey(pointstr[1]))
+                {
+                    if (this.dapp_values[pointstr[1]].error == false)
+                    {
+                        return this.dapp_values[pointstr[1]].value;
+                    }
+                    else
+                    {
+                        throw new Exception("value is in error:" + info);
+                    }
+                }
+                else
+                {
+                    throw new Exception("not have inputs:" + info);
+                }
+            }
+
+            throw new Exception("not support it:" + info);
+
+        }
+        string dapp_getResultValue(string type, byte[] result)
+        {
+            if(type=="string")
+            {
+                return System.Text.Encoding.UTF8.GetString(result);
+            }
+            throw new Exception("not support.");
+        }
+        string dapp_getValue(FrameworkElement ui, string type)
+        {
+            if (type == "string" || type == "str")
+            {
+                if ((ui is TextBlock))
+                    return (ui as TextBlock).Text;
+                if ((ui is TextBox))
+                    return (ui as TextBox).Text;
+            }
+            else if (type == "address")
+            {
+                var str = "";
+                if ((ui is TextBlock))
+                    str = (ui as TextBlock).Text;
+                else if ((ui is TextBox))
+                    str = (ui as TextBox).Text;
+                else
+                    throw new Exception("not support");
+                var hash = ThinNeo.Helper.GetPublicKeyHashFromAddress(str);
+                return ThinNeo.Helper.GetAddressFromScriptHash(hash);
+            }
+            else
+            {
+                throw new Exception("not support type");
+            }
+            throw new Exception("not parsed value");
+        }
+        void dapp_updateValuesUI()
+        {
+            this.listDappValue.Items.Clear();
+            foreach (var v in dapp_values)
+            {
+                var item = new ListBoxItem();
+                item.Content = v.Key + "=" + v.Value.value;
+                if (v.Value.error)
+                {
+                    item.Foreground = red;
+                }
+                this.listDappValue.Items.Add(item);
+            }
+        }
+
+        void dapp_UpdatePluginsUI()
+        {
+            if (!dapp_Init)
+            {
+                dapp_Init = true;
                 this.comboDApp.SelectionChanged += (s, e) =>
                   {
+                      dapp_values.Clear();
                       var plugin = (this.comboDApp.SelectedItem as ComboBoxItem).Content as DApp_SimplePlugin;
                       if (plugin != null)
                       {
                           dappfuncs.Items.Clear();
+                          dappfuncs.Tag = plugin;
                           foreach (var f in plugin.funcs)
                           {
                               var tabItem = new TabItem();
                               tabItem.Header = f.name;
+                              tabItem.Tag = f;
                               dappfuncs.Items.Add(tabItem);
-                              UpdateFuncUI(tabItem, f);
+                              dapp_UpdateFuncUI(tabItem, f);
                           }
                       }
                   };
             }
-            foreach (var m in DApp_Plat.plugins)
+            foreach (var m in dapp_plat.plugins)
             {
                 var item = new ComboBoxItem();
                 item.Content = m;
@@ -47,7 +273,15 @@ namespace thinWallet
 
             }
         }
-        void UpdateFuncUI(TabItem tabitem, DApp_Func func)
+        System.Windows.Media.SolidColorBrush red
+        {
+            get
+            {
+                return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+
+            }
+        }
+        void dapp_UpdateFuncUI(TabItem tabitem, DApp_Func func)
         {
             var sviewer = new ScrollViewer();
             tabitem.Content = sviewer;
@@ -57,7 +291,7 @@ namespace thinWallet
 
             var text = new TextBlock();
             text.Width = 500;
-            text.Height = 100;
+            text.Height = 32;
             canvas.Children.Add(text);
             Canvas.SetLeft(text, 0);
             Canvas.SetTop(text, 0);
@@ -78,15 +312,33 @@ namespace thinWallet
                 if (i.type == "string" || i.type == "address")
                 {
                     TextBox tbox = new TextBox();
+                    tbox.Tag = i;
                     tbox.Width = 300;
                     tbox.Height = 20;
                     tbox.Text = i.value;
                     canvas.Children.Add(tbox);
+                    tbox.TextChanged += dapp_FuncValue_Text_Changed;
                     Canvas.SetLeft(tbox, 200);
                     Canvas.SetTop(tbox, y);
                     y += 20;
                 }
             }
+        }
+        void dapp_FuncValue_Text_Changed(object sender, TextChangedEventArgs e)
+        {
+            var input = (sender as FrameworkElement).Tag as DApp_Input;
+            try
+            {
+                var value = dapp_getValue(sender as FrameworkElement, input.type);
+                this.dapp_values[input.id].value = value;
+                this.dapp_values[input.id].error = false;
+            }
+            catch (Exception err)
+            {
+                this.dapp_values[input.id].value = err.Message;
+                this.dapp_values[input.id].error = true;
+            }
+            dapp_updateValuesUI();
         }
     }
 }

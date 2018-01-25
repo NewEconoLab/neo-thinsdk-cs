@@ -1,6 +1,6 @@
 ﻿{
   "title": "WHO AM I",
-  "contracts": {
+  "consts": {
     "base": "0x42832a25cf11d0ceee5629cb8b4daee9bac207ca"
   },
   "funcs": [
@@ -19,8 +19,8 @@
         "type": "getstorage",
         "scriptcall": "",
         "scriptparam": [
-          "(uint160)%contracts.base%",
-          "(addr)%inputs:address%"
+          "(uint160)%consts.base%",
+          "(address)%inputs.address%"
         ]
       },
       "results": [
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "name": "setname",
+      "name": "setname(test)",
       "desc": "set my name to chain.",
       "inputs": [
         {
@@ -48,14 +48,46 @@
         }
       ],
       "call": {
-        "type": "invoketransaction",
-        "scriptcall": "(hexbig)%contracts.base%",
+        "type": "invokescript",
+        "scriptcall": "(uint160)%consts.base%",
         "scriptparam": [
           "(str)getname",
           [
-            "(addr)%input.address%",
             "(hex)%keyinfo.pubkey%",
-            "(str)%input.name%"
+            "(str)%inputs.name%"
+          ]
+        ]
+      },
+      "results": [
+
+      ]
+    },
+
+    {
+      "name": "setname(sendraw)",
+      "desc": "set my name to chain.",
+      "inputs": [
+        {
+          "id": "address",
+          "type": "address",
+          "desc": "input address to look his name",
+          "value": "ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj"
+        },
+        {
+          "id": "name",
+          "type": "string",
+          "desc": "what is your name",
+          "value": "rich boy."
+        }
+      ],
+      "call": {
+        "type": "sendrawtransaction",
+        "scriptcall": "(uint160)%consts.base%",
+        "scriptparam": [
+          "(str)getname",
+          [
+            "(hex)%keyinfo.pubkey%",
+            "(str)%inputs.name%"
           ]
         ],
         "input": [

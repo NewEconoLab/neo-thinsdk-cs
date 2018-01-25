@@ -209,18 +209,18 @@
                             <RowDefinition Height="176*"/>
                         </Grid.RowDefinitions>
                         <GroupBox Grid.Column="2" Header="Values" Foreground="White" BorderBrush="White" BorderThickness="0,0,0,0" Background="#7FFFFFFF" Margin="2,0" Grid.RowSpan="3">
-                            <ListBox Background="{x:Null}"></ListBox>
+                            <ListBox x:Name="listDappValue" Background="{x:Null}"></ListBox>
                         </GroupBox>
-                        <GroupBox Header="Dapp" Grid.Column="0"  Grid.Row="2"  Foreground="White" BorderBrush="White" BorderThickness="0,0,0,0" Background="#7FFFFFFF" Margin="2,0" Grid.ColumnSpan="2">
-                            <TabControl x:Name="dappfuncs" Background="{x:Null}"></TabControl>
+                        <GroupBox Header="Dapp functions" Grid.Column="0"  Grid.Row="2"  Foreground="White" BorderBrush="White" BorderThickness="0,0,0,0" Background="#7FFFFFFF" Margin="2,0" Grid.ColumnSpan="2">
+                            <TabControl x:Name="dappfuncs" Background="{x:Null}" SelectionChanged="dappfuncs_SelectionChanged"></TabControl>
                         </GroupBox>
                         <TextBlock Grid.Row="0" Text="NEL Dapp.SJ Version 0.1" Foreground="#FFFF8000" TextAlignment="Center" Grid.ColumnSpan="2">
                             <TextBlock.Effect>
                                 <DropShadowEffect/>
                             </TextBlock.Effect></TextBlock>
 
-                        <TextBlock Grid.Row="1" Text="Select a Simple Dapp" Foreground="White" TextAlignment="Center"></TextBlock>
-                        <ComboBox x:Name="comboDApp" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Margin="2"></ComboBox>
+                        <TextBlock Grid.Row="1" Text="Select a Simple Dapp" Foreground="White" TextAlignment="Center" Margin="10,0,0,0"></TextBlock>
+                        <ComboBox x:Name="comboDApp" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1" Margin="2,2,10,2"></ComboBox>
                         <GroupBox Header="Execute" Grid.Row="3" BorderThickness="0,0,0,1" Background="#3F62FFA2" Grid.ColumnSpan="3">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -231,9 +231,9 @@
                                     <RowDefinition Height="27*"/>
                                     <RowDefinition Height="113*"/>
                                 </Grid.RowDefinitions>
-                                <Button Content="Execute" Grid.RowSpan="1" Grid.ColumnSpan="1"/>
-                                <ListBox Grid.Row="1" Background="#33FFFFFF" Margin="2"></ListBox>
-                                <TextBlock Grid.Row="1" Grid.Column="1" Background="#33000000" Margin="2"></TextBlock>
+                                <Button Content="Execute" Grid.RowSpan="1" Grid.ColumnSpan="1" Click="Execute_Dapp_Function"/>
+                                <ListBox x:Name="dapp_result" Grid.Row="1" Background="#33FFFFFF" Margin="2"></ListBox>
+                                <TextBlock x:Name="dapp_result_raw" Grid.Row="1" Grid.Column="1" Background="#33000000" Margin="2"></TextBlock>
                             </Grid>
                         </GroupBox>
                     </Grid>

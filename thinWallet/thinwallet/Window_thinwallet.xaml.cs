@@ -99,8 +99,8 @@ namespace thinWallet
         {
             Tools.CoinTool.Load();
             this.UpdateTranData();
-            DApp_Plat.LoadSimplePlugins();
-            this.UpdatePlugins();
+            dapp_plat.LoadSimplePlugins();
+            this.dapp_UpdatePluginsUI();
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(3000);
             timer.Tick += (s, ee) =>
@@ -762,5 +762,6 @@ namespace thinWallet
             System.Diagnostics.Process.Start("http://be.nel.group/page/address.html?addr=" + addr);
 
         }
+
     }
 }
