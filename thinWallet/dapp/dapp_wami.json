@@ -1,0 +1,79 @@
+﻿{
+  "title": "WHO AM I",
+  "funcs": [
+    {
+      "name": "check",
+      "desc": "check my name on chain.",
+      "inputs": [
+        {
+          "id": "address",
+          "type": "address",
+          "desc": "input address to look his name",
+          "value": "ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj"
+        }
+      ],
+      "call": {
+        "type": "invokescript",
+        "scriptcall": "",
+        "scriptparam": [
+          "(str)getname",
+          [
+            "(addr)%input:address%",
+            "(hex)%keyinfo:pubkey%"
+          ]
+        ]
+      },
+      "results": [
+        {
+          "type": "string",
+          "desc": "name"
+        }
+      ]
+    },
+    {
+      "name": "setname",
+      "desc": "set my name to chain.",
+      "inputs": [
+        {
+          "id": "address",
+          "type": "address",
+          "desc": "input address to look his name",
+          "value": "ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj"
+        },
+        {
+          "id": "name",
+          "type": "string",
+          "desc": "what is your name",
+          "value": "rich boy."
+        }
+      ],
+      "call": {
+        "type": "invoketransaction",
+        "scriptcall": "",
+        "scriptparam": [
+          "(str)getname",
+          [
+            "(addr)%input.address%",
+            "(hex)%keyinfo.pubkey%",
+            "(str)%input.name%"
+          ]
+        ],
+        "input": [
+          {
+            "type": "UTXO",
+            "tag": "GAS",
+            "value": 0
+          }
+        ],
+        "witness": [
+          {
+            "type": "keysign"
+          }
+        ]
+      },
+      "results": [
+
+      ]
+    }
+  ]
+}

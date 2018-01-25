@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using thinWallet.dapp_plat;
 
 namespace thinWallet
 {
@@ -98,8 +99,8 @@ namespace thinWallet
         {
             Tools.CoinTool.Load();
             this.UpdateTranData();
-
-
+            DApp_Plat.LoadSimplePlugins();
+            this.UpdatePlugins();
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(3000);
             timer.Tick += (s, ee) =>
