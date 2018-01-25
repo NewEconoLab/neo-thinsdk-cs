@@ -640,6 +640,15 @@ namespace thinWallet
                 var item = listInput.Items[i] as Tools.Input;
                 var input = new ThinNeo.TransactionInput();
                 input.index = (ushort)item.Coin.fromN;
+                var checkutxo = item.Coin.fromN + "_" + item.Coin.fromID;
+                foreach (var v in Tools.CoinTool.UtxoHistory)
+                {
+                    if (v == checkutxo)
+                    {
+                        if (MessageBox.Show("use a input with spented money. Realy?", "", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                            return;
+                    }
+                }
                 input.hash = ThinNeo.Helper.HexString2Bytes(item.Coin.fromID).Reverse().ToArray();//反转
                 trans.inputs[i] = input;
             }

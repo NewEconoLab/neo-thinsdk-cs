@@ -178,7 +178,7 @@
                                     <ColumnDefinition Width="173*"/>
                                     <ColumnDefinition Width="133*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Content="Sign and Broadcast" Grid.RowSpan="1" Margin="2" Grid.ColumnSpan="1" Click="Button_Click_7"></Button>
+                                <Button Content="Sign and Broadcast" Grid.RowSpan="1" Margin="2,2,2,2" Grid.ColumnSpan="1" Click="Button_Click_7" Height="24" VerticalAlignment="Top"></Button>
                                 <Button Content="See Detail" Grid.Column="1" Grid.RowSpan="1" Margin="2" Grid.ColumnSpan="1"></Button>
                             </Grid>
                         </GroupBox>
