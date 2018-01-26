@@ -233,7 +233,7 @@
                                     <RowDefinition Height="113*"/>
                                 </Grid.RowDefinitions>
                                 <Button Content="Execute" Grid.RowSpan="1" Grid.ColumnSpan="1" Click="Execute_Dapp_Function"/>
-                                <Button Content="MakeTransaction" Grid.Column="1" Click="Execute_Dapp_Function_GenOnly" ></Button>
+                                <Button x:Name="btnMakeTran" Content="MakeTransaction" Grid.Column="1" Click="Execute_Dapp_Function_GenOnly" ></Button>
                                 <ListBox x:Name="dapp_result" Grid.Row="1" Background="#33FFFFFF" Margin="2"></ListBox>
                                 <TextBox IsReadOnly="True" AcceptsReturn="True" AcceptsTab="True" x:Name="dapp_result_raw" Grid.Row="1" Grid.Column="1" Background="#33000000" Margin="2" Grid.ColumnSpan="2"></TextBox>
                             </Grid>

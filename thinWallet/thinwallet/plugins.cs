@@ -57,6 +57,14 @@ namespace thinWallet
                     }
                 }
             }
+            if (func.call.type == DApp_Call.Type.sendrawtransaction)
+            {
+                btnMakeTran.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                btnMakeTran.Visibility = Visibility.Hidden;
+            }
             dapp_updateValuesUI();
         }
 

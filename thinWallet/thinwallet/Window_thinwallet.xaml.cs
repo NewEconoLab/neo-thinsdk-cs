@@ -46,6 +46,9 @@ namespace thinWallet
                     labelAccount.Text = err.Message;
                 }
             }
+
+            //自动刷一下utxo
+            Button_Click_5(null, null);
         }
 
         //import WIF 
@@ -672,7 +675,7 @@ namespace thinWallet
         ThinNeo.Transaction signAndBroadcast()
         {
 
-            ThinNeo.Transaction trans = new ThinNeo.Transaction();
+            ThinNeo.Transaction trans = GenTran();
             if (trans == null)
                 return null;
 
