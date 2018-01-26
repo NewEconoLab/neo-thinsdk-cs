@@ -4,6 +4,7 @@ using thinWallet.dapp_plat;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using System.Text;
 
 namespace thinWallet
 {
@@ -68,44 +69,133 @@ namespace thinWallet
             var func = (dappfuncs.SelectedItem as TabItem).Tag as DApp_Func;
             if (func.call.type == DApp_Call.Type.getstorage)
             {
-                try
-                {
-                    var json = MyJson.Parse(func.call.scriptparam).AsList();
-                    var scripthash = dapp_getCallParam(json[0].AsString());
-                    var key = dapp_getCallParam(json[1].AsString());
-                    var result = rpc_getStorage(scripthash, key);
-                    if (result == null)
-                        this.dapp_result_raw.Text = "(null)";
-                    else
-                        this.dapp_result_raw.Text = ThinNeo.Helper.Bytes2HexString(result);
-
-                    this.dapp_result.Items.Clear();
-                    if (func.results.Length > 0)
-                    {
-                        var outvalue = "";
-                        try
-                        {
-                            outvalue = dapp_getResultValue(func.results[0].type, result);
-                        }
-                        catch(Exception err)
-                        {
-                            outvalue = "err:" + err.Message;
-                        }
-                        this.dapp_result.Items.Add(func.results[0].desc + "=" + outvalue);
-                    }
-                }
-                catch (Exception err)
-                {
-                    this.dapp_result_raw.Text = "error=" + err.Message + "\r\n" + err.StackTrace;
-                }
+                dapp_getStorage(func);
             }
             else if (func.call.type == DApp_Call.Type.invokescript)
             {
-
+                dapp_invokeScript(func);
             }
             else if (func.call.type == DApp_Call.Type.sendrawtransaction)
             {
 
+            }
+        }
+
+        private void dapp_getStorage(DApp_Func func)
+        {
+            try
+            {
+                var json = func.call.scriptparam;
+                var scripthash = dapp_getCallParam(json[0].AsString());
+                var key = dapp_getCallParam(json[1].AsString());
+                var result = rpc_getStorage(scripthash, key);
+                if (result == null)
+                    this.dapp_result_raw.Text = "(null)";
+                else
+                    this.dapp_result_raw.Text = ThinNeo.Helper.Bytes2HexString(result);
+
+                this.dapp_result.Items.Clear();
+                if (func.results.Length > 0)
+                {
+                    var outvalue = "";
+                    try
+                    {
+                        outvalue = dapp_getResultValue(func.results[0].type, result);
+                    }
+                    catch (Exception err)
+                    {
+                        outvalue = "err:" + err.Message;
+                    }
+                    this.dapp_result.Items.Add(func.results[0].desc + "=" + outvalue);
+                }
+            }
+            catch (Exception err)
+            {
+                this.dapp_result_raw.Text = "error=" + err.Message + "\r\n" + err.StackTrace;
+            }
+        }
+        void dapp_EmitParam(ThinNeo.ScriptBuilder sb, MyJson.IJsonNode param)
+        {
+            if (param is MyJson.JsonNode_ValueNumber)//bool 或小整数
+            {
+                sb.EmitParamJson(param);
+            }
+            else if (param is MyJson.JsonNode_Array)
+            {
+                var list = param.AsList();
+                for (var i = list.Count - 1; i >= 0; i--)
+                {
+                    dapp_EmitParam(sb, list[i]);
+                }
+                sb.EmitPushNumber(param.AsList().Count);
+                sb.Emit(ThinNeo.VM.OpCode.PACK);
+            }
+            else if (param is MyJson.JsonNode_ValueString)//复杂格式
+            {
+                var str = param.AsString();
+                var bytes = dapp_getCallParam(str);
+                sb.EmitPushBytes(bytes);
+            }
+            else
+            {
+                throw new Exception("should not pass a {}");
+            }
+        }
+        private void dapp_invokeScript(DApp_Func func)
+        {
+            try
+            {
+                var hash = dapp_getCallParam(func.call.scriptcall);
+                var scrb = new ThinNeo.ScriptBuilder();
+                var jsonps = func.call.scriptparam;
+                for (var i = jsonps.Length - 1; i >= 0; i--)
+                {
+                    dapp_EmitParam(scrb, jsonps[i]);
+                }
+                scrb.EmitAppCall(hash);
+
+
+                var callstr = ThinNeo.Helper.Bytes2HexString(scrb.ToArray());
+                var str = WWW.MakeRpcUrl(labelRPC.Text, "invokescript", new MyJson.JsonNode_ValueString(callstr));
+                var result = WWW.GetWithDialog(this, str);
+
+                this.dapp_result.Items.Clear();
+
+
+                if (result == null)
+                    this.dapp_result_raw.Text = "(null)";
+                else
+                {
+                    var json = MyJson.Parse(result).AsDict();
+                    if (json.ContainsKey("error"))
+                    {
+                        this.dapp_result_raw.Text = json["error"].ToString();
+
+                    }
+                    else
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        json["result"].AsDict().ConvertToStringWithFormat(sb, 4);
+                        this.dapp_result_raw.Text = sb.ToString();
+                        var gas = json["result"].AsDict()["gas_consumed"].ToString();
+                        this.dapp_result.Items.Add("Fee:" + gas);
+                        var state = json["result"].AsDict()["state"].ToString();
+                        this.dapp_result.Items.Add("State:" + state);
+                        var stack = json["result"].AsDict()["stack"].AsList();
+                        this.dapp_result.Items.Add("StackCount=" + stack.Count);
+                        foreach(var s in stack)
+                        {
+                            this.dapp_result.Items.Add(s.ToString());
+                        }
+
+                    }
+                }
+
+
+            }
+            catch (Exception err)
+            {
+                this.dapp_result_raw.Text = "error=" + err.Message + "\r\n" + err.StackTrace;
             }
         }
         byte[] rpc_getStorage(byte[] scripthash, byte[] key)
@@ -180,13 +270,26 @@ namespace thinWallet
                     throw new Exception("not have inputs:" + info);
                 }
             }
+            else if (pointstr[0] == "keyinfo")
+            {
+                if (this.privatekey == null)
+                {
+                    throw new Exception("not load key.");
+                }
+                if (pointstr[1] == "pubkey")
+                {
+                    var pkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
+                    var kk = ThinNeo.Helper.GetAddressFromPublicKey(pkey);
+                    return ThinNeo.Helper.Bytes2HexString(pkey);
+                }
+            }
 
             throw new Exception("not support it:" + info);
 
         }
         string dapp_getResultValue(string type, byte[] result)
         {
-            if(type=="string")
+            if (type == "string")
             {
                 return System.Text.Encoding.UTF8.GetString(result);
             }

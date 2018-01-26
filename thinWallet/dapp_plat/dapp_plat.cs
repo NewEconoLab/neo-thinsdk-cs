@@ -22,6 +22,44 @@ namespace thinWallet.dapp_plat
             this.desc = json["desc"].AsString();
         }
     }
+
+    public class DApp_Coin
+    {
+        public string scripthash;
+        public string asset;
+        public ThinNeo.Fixed8 value;
+
+        public void Load(MyJson.JsonNode_Object json)
+        {
+            this.scripthash = json["scripthash"].AsString();
+            this.asset = json["asset"].AsString();
+            if (json["value"] is MyJson.JsonNode_ValueNumber)
+            {
+                decimal v = (decimal)json["value"].AsDouble();
+                this.value = v;
+            }
+            else if (json["value"] is MyJson.JsonNode_ValueString)
+            {
+                decimal v = decimal.Parse(json["value"].AsString());
+                this.value = v;
+            }
+            else
+            {
+                throw new Exception("error value type.");
+            }
+        }
+    }
+    public class DApp_Witness
+    {
+        public string vscript;
+        public MyJson.IJsonNode[] iscript;
+        public void Load(MyJson.JsonNode_Object json)
+        {
+            this.iscript = json["iscript"].AsList().ToArray();
+            this.vscript = json["vscript"].AsString();
+        }
+    }
+
     public class DApp_Call
     {
         public enum Type
@@ -32,14 +70,39 @@ namespace thinWallet.dapp_plat
         }
         public Type type;
         public string scriptcall;
-        public string scriptparam;
-        //public InputCoin coins;
-        //public Witness witnesses;
+        public MyJson.IJsonNode[] scriptparam;
+        public double scriptfee;
+        public DApp_Coin[] coins;
+        public DApp_Witness[] witnesses;
         public void Load(MyJson.JsonNode_Object json)
         {
             this.type = (Type)Enum.Parse(typeof(Type), json["type"].AsString());
             this.scriptcall = json["scriptcall"].AsString();
-            this.scriptparam = json["scriptparam"].ToString();
+            this.scriptparam = json["scriptparam"].AsList().ToArray();
+            if (json.ContainsKey("scriptfee"))
+            {
+                this.scriptfee = json["scriptfee"].AsDouble();
+            }
+            if (json.ContainsKey("coins"))
+            {
+                var jsoncoins = json["coins"].AsList();
+                this.coins = new DApp_Coin[jsoncoins.Count];
+                for (var i = 0; i < jsoncoins.Count; i++)
+                {
+                    this.coins[i] = new DApp_Coin();
+                    this.coins[i].Load(jsoncoins[i] as MyJson.JsonNode_Object);
+                }
+            }
+            if (json.ContainsKey("witnesses"))
+            {
+                var jsonwits = json["witnesses"].AsList();
+                this.witnesses = new DApp_Witness[jsonwits.Count];
+                for (var i = 0; i < jsonwits.Count; i++)
+                {
+                    this.witnesses[i] = new DApp_Witness();
+                    this.witnesses[i].Load(jsonwits[i] as MyJson.JsonNode_Object);
+                }
+            }
         }
     }
     public class DApp_Result
@@ -128,9 +191,9 @@ namespace thinWallet.dapp_plat
 
                 this.funcs[i].Load(funcs[i].AsDict());
             }
-            if(json.ContainsKey("consts"))
+            if (json.ContainsKey("consts"))
             {
-                foreach(var citem in  json["consts"].AsDict())
+                foreach (var citem in json["consts"].AsDict())
                 {
                     this.consts[citem.Key] = citem.Value.ToString();
                 }

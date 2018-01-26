@@ -51,11 +51,8 @@
         "type": "invokescript",
         "scriptcall": "(uint160)%consts.base%",
         "scriptparam": [
-          "(str)getname",
-          [
-            "(hex)%keyinfo.pubkey%",
+            "(bytes)%keyinfo.pubkey%",
             "(str)%inputs.name%"
-          ]
         ]
       },
       "results": [
@@ -84,22 +81,23 @@
         "type": "sendrawtransaction",
         "scriptcall": "(uint160)%consts.base%",
         "scriptparam": [
-          "(str)getname",
-          [
-            "(hex)%keyinfo.pubkey%",
-            "(str)%inputs.name%"
-          ]
+          "(bytes)%keyinfo.pubkey%",
+          "(str)%inputs.name%"
         ],
-        "input": [
+        "scriptfee": 1.0,
+        "coins": [
           {
-            "type": "UTXO",
-            "tag": "GAS",
+            "scripthash": "(bytes)%keyinfo.scripthash",
+            "asset": "GAS",
             "value": 0
           }
         ],
-        "witness": [
+        "witnesses": [
           {
-            "type": "keysign"
+            "vscript": "(bytes)%keyinfo.script%",
+            "iscript": [
+              "(bytes)%keyinfo.signdata%" 
+            ]
           }
         ]
       },
