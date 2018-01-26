@@ -83,7 +83,7 @@
             </Grid>
         </GroupBox>
         <GroupBox Header="Main Panel" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="#3F8F6565" Margin="2" Foreground="White">
-            <TabControl Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="{x:Null}" Margin="2" Foreground="White">
+            <TabControl x:Name="tabMain" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="{x:Null}" Margin="2" Foreground="White">
                 <TabItem Header="Make Tansaction">
                     <TabItem.Background>
                         <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
@@ -224,16 +224,18 @@
                         <GroupBox Header="Execute" Grid.Row="3" BorderThickness="0,0,0,1" Background="#3F62FFA2" Grid.ColumnSpan="3">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="284*"/>
-                                    <ColumnDefinition Width="495*"/>
+                                    <ColumnDefinition Width="288*"/>
+                                    <ColumnDefinition Width="286*"/>
+                                    <ColumnDefinition Width="217*"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="27*"/>
                                     <RowDefinition Height="113*"/>
                                 </Grid.RowDefinitions>
                                 <Button Content="Execute" Grid.RowSpan="1" Grid.ColumnSpan="1" Click="Execute_Dapp_Function"/>
+                                <Button Content="MakeTransaction" Grid.Column="1" Click="Execute_Dapp_Function_GenOnly" ></Button>
                                 <ListBox x:Name="dapp_result" Grid.Row="1" Background="#33FFFFFF" Margin="2"></ListBox>
-                                <TextBox IsReadOnly="True" AcceptsReturn="True" AcceptsTab="True" x:Name="dapp_result_raw" Grid.Row="1" Grid.Column="1" Background="#33000000" Margin="2"></TextBox>
+                                <TextBox IsReadOnly="True" AcceptsReturn="True" AcceptsTab="True" x:Name="dapp_result_raw" Grid.Row="1" Grid.Column="1" Background="#33000000" Margin="2" Grid.ColumnSpan="2"></TextBox>
                             </Grid>
                         </GroupBox>
                     </Grid>

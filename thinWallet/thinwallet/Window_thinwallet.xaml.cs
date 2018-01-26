@@ -166,6 +166,7 @@ namespace thinWallet
         }
 
         byte[] lastScript;
+        byte[] lastTranMessage;
         decimal? lastFee = null;
         void updateScript()
         {
@@ -359,8 +360,7 @@ namespace thinWallet
             var input = new Tools.Input();
             input.Coin = coin.Clone();
             var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
-            input.From = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
-            input.IsSmartContract = false;
+            input.From = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
             listInput.Items.Add(input);
             updateOutput();
         }
@@ -376,52 +376,58 @@ namespace thinWallet
         void _updateOutput()
         {
             Dictionary<string, Dictionary<string, decimal>> incoins = new Dictionary<string, Dictionary<string, decimal>>();
-            Dictionary<string, bool> witnesses = new Dictionary<string, bool>();
+            List<string> needWitness = new List<string>();
             foreach (Tools.Input input in listInput.Items)
             {
-                if (incoins.ContainsKey(input.From) == false)
+                if (incoins.ContainsKey(input.Address) == false)
                 {
-                    incoins[input.From] = new Dictionary<string, decimal>();
+                    incoins[input.Address] = new Dictionary<string, decimal>();
                 }
-                witnesses[input.From] = input.IsSmartContract;
 
-                var incoin = incoins[input.From];
+                var incoin = incoins[input.Address];
                 if (incoin.ContainsKey(input.Coin.assetID) == false)
                     incoin[input.Coin.assetID] = input.Coin.value;
                 else
                     incoin[input.Coin.assetID] += input.Coin.value;
+
+                if (needWitness.Contains(input.Address) == false)
+                {
+                    needWitness.Add(input.Address);
+                }
             }
 
+            var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
+            var address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
             {//处理见证人
                 List<string> witness = new List<string>();
-                List<Tools.Witnees> needdelw = new List<Tools.Witnees>();
-
-                foreach (Tools.Witnees w in listWitness.Items)
+                foreach (ThinNeo.Witness w in listWitness.Items)
                 {
-                    //无用鉴证人清除
-                    if (w.IsSmartContract == false && witnesses.ContainsKey(w.address) == false)
-                    {
-                        needdelw.Add(w);
-                    }
-                    else
-                    {
-                        witness.Add(w.address);
-                    }
-                }
-                foreach (var d in needdelw)
-                {
-                    listWitness.Items.Remove(d);
+                    witness.Add(w.Address);
                 }
 
-                foreach (var f in witnesses.Keys)
+
+                foreach (var f in needWitness)
                 {
                     if (witness.Contains(f) == false)
                     {
-                        Tools.Witnees wit = new Tools.Witnees();
-                        wit.IsSmartContract = witnesses[f];
-                        wit.address = f;
-                        wit.iscript = null;
-                        listWitness.Items.Add(wit);
+                        ThinNeo.Witness wit = new ThinNeo.Witness();
+                        if (f == address)
+                        {
+                            wit.VerificationScript = ThinNeo.Helper.GetScriptFromPublicKey(pubkey);
+                            listWitness.Items.Add(wit);
+                        }
+                        else
+                        {
+                            //并不知道试试 
+                            byte[] script = rpc_getScript(ThinNeo.Helper.GetPublicKeyHashFromAddress(f));
+                            if (script != null)
+                            {
+                                wit.VerificationScript = script;
+                                listWitness.Items.Add(wit);
+
+                            }
+                        }
+
                     }
                 }
             }
@@ -600,22 +606,22 @@ namespace thinWallet
             lastFee = null;
             updateScript();
         }
-        void signAndBroadcast()
+        ThinNeo.Transaction GenTran()
         {
             if (this.listInput.Items.Count == 0)
             {
                 MessageBox.Show("no input");
-                return;
+                return null;
             }
             if (this.listOutput.Items.Count == 0)
             {
                 MessageBox.Show("no output");
-                return;
+                return null;
             }
             if (this.listWitness.Items.Count == 0)
             {
                 MessageBox.Show("no witness");
-                return;
+                return null;
             }
             ThinNeo.Transaction trans = new ThinNeo.Transaction();
             trans.attributes = new ThinNeo.Attribute[0];
@@ -635,7 +641,6 @@ namespace thinWallet
             }
             trans.inputs = new ThinNeo.TransactionInput[this.listInput.Items.Count];
             trans.outputs = new ThinNeo.TransactionOutput[this.listOutput.Items.Count];
-            trans.witnesses = new ThinNeo.Witness[this.listWitness.Items.Count];
             for (var i = 0; i < listInput.Items.Count; i++)
             {
                 var item = listInput.Items[i] as Tools.Input;
@@ -647,7 +652,7 @@ namespace thinWallet
                     if (v == checkutxo)
                     {
                         if (MessageBox.Show("use a input with spented money. Realy?", "", MessageBoxButton.YesNo) == MessageBoxResult.No)
-                            return;
+                            return null;
                     }
                 }
                 input.hash = ThinNeo.Helper.HexString2Bytes(item.Coin.fromID).Reverse().ToArray();//反转
@@ -662,41 +667,37 @@ namespace thinWallet
                 output.value = item.Fix8;
                 trans.outputs[i] = output;
             }
+            return trans;
+        }
+        ThinNeo.Transaction signAndBroadcast()
+        {
+
+            ThinNeo.Transaction trans = new ThinNeo.Transaction();
+            if (trans == null)
+                return null;
+
+            var msg = trans.GetMessage();
+            trans.witnesses = new ThinNeo.Witness[this.listWitness.Items.Count];
+            //检查签名
             for (var i = 0; i < listWitness.Items.Count; i++)
             {
-                var item = listWitness.Items[i] as Tools.Witnees;
+                var item = listWitness.Items[i] as ThinNeo.Witness;
                 var witness = new ThinNeo.Witness();
-
-                if (item.IsSmartContract)
-                {
-                    if (item.iscript == null)
-                    {
-                        throw new Exception("a smartContract witness not set InvocationScript.");
-                    }
-                    var s = ThinNeo.Helper.GetPublicKeyHashFromAddress(item.address);
-                    witness.VerificationScript = rpc_getScript(s);
-                    witness.InvocationScript = item.iscript;
-                    return;
-                }
-                else //个人鉴证人
+                witness.VerificationScript = item.VerificationScript;
+                witness.InvocationScript = item.InvocationScript;
+                //autoresign
                 {
                     var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
                     var addr = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
-                    if (item.address != addr)
+                    if (item.Address == addr)
                     {
-                        MessageBox.Show("the key is no match with your witness.");
+                        var signdata = ThinNeo.Helper.Sign(msg, this.privatekey);
+                        var sb = new ThinNeo.ScriptBuilder();
+                        sb.EmitPushBytes(signdata);
+                        witness.InvocationScript = sb.ToArray();
                     }
-
-                    witness.VerificationScript = ThinNeo.Helper.GetScriptFromPublicKey(pubkey);
-
-                    var signdata = ThinNeo.Helper.Sign(trans.GetMessage(), this.privatekey);
-                    var sb = new ThinNeo.ScriptBuilder();
-                    sb.EmitPushBytes(signdata);
-
-                    witness.InvocationScript = sb.ToArray();
                 }
                 trans.witnesses[i] = witness;
-
             }
 
             var rawdata = trans.GetRawData();
@@ -708,12 +709,15 @@ namespace thinWallet
 
                 Tools.CoinTool.SaveRecord();
                 MessageBox.Show("txid=" + str);
+                ClearTran();
+                return trans;
             }
             else
             {
                 MessageBox.Show("transaction error");
+                ClearTran();
+                return null;
             }
-            ClearTran();
         }
 
         private void Button_Click_8(object sender, RoutedEventArgs e)

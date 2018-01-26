@@ -215,23 +215,20 @@ namespace thinWallet.Tools
     public class Input
     {
         public UTXOCoin Coin;//币
-        public string From;//来源，需要这个人或者脚本做witness
-        public bool IsSmartContract;
+        public byte[] From;//来源，需要这个人或者脚本做witness
+        public string Address
+        {
+            get
+            {
+                return ThinNeo.Helper.GetAddressFromScriptHash(From);
+            }
+        }
         public override string ToString()
         {
             return Coin.ToString();
         }
     }
-    public class Witnees
-    {
-        public string address;
-        public bool IsSmartContract;
-        public byte[] iscript;//如果是智能合约见证人，就需要独特的iscript
-        public override string ToString()
-        {
-            return (IsSmartContract ? "(SmartContract)" : "(AddSign)") + address;
-        }
-    }
+
     public class Output
     {
         public bool isTheChange = false;//是否是找零

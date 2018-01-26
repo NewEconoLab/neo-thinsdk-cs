@@ -77,10 +77,22 @@ namespace thinWallet
             }
             else if (func.call.type == DApp_Call.Type.sendrawtransaction)
             {
-
+                dapp_sendrawtransaction(func);
             }
         }
+        private void Execute_Dapp_Function_GenOnly(object sender, RoutedEventArgs e)
+        {
+            var plugin = dappfuncs.Tag as DApp_SimplePlugin;
+            if (plugin == null)
+                return;
+            var func = (dappfuncs.SelectedItem as TabItem).Tag as DApp_Func;
+            if (func.call.type == DApp_Call.Type.sendrawtransaction)
+            {
+                dapp_sendrawtransaction(func, true);
+                tabMain.SelectedIndex = 0;
+            }
 
+        }
         private void dapp_getStorage(DApp_Func func)
         {
             try
@@ -183,7 +195,7 @@ namespace thinWallet
                         this.dapp_result.Items.Add("State:" + state);
                         var stack = json["result"].AsDict()["stack"].AsList();
                         this.dapp_result.Items.Add("StackCount=" + stack.Count);
-                        foreach(var s in stack)
+                        foreach (var s in stack)
                         {
                             this.dapp_result.Items.Add(s.ToString());
                         }
@@ -197,6 +209,157 @@ namespace thinWallet
             {
                 this.dapp_result_raw.Text = "error=" + err.Message + "\r\n" + err.StackTrace;
             }
+        }
+
+        private void dapp_sendrawtransaction(DApp_Func func, bool onlyMakeTran = false)
+        {
+            try
+            {
+                dapp_result.Items.Clear();
+                dapp_result_raw.Text = "";
+                //fill script
+                if (string.IsNullOrEmpty(func.call.scriptcall))
+                {
+                    this.lastScript = null;
+                    this.tabCType.SelectedIndex = 0;
+                    this.updateScript();
+                    lastFee = 0;
+                    labelFee.Text = "Fee:" + lastFee;
+                }
+                else
+                {
+                    var hash = dapp_getCallParam(func.call.scriptcall);
+                    var scrb = new ThinNeo.ScriptBuilder();
+                    var jsonps = func.call.scriptparam;
+                    for (var i = jsonps.Length - 1; i >= 0; i--)
+                    {
+                        dapp_EmitParam(scrb, jsonps[i]);
+                    }
+                    scrb.EmitAppCall(hash);
+                    this.lastScript = scrb.ToArray();
+                    this.tabCType.SelectedIndex = 1;
+                    this.updateScript();
+                    lastFee = (decimal)func.call.scriptfee;
+                    labelFee.Text = "Fee:" + lastFee;
+                }
+                //fill input
+                this.listInput.Items.Clear();
+                foreach (var coin in func.call.coins)
+                {
+                    var hash = dapp_getCallParam(coin.scripthash);
+                    var value = coin.value;
+                    tx_fillInputs(hash, coin.asset, value);
+                }
+                //fill output
+                this.updateOutput();
+
+                //生成交易,拼签名
+                var tran = this.GenTran();
+                if (tran == null)
+                    return;
+                this.lastTranMessage = tran.GetMessage();
+
+                //处理鉴证
+                foreach (var coin in func.call.witnesses)
+                {
+                    byte[] vscript = dapp_getCallParam(coin.vscript);
+                    var hash = ThinNeo.Helper.GetScriptHashFromScript(vscript);
+                    var addr = ThinNeo.Helper.GetAddressFromScriptHash(hash);
+                    ThinNeo.Witness wit = null;
+                    foreach (ThinNeo.Witness w in listWitness.Items)
+                    {
+                        if (w.Address == addr)
+                        {
+                            wit = w;
+                            break;
+                        }
+                    }
+                    if (wit == null)
+                    {
+                        wit = new ThinNeo.Witness();
+                        wit.VerificationScript = vscript;
+                        listWitness.Items.Add(wit);
+                    }
+                    ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder();
+                    for (var i = coin.iscript.Length - 1; i >= 0; i--)
+                    {
+                        dapp_EmitParam(sb, coin.iscript[i]);
+                    }
+                    wit.InvocationScript = sb.ToArray();
+
+                }
+                if (onlyMakeTran)
+                {
+                    return;
+                }
+                var ttran = this.signAndBroadcast();
+                if (tran != null)
+                {
+                    this.dapp_result_raw.Text = "sendtran:" + ThinNeo.Helper.Bytes2HexString(ttran.GetHash());
+                }
+            }
+            catch (Exception err)
+            {
+                this.dapp_result_raw.Text = "error=" + err.Message + "\r\n" + err.StackTrace;
+            }
+        }
+        void tx_fillInputs(byte[] hash, string asset, ThinNeo.Fixed8 count)
+        {
+            var assetid = "";
+            foreach (var item in Tools.CoinTool.assetUTXO)
+            {
+                if (item.Value == asset || item.Key == asset)
+                {
+                    assetid = item.Key;
+                    break;
+                }
+            }
+            var address = ThinNeo.Helper.GetAddressFromScriptHash(hash);
+            var thispk = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
+            var thisaddr = ThinNeo.Helper.GetAddressFromPublicKey(thispk);
+            if (address == thisaddr)
+            {
+                var b = tx_fillThis(assetid, count);
+                if (b == false)
+                    throw new Exception("not have enough coin.");
+            }
+
+
+        }
+        bool tx_fillThis(string assetid, ThinNeo.Fixed8 count)
+        {
+            if (assetid == "")
+                throw new Exception("refresh utxo first.");
+
+            var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
+            var hash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
+            foreach (var coins in this.myasset.allcoins)
+            {
+                if (coins.AssetID == assetid)
+                {
+                    coins.coins.Sort((a, b) =>
+                    {
+                        return Math.Sign(a.value - b.value);
+                    });
+                    decimal want = count;
+                    decimal inputv = 0;
+                    foreach (var c in coins.coins)
+                    {
+                        Tools.Input input = new Tools.Input();
+                        input.Coin = c;
+                        input.From = hash;
+                        this.listInput.Items.Add(input);
+                        inputv += c.value;
+                        if (inputv > want)
+                            break;
+                    }
+                    if (inputv < want)
+                        return false;
+                    else
+                        return true;
+                }
+            }
+            return false;
         }
         byte[] rpc_getStorage(byte[] scripthash, byte[] key)
         {
@@ -279,8 +442,25 @@ namespace thinWallet
                 if (pointstr[1] == "pubkey")
                 {
                     var pkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
-                    var kk = ThinNeo.Helper.GetAddressFromPublicKey(pkey);
                     return ThinNeo.Helper.Bytes2HexString(pkey);
+                }
+                else if (pointstr[1] == "script")
+                {
+                    var pkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
+                    var hs = ThinNeo.Helper.GetScriptFromPublicKey(pkey);
+                    return ThinNeo.Helper.Bytes2HexString(hs);
+                }
+                else if (pointstr[1] == "scripthash")
+                {
+                    var pkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
+                    var hs = ThinNeo.Helper.GetScriptHashFromPublicKey(pkey);
+                    return ThinNeo.Helper.Bytes2HexString(hs);
+                }
+                else if (pointstr[1] == "signdata")
+                {
+                    var data = ThinNeo.Helper.Sign(this.lastTranMessage, this.privatekey);
+                    return ThinNeo.Helper.Bytes2HexString(data);
+
                 }
             }
 
