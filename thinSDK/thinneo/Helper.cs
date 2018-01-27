@@ -90,6 +90,8 @@ namespace ThinNeo
         }
         public static string GetAddressFromScriptHash(byte[] scripthash)
         {
+            if (scripthash.Length != 20)
+                throw new Exception("error scripthash length.");
             byte[] data = new byte[scripthash.Length + 1];
             data[0] = 0x17;
             Array.Copy(scripthash, 0, data, 1, scripthash.Length);

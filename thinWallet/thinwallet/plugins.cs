@@ -17,8 +17,15 @@ namespace thinWallet
         bool dapp_Init = false;
         public class DappValue
         {
-            public string value;
+            public object value;
             public bool error = false;
+            public override string ToString()
+            {
+                if (value == null)
+                    return "<null>";
+
+                return value.ToString();
+            }
         }
         Dictionary<string, DappValue> dapp_values = new Dictionary<string, DappValue>();
         //change dapp function
@@ -65,10 +72,17 @@ namespace thinWallet
             if (func.call.type == DAppFunc_Call.Type.sendrawtransaction)
             {
                 btnMakeTran.Visibility = Visibility.Visible;
+                btnDapp.Content = "SendRaw(GAS)";
             }
-            else
+            else if (func.call.type == DAppFunc_Call.Type.getstorage)
             {
                 btnMakeTran.Visibility = Visibility.Hidden;
+                btnDapp.Content = "GetStorage(Free)";
+            }
+            else if (func.call.type == DAppFunc_Call.Type.invokescript)
+            {
+                btnMakeTran.Visibility = Visibility.Hidden;
+                btnDapp.Content = "InvokeScript(Free)";
             }
             dapp_updateValuesUI();
         }
@@ -119,7 +133,7 @@ namespace thinWallet
                 else
                     this.dapp_result_raw.Text = result;
 
-                this.dapp_result.Items.Clear();
+                this.dapp_result.Text = "";
                 if (func.results.Length > 0)
                 {
                     var outvalue = "";
@@ -134,7 +148,7 @@ namespace thinWallet
                     {
                         outvalue = "err:" + err.Message;
                     }
-                    this.dapp_result.Items.Add(func.results[0].desc + "=" + outvalue);
+                    this.dapp_result.Text += (func.results[0].desc + "=" + outvalue) + "\r\n";
                 }
             }
             catch (Exception err)
@@ -209,7 +223,7 @@ namespace thinWallet
                 var str = WWW.MakeRpcUrl(labelRPC.Text, "invokescript", new MyJson.JsonNode_ValueString(callstr));
                 var result = WWW.GetWithDialog(this, str);
 
-                this.dapp_result.Items.Clear();
+                this.dapp_result.Text = "";
 
 
                 if (result == null)
@@ -232,24 +246,24 @@ namespace thinWallet
                         //var state = json["result"].AsDict()["state"].ToString();
                         //this.dapp_result.Items.Add("State:" + state);
                         var stack = json["result"].AsDict()["stack"].AsList();
-                        this.dapp_result.Items.Add("StackCount=" + stack.Count);
+                        this.dapp_result.Text += ("StackCount=" + stack.Count) + "\r\n";
                         for (var i = 0; i < func.results.Length; i++)
                         {
                             var jsonresult = getJsonResult(stack, func.results[i].pos);
                             if (jsonresult == null)
                             {
-                                this.dapp_result.Items.Add(func.results[i].desc + "=" + "<miss>");
+                                this.dapp_result.Text += (func.results[i].desc + "=" + "<miss>") + "\r\n";
                             }
                             else
                             {
                                 try
                                 {
                                     var outvalue = dapp_getResultValue(func.results[i].type, jsonresult);
-                                    this.dapp_result.Items.Add(func.results[i].desc + "=" + outvalue);
+                                    this.dapp_result.Text += (func.results[i].desc + "=" + outvalue) + "\r\n";
                                 }
                                 catch
                                 {
-                                    this.dapp_result.Items.Add(func.results[i].desc + "=" + "<error>");
+                                    this.dapp_result.Text += (func.results[i].desc + "=" + "<error>") + "\r\n";
 
                                 }
                             }
@@ -271,7 +285,7 @@ namespace thinWallet
         {
             try
             {
-                dapp_result.Items.Clear();
+                dapp_result.Text = "";
                 dapp_result_raw.Text = "";
                 //fill script
                 if (string.IsNullOrEmpty(func.call.scriptcall))
@@ -477,7 +491,26 @@ namespace thinWallet
                 {
                     if (this.dapp_values[pointstr[1]].error == false)
                     {
-                        return this.dapp_values[pointstr[1]].value;
+                        var obj = this.dapp_values[pointstr[1]].value;
+                        if (obj is ThinNeo.NNSUrl)
+                        {
+                            var url = obj as ThinNeo.NNSUrl;
+                            if (pointstr[2] == "namehash")
+                            {
+                                return ThinNeo.Helper.Bytes2HexString(url.namehash);
+                            }
+                            if (pointstr[2] == "parenthash")
+                            {
+                                return ThinNeo.Helper.Bytes2HexString(url.parenthash);
+                            }
+                            if (pointstr[2] == "lastname")
+                            {
+                                return url.lastname;
+                            }
+                            throw new Exception("not suport for nns:" + pointstr[2]);
+
+                        }
+                        return this.dapp_values[pointstr[1]].ToString();
                     }
                     else
                     {
@@ -558,9 +591,41 @@ namespace thinWallet
                 throw new Exception("not support conver:" + rtype + "->" + type);
 
             }
+            if (type == "int" || type == "integer")
+            {
+                if (rtype == "ByteArray")
+                {
+                    var bts = ThinNeo.Helper.HexString2Bytes(result["value"].AsString());
+                    var n = new System.Numerics.BigInteger(bts);
+
+                    return n.ToString();
+                }
+                throw new Exception("not support conver:" + rtype + "->" + type);
+
+            }
+            if (type == "hex" || type == "hexinteger" || type == "hexint")
+            {
+                var bts = ThinNeo.Helper.HexString2Bytes(result["value"].AsString());
+                return ThinNeo.Helper.Bytes2HexString(bts.Reverse().ToArray());
+            }
+            if (type == "hex160" || type == "uint160" || type == "int160")
+            {
+                var bts = ThinNeo.Helper.HexString2Bytes(result["value"].AsString());
+                if (bts.Length != 20)
+                    throw new Exception("not uint160");
+                return ThinNeo.Helper.Bytes2HexString(bts.Reverse().ToArray());
+            }
+            if (type == "hex256" || type == "uint256" || type == "int256")
+            {
+                var bts = ThinNeo.Helper.HexString2Bytes(result["value"].AsString());
+                if (bts.Length != 32)
+                    throw new Exception("not uint256");
+                return ThinNeo.Helper.Bytes2HexString(bts.Reverse().ToArray());
+            }
             throw new Exception("not support type:" + type);
         }
-        string dapp_getValue(FrameworkElement ui, string type)
+
+        object dapp_getValue(FrameworkElement ui, string type)
         {
             if (type == "string" || type == "str")
             {
@@ -595,6 +660,17 @@ namespace thinWallet
                 var bts = ThinNeo.Helper.HexString2Bytes(str);
                 return ThinNeo.Helper.Bytes2HexString(bts);
             }
+            else if (type == "url")
+            {
+                var str = "";
+                if ((ui is TextBlock))
+                    str = (ui as TextBlock).Text;
+                else if ((ui is TextBox))
+                    str = (ui as TextBox).Text;
+                else
+                    throw new Exception("not support");
+                return new ThinNeo.NNSUrl(str);
+            }
             else
             {
                 throw new Exception("not support type");
@@ -607,7 +683,7 @@ namespace thinWallet
             foreach (var v in dapp_values)
             {
                 var item = new ListBoxItem();
-                item.Content = v.Key + "=" + v.Value.value;
+                item.Content = v.Key + "=" + v.Value.ToString();
                 if (v.Value.error)
                 {
                     item.Foreground = red;
@@ -691,7 +767,7 @@ namespace thinWallet
                 Canvas.SetLeft(label, 0);
                 Canvas.SetTop(label, y);
 
-                if (i.type == "string" || i.type == "address" || i.type == "bytes")
+                if (i.type == "string" || i.type == "address" || i.type == "bytes" || i.type == "url")
                 {
                     TextBox tbox = new TextBox();
                     tbox.Tag = i;
