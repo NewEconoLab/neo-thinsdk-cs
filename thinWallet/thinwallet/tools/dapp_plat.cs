@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace thinWallet.dapp_plat
 {
 
-    public class DApp_Input
+    public class DAppFunc_Input
     {
         public string id;
         public string type;
@@ -60,7 +60,7 @@ namespace thinWallet.dapp_plat
         }
     }
 
-    public class DApp_Call
+    public class DAppFunc_Call
     {
         public enum Type
         {
@@ -105,24 +105,32 @@ namespace thinWallet.dapp_plat
             }
         }
     }
-    public class DApp_Result
+    public class DAppFunc_Result
     {
         public string type;
         public string desc;
-
-        public void Load(MyJson.JsonNode_Object json)
+        public string pos;
+        public void Load(MyJson.JsonNode_Object json,int index)
         {
             this.type = json["type"].AsString();
             this.desc = json["desc"].AsString();
+            if(json.ContainsKey("pos"))
+            {
+                this.pos = json["pos"].AsString();
+            }
+            else
+            {
+                this.pos = "result[" + index + "]";
+            }
         }
     }
     public class DApp_Func
     {
         public string name;
         public string desc;
-        public DApp_Input[] inputs;
-        public DApp_Call call;
-        public DApp_Result[] results;
+        public DAppFunc_Input[] inputs;
+        public DAppFunc_Call call;
+        public DAppFunc_Result[] results;
         public void Load(MyJson.JsonNode_Object json)
         {
             this.name = json["name"].AsString();
@@ -136,30 +144,30 @@ namespace thinWallet.dapp_plat
                 this.desc = "";
             }
             var inputs = json["inputs"].AsList();
-            this.inputs = new DApp_Input[inputs.Count];
+            this.inputs = new DAppFunc_Input[inputs.Count];
             for (var i = 0; i < inputs.Count; i++)
             {
-                this.inputs[i] = new DApp_Input();
+                this.inputs[i] = new DAppFunc_Input();
                 this.inputs[i].Load(inputs[i].AsDict());
             }
 
             var call = json["call"].AsDict();
-            this.call = new DApp_Call();
+            this.call = new DAppFunc_Call();
             this.call.Load(call);
 
             if (json.ContainsKey("results"))
             {
                 var results = json["results"].AsList();
-                this.results = new DApp_Result[results.Count];
+                this.results = new DAppFunc_Result[results.Count];
                 for (var i = 0; i < results.Count; i++)
                 {
-                    this.results[i] = new DApp_Result();
-                    this.results[i].Load(results[i].AsDict());
+                    this.results[i] = new DAppFunc_Result();
+                    this.results[i].Load(results[i].AsDict(),i);
                 }
             }
             else
             {
-                this.results = new DApp_Result[0];
+                this.results = new DAppFunc_Result[0];
             }
         }
     }

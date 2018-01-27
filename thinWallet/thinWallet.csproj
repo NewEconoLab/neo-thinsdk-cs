@@ -56,7 +56,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="dapp_plat\dapp_plat.cs" />
+    <Compile Include="thinwallet\tools\dapp_plat.cs" />
     <Compile Include="dialog\Dialog Config_Nep5.xaml.cs">
       <DependentUpon>Dialog Config_Nep5.xaml</DependentUpon>
     </Compile>
@@ -91,8 +91,8 @@
       <DependentUpon>Window_funcTest.xaml</DependentUpon>
     </Compile>
     <Compile Include="thinwallet\plugins.cs" />
-    <Compile Include="tools\CoinTool.cs" />
-    <Compile Include="tools\www.cs">
+    <Compile Include="thinwallet\tools\CoinTool.cs" />
+    <Compile Include="thinwallet\tools\www.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="thinwallet\Window_thinwallet.xaml.cs">
@@ -178,6 +178,9 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="dapp\dapp_nns.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="dapp\dapp_wami.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -1,0 +1,92 @@
+﻿{
+  "title": "NNS.Test",
+  "consts": {
+    "base": "0xdffbdd534a41dd4c56ba5ccba9dfaaf4f84e1362"
+  },
+  "funcs": [
+    {
+      "name": ".test Name",
+      "desc": "get root Domain",
+      "inputs": [
+      ],
+      "call": {
+        "type": "invokescript",
+        "scriptcall": "(uint160)%consts.base%",
+        "scriptparam": [
+          "(str)rootName",
+          []
+        ]
+      },
+      "results": [
+        {
+          "type": "string",
+          "desc": "name"
+        }
+      ]
+    },
+    {
+      "name": ".test Hash",
+      "desc": "get root Domain Hash",
+      "inputs": [
+      ],
+      "call": {
+        "type": "invokescript",
+        "scriptcall": "(uint160)%consts.base%",
+        "scriptparam": [
+          "(str)rootNameHash",
+          []
+        ]
+      },
+      "results": [
+        {
+          "type": "bytes",
+          "desc": "hash"
+        }
+      ]
+    },
+    {
+      "name": "get domain info",
+      "desc": "get domaininfo",
+      "inputs": [
+        {
+          "id": "domainhash",
+          "type": "bytes",
+          "desc": "input domain hash",
+          "value": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+        }
+      ],
+      "call": {
+        "type": "invokescript",
+        "scriptcall": "(uint160)%consts.base%",
+        "scriptparam": [
+          "(str)getInfo",
+          [
+            "(bytes)%inputs.domainhash%"
+          ]
+        ]
+      },
+      "results": [
+        {
+          "pos": "result[0][0]",
+          "type": "address",
+          "desc": "owner"
+        },
+        {
+          "pos": "result[0][1]",
+          "type": "bytes",
+          "desc": "registor"
+        },
+        {
+          "pos": "result[0][2]",
+          "type": "bytes",
+          "desc": "resolver"
+        },
+        {
+          "pos": "result[0][1]",
+          "type": "int",
+          "desc": "TTL"
+        }
+      ]
+    }
+  ]
+}
