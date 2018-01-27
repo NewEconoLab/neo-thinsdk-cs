@@ -140,7 +140,7 @@ namespace thinWallet
                     try
                     {
                         MyJson.JsonNode_Object item = new MyJson.JsonNode_Object();
-                        item.SetDictValue("type", "string");
+                        item.SetDictValue("type", "ByteArray");
                         item.SetDictValue("value", result);
                         outvalue = dapp_getResultValue(func.results[0].type, item);
                     }
