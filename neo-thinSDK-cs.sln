@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "llvm", "llvm\llvm.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "thinWallet", "thinWallet\thinWallet.csproj", "{8A57F06A-9275-4DC4-91DD-9D0867C588EC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D58FE252-FE4E-4747-97E8-516E41B5AD6C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "thinSDK_neo", "thinSDK_neo\thinSDK_neo.csproj", "{4C4BC840-34E5-4699-A96D-41E5864DCBF8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,10 @@ Global
 		{8A57F06A-9275-4DC4-91DD-9D0867C588EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A57F06A-9275-4DC4-91DD-9D0867C588EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A57F06A-9275-4DC4-91DD-9D0867C588EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C4BC840-34E5-4699-A96D-41E5864DCBF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C4BC840-34E5-4699-A96D-41E5864DCBF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C4BC840-34E5-4699-A96D-41E5864DCBF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C4BC840-34E5-4699-A96D-41E5864DCBF8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

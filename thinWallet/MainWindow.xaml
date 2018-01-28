@@ -7,12 +7,15 @@
         mc:Ignorable="d"
         Title="neo-ThinSdk-test" Height="350" Width="525" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
+        <Grid.Background>
+            <ImageBrush ImageSource="thinwallet/back1.jpg"/>
+        </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="50*"/>
             <RowDefinition Height="50*"/>
         </Grid.RowDefinitions>
         <Button Content="Fuction Test" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center" Width="220" Height="64" Click="Button_Click"/>
-        <Button Content="ThinWalletTest" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center" Width="220" Height="64" Grid.Row="1" Click="Button_Click_1"/>
+        <Button Content="ThinWallet Test" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center" Width="220" Height="64" Grid.Row="1" Click="Button_Click_1"/>
 
     </Grid>
 </Window>

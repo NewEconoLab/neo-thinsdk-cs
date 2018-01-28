@@ -162,7 +162,41 @@ namespace ThinNeo
                 return ThinNeo.Helper.GetAddressFromScriptHash(hash);
             }
         }
+        public string hashstr
+        {
+            get
+            {
+                var hash = ThinNeo.Helper.GetScriptHashFromScript(VerificationScript);
+                return ThinNeo.Helper.Bytes2HexString(hash);
+            }
+        }
 
+        public bool isSmartContract
+        {
+            get
+            {
+                if (VerificationScript.Length != 35)
+                    return true;
+                if (VerificationScript[0] != VerificationScript.Length - 2)
+                    return true;
+                if (VerificationScript[VerificationScript.Length - 1] != 0xac)
+                    return true;
+
+                return false;
+            }
+        }
+
+        public override string ToString()
+        {
+            if (isSmartContract)
+            {
+                return "[SC]" + hashstr;
+            }
+            else
+            {
+                return Address;
+            }
+        }
     }
 
     public interface IExtData

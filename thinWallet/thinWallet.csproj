@@ -197,6 +197,10 @@
       <Project>{9abeef32-2bfc-4d02-bae0-4073f44afebf}</Project>
       <Name>thinSDK</Name>
     </ProjectReference>
+    <ProjectReference Include="..\thinSDK_neo\thinSDK_neo.csproj">
+      <Project>{4c4bc840-34e5-4699-a96d-41e5864dcbf8}</Project>
+      <Name>thinSDK_neo</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="thinwallet\back2.jpg" />

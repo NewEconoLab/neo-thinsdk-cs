@@ -6,12 +6,12 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net47|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net47'">
     <PackageReference Include="Replicon.Cryptography.SCrypt">
@@ -19,14 +19,29 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="avm2asm\**" />
+    <Compile Remove="debugtool\**" />
+    <Compile Remove="nns\**" />
+    <Compile Remove="thinneo\**" />
+    <EmbeddedResource Remove="avm2asm\**" />
+    <EmbeddedResource Remove="debugtool\**" />
+    <EmbeddedResource Remove="nns\**" />
+    <EmbeddedResource Remove="thinneo\**" />
+    <None Remove="avm2asm\**" />
+    <None Remove="debugtool\**" />
+    <None Remove="nns\**" />
+    <None Remove="thinneo\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="MyJson.cs" />
+    <Compile Remove="OpCode.cs" />
+    <Compile Remove="RandomAccessStack.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Https" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\llvm\llvm.csproj" />
-    <ProjectReference Include="..\thinSDK_neo\thinSDK_neo.csproj" />
   </ItemGroup>
 </Project>
