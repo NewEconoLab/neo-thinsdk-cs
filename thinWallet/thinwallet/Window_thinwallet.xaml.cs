@@ -186,10 +186,14 @@ namespace thinWallet
         }
         private void Button_Click_4(object sender, RoutedEventArgs e)
         {
-            lastScript = Dialog_Script_Make.ShowDialog(this, this.labelRPC.Text);
-            lastFee = null;
-            labelFee.Text = "Fee:";
-            updateScript();
+            var ss = Dialog_Script_Make.ShowDialog(this, this.labelRPC.Text);
+            if (ss != null)
+            {
+                lastScript = ss;
+                lastFee = null;
+                labelFee.Text = "Fee:";
+                updateScript();
+            }
         }
         MyJson.IJsonNode api_getUTXO()
         {
@@ -770,5 +774,29 @@ namespace thinWallet
 
         }
 
+        //发布智能合约
+        private void Button_Click_9(object sender, RoutedEventArgs e)
+        {
+            var ss = Dialog_Script_Publish.ShowDialog(this, this.labelRPC.Text);
+            if (ss != null)
+            {
+                lastScript = ss;
+                lastFee = null;
+                labelFee.Text = "Fee:";
+                updateScript();
+            }
+        }
+        //load custom contract
+        private void Button_Click_10(object sender, RoutedEventArgs e)
+        {
+            var ss = Dialog_Script_Custom.ShowDialog(this, this.labelRPC.Text);
+            if (ss != null)
+            {
+                lastScript = ss;
+                lastFee = null;
+                labelFee.Text = "Fee:";
+                updateScript();
+            }
+        }
     }
 }

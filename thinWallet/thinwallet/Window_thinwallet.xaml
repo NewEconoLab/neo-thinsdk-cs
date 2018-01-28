@@ -144,9 +144,9 @@
                                             <TextBlock Text="ScriptCode" Foreground="White" Grid.ColumnSpan="4" ></TextBlock>
                                             <ListBox x:Name="listCode"  Background="{x:Null}" Grid.Row="1" Grid.RowSpan="1" Grid.ColumnSpan="4" Foreground="White"></ListBox>
                                             <TextBlock Text="Make Script" Grid.Row="2" Foreground="White"/>
-                                            <Button Content="AppCall" Grid.Row="2" Grid.Column="1" Margin="5,0" Click="Button_Click_4"></Button>
-                                            <Button Content="Publish SC" Grid.Row="2" Grid.Column="2" Margin="5,0"></Button>
-                                            <Button Content="Custom" Grid.Row="2" Grid.Column="3" Margin="5,0"></Button>
+                                            <Button Content="AppCall" Grid.Row="2" Grid.Column="1" Margin="5,0" Click="Button_Click_4" Height="24" VerticalAlignment="Top"></Button>
+                                            <Button Content="Publish SC" Grid.Row="2" Grid.Column="2" Margin="5,0" Click="Button_Click_9"></Button>
+                                            <Button Content="Custom" Grid.Row="2" Grid.Column="3" Margin="5,0" Click="Button_Click_10"></Button>
                                             <Button Content="Test" Grid.Row="4"  Margin="5,0" Grid.ColumnSpan="1" Click="Button_Click_8"/>
                                             <TextBlock x:Name="labelFee" Text="Fee:" Grid.Row="4" Foreground="White" Grid.Column="1" Grid.ColumnSpan="3"></TextBlock>
                                             <ListBox x:Name="listTestScript" Grid.ColumnSpan="4" Grid.Column="0" Grid.Row="5" Background="{x:Null}" Foreground="#FFFF5100" BorderBrush="#FFFF5100" />

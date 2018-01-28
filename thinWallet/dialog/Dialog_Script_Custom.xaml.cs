@@ -17,9 +17,9 @@ namespace thinWallet
     /// <summary>
     /// Dialog_Input_password.xaml 的交互逻辑
     /// </summary>
-    public partial class Dialog_Script_Make : Window
+    public partial class Dialog_Script_Custom : Window
     {
-        public Dialog_Script_Make()
+        public Dialog_Script_Custom()
         {
             InitializeComponent();
         }
@@ -37,7 +37,7 @@ namespace thinWallet
         public byte[] script;
         public static byte[] ShowDialog(Window owner, string rpcurl)
         {
-            var d = new Dialog_Script_Make();
+            var d = new Dialog_Script_Custom();
             d.Owner = owner;
             d.rpcurl = rpcurl;
             if (d.ShowDialog() == true)

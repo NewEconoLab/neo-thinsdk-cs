@@ -56,6 +56,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="dialog\Dialog_Script_Custom.xaml.cs">
+      <DependentUpon>Dialog_Script_Custom.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="dialog\Dialog_Script_Publish.xaml.cs">
+      <DependentUpon>Dialog_Script_Publish.xaml</DependentUpon>
+    </Compile>
     <Compile Include="thinwallet\tools\dapp_plat.cs" />
     <Compile Include="dialog\Dialog Config_Nep5.xaml.cs">
       <DependentUpon>Dialog Config_Nep5.xaml</DependentUpon>
@@ -103,6 +109,14 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="dialog\Dialog Transer_Taget.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialog\Dialog_Script_Custom.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialog\Dialog_Script_Publish.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
