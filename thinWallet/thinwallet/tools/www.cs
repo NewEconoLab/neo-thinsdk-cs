@@ -23,6 +23,13 @@ namespace thinWallet
             var result = await wc.DownloadStringTaskAsync(url);
             return result;
         }
+        public static async Task<string> Post(string url, byte[] data)
+        {
+            System.Net.WebClient wc = new System.Net.WebClient();
+            wc.Encoding = Encoding.UTF8;
+            var resultbts = await wc.UploadDataTaskAsync(url, data);
+            return System.Text.Encoding.UTF8.GetString(resultbts);
+        }
         public static string GetWithDialog(Window owner, string url)
         {
             Dialog_Wait waitdlg = new Dialog_Wait();
@@ -36,6 +43,40 @@ namespace thinWallet
                 return waitdlg.callresult as string;
             }
             return null;
+        }
+        public static string PostWithDialog(Window owner, string url, byte[] data)
+        {
+            Dialog_Wait waitdlg = new Dialog_Wait();
+            waitdlg.Owner = owner;
+            waitdlg.call = async () =>
+            {
+                return await Post(url, data);
+            };
+            if (waitdlg.ShowDialog() == true)
+            {
+                return waitdlg.callresult as string;
+            }
+            return null;
+
+        }
+        public static string MakeRpcUrlPost(string url, string method, out byte[] data, params MyJson.IJsonNode[] _params)
+        {
+            if (url.Last() != '/')
+                url = url + "/";
+            var json = new MyJson.JsonNode_Object();
+            json["id"] = new MyJson.JsonNode_ValueNumber(1);
+            json["jsonrpc"] = new MyJson.JsonNode_ValueString("2.0");
+            json["method"] = new MyJson.JsonNode_ValueString(method);
+            StringBuilder sb = new StringBuilder();
+            var array = new MyJson.JsonNode_Array();
+            for (var i = 0; i < _params.Length; i++)
+            {
+
+                    array.Add(_params[i]);
+            }
+            json["params"] = array;
+            data = System.Text.Encoding.UTF8.GetBytes(json.ToString());
+            return url;
         }
         public static string MakeRpcUrl(string url, string method, params MyJson.IJsonNode[] _params)
         {

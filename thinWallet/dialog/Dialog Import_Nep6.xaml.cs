@@ -67,16 +67,24 @@ namespace thinWallet
             ofd.Filter = "*.json|*.json";
             if (ofd.ShowDialog() == true)
             {
-                this.listAccount.Items.Clear();
-
-                nep6wallet = new ThinNeo.NEP6.NEP6Wallet(ofd.FileName);
-                foreach (var v in nep6wallet.accounts)
+                try
                 {
-                    if (v.Value.nep2key != null)
-                        this.listAccount.Items.Add(v.Value);
+                    this.listAccount.Items.Clear();
+
+
+                    nep6wallet = new ThinNeo.NEP6.NEP6Wallet(ofd.FileName);
+                    foreach (var v in nep6wallet.accounts)
+                    {
+                        if (v.Value.nep2key != null)
+                            this.listAccount.Items.Add(v.Value);
+                    }
+                    if (this.listAccount.Items.Count > 0)
+                        this.listAccount.SelectedIndex = 0;
                 }
-                if (this.listAccount.Items.Count > 0)
-                    this.listAccount.SelectedIndex = 0;
+                catch (Exception err)
+                {
+                    MessageBox.Show(err.Message);
+                }
             }
         }
     }

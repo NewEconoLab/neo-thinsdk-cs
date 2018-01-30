@@ -577,8 +577,9 @@ namespace thinWallet
             var sid = ThinNeo.Helper.Bytes2HexString(rawdata);
 
             var url = this.labelRPC.Text;
-            var str = WWW.MakeRpcUrl(url, "sendrawtransaction", new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(sid) });
-            var result = WWW.GetWithDialog(this, str);
+            byte[] data;
+            var str = WWW.MakeRpcUrlPost(url, "sendrawtransaction", out data, new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(sid) });
+            var result = WWW.PostWithDialog(this, str, data);
             var json = MyJson.Parse(result);
             if (json.AsDict().ContainsKey("error"))
                 return false;
@@ -740,14 +741,37 @@ namespace thinWallet
             try
             {
                 var symbol = ThinNeo.Helper.Bytes2HexString(lastScript);
-                var str = WWW.MakeRpcUrl(labelRPC.Text, "invokescript", new MyJson.JsonNode_ValueString(symbol));
-                var resultstr = WWW.GetWithDialog(this, str);
+                byte[] data;
+                var str = WWW.MakeRpcUrlPost(labelRPC.Text, "invokescript", out data, new MyJson.JsonNode_ValueString(symbol));
+                var resultstr = WWW.PostWithDialog(this, str, data);
                 var json = MyJson.Parse(resultstr).AsDict();
                 var gas = json["result"].AsDict()["gas_consumed"].ToString();
                 lastFee = decimal.Parse(gas);
                 labelFee.Text = "Fee:" + lastFee;
                 StringBuilder sb = new StringBuilder();
                 json["result"].AsDict().ConvertToStringWithFormat(sb, 4);
+
+                //移除撒GAS
+                foreach (Tools.Output list in listOutput.Items)
+                {
+                    if (string.IsNullOrEmpty(list.Target) && Tools.CoinTool.id_GAS == list.assetID)
+                    {
+                        listOutput.Items.Remove(list);
+                        updateOutput();
+                        break;
+                    }
+
+                }
+                if (lastFee > 10)
+                {
+                    Tools.Output newsb = new Tools.Output();
+                    newsb.assetID = Tools.CoinTool.id_GAS;
+                    newsb.isTheChange = false;
+                    newsb.Target = "";
+                    newsb.Fix8 = (lastFee.Value - (decimal)10.0);
+                    listOutput.Items.Add(newsb);
+                    updateOutput();
+                }
                 var lines = sb.ToString().Split('\n');
                 foreach (var l in lines)
                 {

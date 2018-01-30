@@ -69,55 +69,52 @@ namespace thinWallet
         {
             try
             {
-                var sh = ThinNeo.Helper.HexString2Bytes(textScriptHash.Text);
-                var json = rpc_getScript(sh);
-                if (json == null)
+                Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
+                ofd.Filter = "*.avm|*.avm";
+                if (ofd.ShowDialog() == true)
                 {
-                    info1.Text = "no script";
-                    info2.Text = "can't help you to fill the parameter json.";
-                }
-                else
-                {
-                    info1.Text = "scripthash=" + json.AsDict()["hash"].AsString();
-                    info2.Text = "scriptlen=" + (json.AsDict()["script"].AsString().Length / 2);
-                    var param = json.AsDict()["parameters"];
-                    var array = new MyJson.JsonNode_Array();
-                    foreach (var p in param.AsList())
+                    var bin = System.IO.File.ReadAllBytes(ofd.FileName);
+                    asmBinText.Text = ThinNeo.Helper.Bytes2HexString(bin);
+
+                    var ops = ThinNeo.Compiler.Avm2Asm.Trans(bin);
+                    this.asmList.Items.Clear();
+                    bool bDyncall = false;
+                    bool bStorage = false;
+                    foreach (var op in ops)
                     {
-                        if (p.AsString() == "String")
+                        var str = op.ToString();
+                        this.asmList.Items.Add(op);
+                        if (op.code == ThinNeo.VM.OpCode.APPCALL)
                         {
-                            array.Add(new MyJson.JsonNode_ValueString("(str)textParam"));
+
+                            bool allzero = true;
+                            for (var i = 0; i < op.paramData.Length; i++)
+                            {
+                                if (op.paramData[i] > 0)
+                                {
+                                    allzero = false;
+                                    break;
+                                }
+                            }
+                            if (allzero)
+                            {
+                                //dyncall
+                                bDyncall = true;
+                            }
                         }
-                        if (p.AsString() == "Array")
+                        if (op.code == ThinNeo.VM.OpCode.SYSCALL)
                         {
-                            array.Add(new MyJson.JsonNode_Array());
-                        }
-                        if (p.AsString() == "Boolean")
-                        {
-                            array.Add(new MyJson.JsonNode_ValueNumber(false));
-                        }
-                        if (p.AsString() == "Bytes")
-                        {
-                            array.Add(new MyJson.JsonNode_ValueString("(hex)0x00"));
-                        }
-                        if (p.AsString() == "UINT160")
-                        {
-                            array.Add(new MyJson.JsonNode_ValueString("(hexbig)0xaa020304050607080910bb020304050607080910"));
-                        }
-                        if (p.AsString() == "UINT256")
-                        {
-                            array.Add(new MyJson.JsonNode_ValueString("(hexbig)0xaa020304050607080910bb020304050607080910cc020304050607080910dd02"));
-                        }
-                        if (p.AsString() == "BigInteger")
-                        {
-                            array.Add(new MyJson.JsonNode_ValueString("(int)735200"));
+                            var name = System.Text.Encoding.UTF8.GetString(op.paramData);
+                            if (name == "Neo.Storage.Put")
+                            {
+                                //need storage
+                                bStorage = true;
+                            }
                         }
                     }
-                    StringBuilder sb = new StringBuilder();
-                    array.ConvertToStringWithFormat(sb, 4);
-                    jsonParam.Text = sb.ToString();
+                    iStorage.IsChecked = bStorage;
+                    iDyncall.IsChecked = bDyncall;
                 }
-
             }
             catch
             {
@@ -130,38 +127,30 @@ namespace thinWallet
 
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                this.asmList.Items.Clear();
-
-                var json = MyJson.Parse(jsonParam.Text).AsList();
-                jsonParam.Foreground = new SolidColorBrush(Color.FromRgb(0, 0, 0));
-                ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder();
-                var list = json.AsList();
-                for (int i = list.Count - 1; i >= 0; i--)
-                {
-                    sb.EmitParamJson(list[i]);
-                }
-                var scripthash = ThinNeo.Helper.HexString2Bytes(textScriptHash.Text).Reverse().ToArray();
-                sb.EmitAppCall(scripthash);
-                this.script = sb.ToArray();
-                var ops = ThinNeo.Compiler.Avm2Asm.Trans(this.script);
-                for (int i = 0; i < ops.Length; i++)
-                {
-                    this.asmList.Items.Add(ops[i]);
-                }
-                this.asmBinText.Text = ThinNeo.Helper.Bytes2HexString(sb.ToArray());
-            }
-            catch
-            {
-                jsonParam.Foreground = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-            }
-        }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
+            ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder();
+            sb.EmitPushString(iDescription.Text);
+            sb.EmitPushString(iEmail.Text);
+            sb.EmitPushString(iAuthor.Text);
+            sb.EmitPushString(iVersion.Text);
+            sb.EmitPushString(iName.Text);
+            int need_storage = iStorage.IsChecked == true ? 1 : 0;
+            int need_nep4 = iDyncall.IsChecked == true ? 2 : 0;
+            sb.EmitPushNumber(need_storage | need_nep4);
+            var br = ThinNeo.Helper.HexString2Bytes(iRType.Text);
+            var bp = ThinNeo.Helper.HexString2Bytes(iPList.Text);
+            sb.EmitPushBytes(br);
+            sb.EmitPushBytes(bp);
+            var _ss = ThinNeo.Helper.HexString2Bytes(this.asmBinText.Text);
+            sb.EmitPushBytes(_ss);
+
+            sb.EmitSysCall("Neo.Contract.Create");
+
+            //sb.EmitSysCall("Neo.Contract.Create", script, parameter_list, return_type, need_storage | need_nep4, name, version, author, email, description);
+            this.script = sb.ToArray();
+
             this.DialogResult = true;
         }
 
