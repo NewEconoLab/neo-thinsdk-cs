@@ -46,118 +46,48 @@ namespace thinWallet
             }
             return null;
         }
-        MyJson.IJsonNode rpc_getScript(byte[] scripthash)
-        {
-            System.Net.WebClient wc = new System.Net.WebClient();
-            var url = this.rpcurl;
-            //url = "http://127.0.0.1:20332/";//本地测试
-
-            var sid = ThinNeo.Helper.Bytes2HexString(scripthash);
-            var str = WWW.MakeRpcUrl(url, "getcontractstate", new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(sid) });
-            var result = WWW.GetWithDialog(this, str);
-            if (result != null)
-            {
-
-                var json = MyJson.Parse(result);
-                if (json.AsDict().ContainsKey("error"))
-                    return null;
-                return json.AsDict()["result"];
-            }
-            return null;
-        }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                var sh = ThinNeo.Helper.HexString2Bytes(textScriptHash.Text);
-                var json = rpc_getScript(sh);
-                if (json == null)
+                Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
+                ofd.Filter = "*.avm|*.avm";
+                if (ofd.ShowDialog() == true)
                 {
-                    info1.Text = "no script";
-                    info2.Text = "can't help you to fill the parameter json.";
+                    var bin = System.IO.File.ReadAllBytes(ofd.FileName);
+                    asmBinText.Text = ThinNeo.Helper.Bytes2HexString(bin);
                 }
-                else
-                {
-                    info1.Text = "scripthash=" + json.AsDict()["hash"].AsString();
-                    info2.Text = "scriptlen=" + (json.AsDict()["script"].AsString().Length / 2);
-                    var param = json.AsDict()["parameters"];
-                    var array = new MyJson.JsonNode_Array();
-                    foreach (var p in param.AsList())
-                    {
-                        if (p.AsString() == "String")
-                        {
-                            array.Add(new MyJson.JsonNode_ValueString("(str)textParam"));
-                        }
-                        if (p.AsString() == "Array")
-                        {
-                            array.Add(new MyJson.JsonNode_Array());
-                        }
-                        if (p.AsString() == "Boolean")
-                        {
-                            array.Add(new MyJson.JsonNode_ValueNumber(false));
-                        }
-                        if (p.AsString() == "Bytes")
-                        {
-                            array.Add(new MyJson.JsonNode_ValueString("(hex)0x00"));
-                        }
-                        if (p.AsString() == "UINT160")
-                        {
-                            array.Add(new MyJson.JsonNode_ValueString("(hexbig)0xaa020304050607080910bb020304050607080910"));
-                        }
-                        if (p.AsString() == "UINT256")
-                        {
-                            array.Add(new MyJson.JsonNode_ValueString("(hexbig)0xaa020304050607080910bb020304050607080910cc020304050607080910dd02"));
-                        }
-                        if (p.AsString() == "BigInteger")
-                        {
-                            array.Add(new MyJson.JsonNode_ValueString("(int)735200"));
-                        }
-                    }
-                    StringBuilder sb = new StringBuilder();
-                    array.ConvertToStringWithFormat(sb, 4);
-                    jsonParam.Text = sb.ToString();
-                }
-
+                updateCode();
             }
-            catch
+            catch (Exception err)
             {
-
+                MessageBox.Show(err.Message);
             }
         }
-
-        private void jsonParam_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        void updateCode()
         {
             try
             {
+                this.script = ThinNeo.Helper.HexString2Bytes(asmBinText.Text);
+                info2.Text = "length=" + script.Length;
+                var hash = ThinNeo.Helper.GetScriptHashFromScript(script);
+                info1.Text = "script hash=" + ThinNeo.Helper.Bytes2HexString(hash);
+                var ops = ThinNeo.Compiler.Avm2Asm.Trans(script);
                 this.asmList.Items.Clear();
-
-                var json = MyJson.Parse(jsonParam.Text).AsList();
-                jsonParam.Foreground = new SolidColorBrush(Color.FromRgb(0, 0, 0));
-                ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder();
-                var list = json.AsList();
-                for (int i = list.Count - 1; i >= 0; i--)
+                foreach (var op in ops)
                 {
-                    sb.EmitParamJson(list[i]);
+                    var str = op.ToString();
+                    this.asmList.Items.Add(op);
                 }
-                var scripthash = ThinNeo.Helper.HexString2Bytes(textScriptHash.Text).Reverse().ToArray();
-                sb.EmitAppCall(scripthash);
-                this.script = sb.ToArray();
-                var ops = ThinNeo.Compiler.Avm2Asm.Trans(this.script);
-                for (int i = 0; i < ops.Length; i++)
-                {
-                    this.asmList.Items.Add(ops[i]);
-                }
-                this.asmBinText.Text = ThinNeo.Helper.Bytes2HexString(sb.ToArray());
             }
-            catch
+            catch (Exception err)
             {
-                jsonParam.Foreground = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+                MessageBox.Show(err.Message);
             }
+        }
+        private void jsonParam_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
@@ -168,6 +98,11 @@ namespace thinWallet
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
             this.DialogResult = false;
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            this.updateCode();
         }
     }
 }
