@@ -237,6 +237,10 @@ namespace thinWallet.Tools
         public ThinNeo.Fixed8 Fix8;//fix8 number
         public override string ToString()
         {
+            if (string.IsNullOrEmpty(this.Target))
+            {
+                return "(Drop:" + CoinTool.GetName(assetID) + ")" + Fix8.ToString() ;
+            }
             return (isTheChange ? "(ChangeBack:" : "(") + CoinTool.GetName(assetID) + ")" + Fix8.ToString() + " ==>" + Target;
         }
     }

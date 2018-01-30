@@ -63,9 +63,17 @@ namespace thinWallet
             {
                 this.output = new Tools.Output();
                 this.output.isTheChange = false;
-                var hash = ThinNeo.Helper.GetPublicKeyHashFromAddress(this.tboxAddr.Text);
                 this.output.assetID = (this.tokens.SelectedItem as Asset).assetid;
-                this.output.Target = ThinNeo.Helper.GetAddressFromScriptHash(hash);
+                if (this.dropMoney.IsChecked==true)
+                {
+                    this.output.Target = "";
+                }
+                else
+                {
+                    var hash = ThinNeo.Helper.GetPublicKeyHashFromAddress(this.tboxAddr.Text);
+                    this.output.Target = ThinNeo.Helper.GetAddressFromScriptHash(hash);
+
+                }
                 this.output.Fix8 = decimal.Parse(tboxValue.Text) ;
                 if (this.output.Fix8 <= 0)
                     throw new Exception("must have a value greatthan zero.");
@@ -80,6 +88,24 @@ namespace thinWallet
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             this.DialogResult = false;
+        }
+
+        private void dropMoney_Checked(object sender, RoutedEventArgs e)
+        {
+            if(this.dropMoney.IsChecked==true)
+            {
+                this.tboxAddr.Text = "";
+                this.tboxAddr.IsEnabled = false;
+            }
+            else
+            {
+                this.tboxAddr.IsEnabled = true;
+            }
+        }
+
+        private void dropMoney_Unchecked(object sender, RoutedEventArgs e)
+        {
+            this.tboxAddr.IsEnabled = true;
         }
     }
 }

@@ -16,10 +16,11 @@
                 <Button Content="Cancel" HorizontalAlignment="Left" Margin="194,136,0,0" VerticalAlignment="Top" Width="71" RenderTransformOrigin="0.027,0.687" Click="Button_Click_1"/>
                 <TextBox x:Name="tboxAddr" HorizontalAlignment="Left" Margin="20,26,0,0" VerticalAlignment="Top" Width="308"/>
                 <Label Content="Target" HorizontalAlignment="Left" Margin="27,0,0,0" VerticalAlignment="Top" Foreground="White" RenderTransformOrigin="0.485,-0.131"/>
-                <Label Content="Value" HorizontalAlignment="Left" Margin="31,88,0,0" VerticalAlignment="Top" Foreground="White"/>
-                <TextBox x:Name="tboxValue" HorizontalAlignment="Left" Margin="80,96,0,0" VerticalAlignment="Top" Width="248"/>
-                <ComboBox x:Name="tokens" HorizontalAlignment="Left" Margin="80,61,0,0" VerticalAlignment="Top" Width="248"/>
-                <Label Content="Token type" HorizontalAlignment="Left" Margin="2,57,0,0" VerticalAlignment="Top" Foreground="White"/>
+                <Label Content="Value" HorizontalAlignment="Left" Margin="32,100,0,0" VerticalAlignment="Top" Foreground="White"/>
+                <TextBox x:Name="tboxValue" HorizontalAlignment="Left" Margin="80,105,0,0" VerticalAlignment="Top" Width="248"/>
+                <ComboBox x:Name="tokens" HorizontalAlignment="Left" Margin="80,75,0,0" VerticalAlignment="Top" Width="248"/>
+                <Label Content="Token type" HorizontalAlignment="Left" Margin="1,75,0,0" VerticalAlignment="Top" Foreground="White"/>
+                <CheckBox x:Name="dropMoney" Content="Drop Money" HorizontalAlignment="Left" Margin="20,46,0,0" VerticalAlignment="Top" Foreground="White" Checked="dropMoney_Checked" Unchecked="dropMoney_Unchecked"/>
             </Grid>
         </GroupBox>
     </Grid>

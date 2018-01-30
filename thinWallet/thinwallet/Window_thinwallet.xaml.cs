@@ -112,26 +112,26 @@ namespace thinWallet
               };
             timer.Start();
         }
-        async Task<int> api_getHeight()
+        async Task<ulong> api_getHeight()
         {
             System.Net.WebClient wc = new System.Net.WebClient();
             var str = WWW.MakeRpcUrl(this.labelApi.Text, "getblockcount");
             var result = await wc.DownloadStringTaskAsync(str);
             var json = MyJson.Parse(result).AsDict()["result"].AsList();
-            var height = json[0].AsDict()["blockcount"].AsInt() - 1;
+            var height = ulong.Parse(json[0].AsDict()["blockcount"].ToString()) - 1;
             return height;
         }
-        async Task<int> rpc_getHeight()
+        async Task<ulong> rpc_getHeight()
         {
             System.Net.WebClient wc = new System.Net.WebClient();
             var str = WWW.MakeRpcUrl(this.labelRPC.Text, "getblockcount");
             var result = await WWW.Get(str);
-            var json = MyJson.Parse(result).AsDict()["result"];
-            var height = json.AsInt() - 1;
+            var json = MyJson.Parse(result).AsDict()["result"].ToString();
+            var height = ulong.Parse(json) - 1;
             return height;
         }
-        int apiHeight;
-        int rpcHeight;
+        ulong apiHeight;
+        ulong rpcHeight;
         async void update()
         {
             try
@@ -216,7 +216,7 @@ namespace thinWallet
             return json;
         }
         //getUtxo
-        int lastCoinHeight = -1;
+        ulong lastCoinHeight = 0;
         bool initCoins = false;
         Tools.Asset myasset = null;
 
@@ -647,7 +647,7 @@ namespace thinWallet
                 (trans.extdata as ThinNeo.InvokeTransData).gas = lastFee.Value;
             }
             trans.inputs = new ThinNeo.TransactionInput[this.listInput.Items.Count];
-            trans.outputs = new ThinNeo.TransactionOutput[this.listOutput.Items.Count];
+            var _listOutput = new List<ThinNeo.TransactionOutput>();
             for (var i = 0; i < listInput.Items.Count; i++)
             {
                 var item = listInput.Items[i] as Tools.Input;
@@ -668,12 +668,18 @@ namespace thinWallet
             for (var i = 0; i < listOutput.Items.Count; i++)
             {
                 var item = listOutput.Items[i] as Tools.Output;
+                if (string.IsNullOrEmpty(item.Target))
+                {//扔钱
+                    continue;
+                }
                 var output = new ThinNeo.TransactionOutput();
                 output.assetId = ThinNeo.Helper.HexString2Bytes(item.assetID).Reverse().ToArray();//反转
                 output.toAddress = ThinNeo.Helper.GetPublicKeyHashFromAddress(item.Target);
                 output.value = item.Fix8;
-                trans.outputs[i] = output;
+                _listOutput.Add(output);
             }
+            trans.outputs = _listOutput.ToArray();
+
             return trans;
         }
         ThinNeo.Transaction signAndBroadcast()
