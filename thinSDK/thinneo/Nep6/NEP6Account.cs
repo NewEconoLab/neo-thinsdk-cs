@@ -16,7 +16,7 @@ namespace ThinNeo.NEP6
 
         public override string ToString()
         {
-            return ThinNeo.Helper.GetAddressFromScriptHash(this.ScriptHash)+" "+((this.nep2key!=null)?"[have key]":"[no key]");
+            return ThinNeo.Helper.GetAddressFromScriptHash(this.ScriptHash) + " " + ((this.nep2key != null) ? "[have key]" : "[no key]");
         }
 
 
@@ -24,7 +24,9 @@ namespace ThinNeo.NEP6
         {
             var strAdd = json["address"].AsString();
             var pubkeyhash = Helper.GetPublicKeyHashFromAddress(strAdd);
-            var key = json["key"]?.AsString();
+            string key = null;
+            if (json.ContainsKey("key") && json["key"].IsNull() == false)
+                key = json["key"].AsString();
             return new NEP6Account(pubkeyhash, key)
             {
                 //Label = json["label"]?.AsString(),
