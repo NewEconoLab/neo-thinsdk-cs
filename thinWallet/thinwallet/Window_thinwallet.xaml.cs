@@ -384,6 +384,10 @@ namespace thinWallet
         {
             Dictionary<string, Dictionary<string, decimal>> incoins = new Dictionary<string, Dictionary<string, decimal>>();
             List<string> needWitness = new List<string>();
+
+            //智能合約輸入，記錄
+            Dictionary<string, byte[]> hadscript = new Dictionary<string, byte[]>();
+
             foreach (Tools.Input input in listInput.Items)
             {
                 if (incoins.ContainsKey(input.Address) == false)
@@ -400,6 +404,10 @@ namespace thinWallet
                 if (needWitness.Contains(input.Address) == false)
                 {
                     needWitness.Add(input.Address);
+                }
+                if (input.Script != null)
+                {
+                    hadscript[input.Address] = input.Script;
                 }
             }
 
@@ -421,20 +429,20 @@ namespace thinWallet
                         if (f == address)
                         {
                             wit.VerificationScript = ThinNeo.Helper.GetScriptFromPublicKey(pubkey);
-                            listWitness.Items.Add(wit);
+                        }
+                        else if (hadscript.ContainsKey(f))//自帶脚本
+                        {
+                            wit.VerificationScript = hadscript[f];
                         }
                         else
                         {
-                            //并不知道试试 
                             byte[] script = rpc_getScript(ThinNeo.Helper.GetPublicKeyHashFromAddress(f));
-                            if (script != null)
+                            if (script != null)//并不知道试试是不是公開的智能合約 
                             {
                                 wit.VerificationScript = script;
-                                listWitness.Items.Add(wit);
-
                             }
                         }
-
+                        listWitness.Items.Add(wit);
                     }
                 }
             }
@@ -551,6 +559,13 @@ namespace thinWallet
         private void MenuItem_Click_2(object sender, RoutedEventArgs e)
         {
             //从智能合约添加输入，弹出对话框
+            var b = Dialog_AddUtxo_FromSc.ShowDialog(this, this.labelApi.Text);
+            if (b != null)
+            {
+                listInput.Items.Add(b);
+
+                updateOutput();
+            }
         }
         byte[] rpc_getScript(byte[] scripthash)
         {
@@ -693,16 +708,26 @@ namespace thinWallet
             var msg = trans.GetMessage();
             trans.witnesses = new ThinNeo.Witness[this.listWitness.Items.Count];
             //检查签名
+
+            var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
+            var addr = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+
             for (var i = 0; i < listWitness.Items.Count; i++)
             {
                 var item = listWitness.Items[i] as ThinNeo.Witness;
                 var witness = new ThinNeo.Witness();
                 witness.VerificationScript = item.VerificationScript;
                 witness.InvocationScript = item.InvocationScript;
+                if (witness.VerificationScript == null)
+                {
+                    throw new Exception("a VerificationScript is null");
+                }
+                if (item.Address != addr && witness.InvocationScript == null)//curkey 可以自動簽名
+                {
+                    throw new Exception("a InvocationScript is null");
+                }
                 //autoresign
                 {
-                    var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
-                    var addr = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
                     if (item.Address == addr)
                     {
                         var signdata = ThinNeo.Helper.Sign(msg, this.privatekey);
@@ -827,6 +852,31 @@ namespace thinWallet
                 labelFee.Text = "Fee:";
                 updateScript();
             }
+        }
+
+        private void MenuItem_Click_3(object sender, RoutedEventArgs e)
+        {        //edit select witness
+            var wit = listWitness.SelectedItem as ThinNeo.Witness;
+            if(wit!=null)
+            {
+
+            }
+        }
+        private void MenuItem_Click_4(object sender, RoutedEventArgs e)
+        {        //add curkey witness
+
+            var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
+            var address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+            foreach (ThinNeo.Witness k in listWitness.Items)
+            {
+                if (k.Address == address)
+                {
+                    break;
+                }
+            }
+            ThinNeo.Witness wit = new ThinNeo.Witness();
+            wit.VerificationScript = ThinNeo.Helper.GetScriptFromPublicKey(pubkey);
+            listWitness.Items.Add(wit);
         }
     }
 }

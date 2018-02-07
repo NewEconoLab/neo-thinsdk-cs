@@ -27,14 +27,12 @@ namespace ThinNeo.NEP6
             string key = null;
             if (json.ContainsKey("key") && json["key"].IsNull() == false)
                 key = json["key"].AsString();
-            return new NEP6Account(pubkeyhash, key)
+            var acc = new NEP6Account(pubkeyhash, key);
+            if (json.ContainsKey("contract") && json["contract"].IsNull() == false)
             {
-                //Label = json["label"]?.AsString(),
-                //IsDefault = json["isDefault"].AsBoolean(),
-                //Lock = json["lock"].AsBoolean(),
-                Contract = NEP6Contract.FromJson(json["contract"].AsDict()),
-                //Extra = json["extra"]
-            };
+                acc.Contract = NEP6Contract.FromJson(json["contract"].AsDict());
+            }
+            return acc;
         }
 
 

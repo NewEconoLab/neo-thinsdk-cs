@@ -170,6 +170,12 @@
                         </GroupBox>
                         <GroupBox Header="Witness" Grid.Column="0" Grid.Row="2" Background="#7E000000" BorderThickness="0" Margin="1" Grid.RowSpan="2" Foreground="White">
                             <ListBox x:Name="listWitness" Background="{x:Null}" AllowDrop="True" DragOver="ListBox_DragOver" Drop="ListBox_Drop" Foreground="White" Grid.Row="2" Grid.RowSpan="1">
+                                <ListBox.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="edit select witness" Click="MenuItem_Click_3" />
+                                        <MenuItem Header="add curkey witness" Click="MenuItem_Click_4"/>
+                                    </ContextMenu>
+                                </ListBox.ContextMenu>
                             </ListBox>
                         </GroupBox>
                         <GroupBox Header="Publish" Grid.Column="1" Grid.ColumnSpan="2" BorderThickness="0" Margin="1" Grid.Row="3"  Grid.RowSpan="1" Background="#7E000000" Foreground="White">

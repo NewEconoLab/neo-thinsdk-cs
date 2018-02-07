@@ -218,6 +218,7 @@ namespace thinWallet.Tools
     {
         public UTXOCoin Coin;//币
         public byte[] From;//来源，需要这个人或者脚本做witness
+        public byte[] Script;//脚本，可以為null
         public string Address
         {
             get
