@@ -173,7 +173,6 @@
                                 <ListBox.ContextMenu>
                                     <ContextMenu>
                                         <MenuItem Header="edit select witness" Click="MenuItem_Click_3" />
-                                        <MenuItem Header="add curkey witness" Click="MenuItem_Click_4"/>
                                     </ContextMenu>
                                 </ListBox.ContextMenu>
                             </ListBox>

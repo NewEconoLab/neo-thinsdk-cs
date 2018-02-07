@@ -44,7 +44,11 @@ namespace thinWallet
         {
             try
             {
+                if (this.scripthash == null || this.script == null)
+                    return;
                 var coin= this.listUTXO.SelectedItem as Tools.UTXOCoin;
+                if (coin == null)
+                    return;
                 this.value = new Tools.Input();
                 this.value.Coin = coin;
                 this.value.From = this.scripthash;

@@ -1,0 +1,57 @@
+﻿<Window x:Class="thinWallet.Dialog_Witness_Edit"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:thinWallet"
+        mc:Ignorable="d"
+        Title="Dialog_Witness_Edit" Height="750" Width="900.926" Background="Black" Foreground="White" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" FontSize="15" WindowStyle="None">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="369*"/>
+            <ColumnDefinition Width="368*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="269*"/>
+            <RowDefinition Height="204*"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
+
+        <Grid.Background>
+            <ImageBrush ImageSource="/thinWallet;component/thinwallet/back3.jpg" Stretch="UniformToFill"/>
+        </Grid.Background>
+        <Button Content="OK" Grid.Row="2" Margin="150,0,75,0" Grid.RowSpan="1" Click="Button_Click_2"/>
+        <Button Content="Cancel" Grid.Row="2" Margin="75,0,150,0" Grid.RowSpan="1" Grid.Column="1" Click="Button_Click_3" />
+        <GroupBox Header="script" Margin="25,25,25,2" Background="#7F573C22" BorderThickness="0" Grid.Row="0" Grid.ColumnSpan="2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="158*"/>
+                    <ColumnDefinition Width="365*"/>
+                    <ColumnDefinition Width="150*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="100"/>
+                    <RowDefinition Height="24"/>
+                    <RowDefinition Height="24"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Witness VerificationScript"  Grid.RowSpan="1" Grid.ColumnSpan="1" ></TextBlock>
+                <TextBox x:Name="textASM" IsReadOnly="True" TextWrapping="Wrap" Grid.Column="1" ></TextBox>
+                <TextBlock Text="VerificationScript Hash" Grid.Row="1" Grid.RowSpan="1" VerticalAlignment="Center" FontSize="15" Height="20" Margin="0,2"/>
+                <TextBlock Text="VerificationScript Address" Grid.Row="2" Grid.RowSpan="1" VerticalAlignment="Center" FontSize="15" Height="20" Margin="0,2"></TextBlock>
+                <TextBlock x:Name="info1" Text="VerificationScript Hash" Grid.Row="1" Grid.RowSpan="1" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" FontSize="15" Height="20" Margin="0,2"/>
+                <TextBlock x:Name="info2" Text="VerificationScript Address" Grid.Row="2" Grid.RowSpan="1" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" FontSize="15" Height="20" Margin="0,2"></TextBlock>
+                <TextBlock TextWrapping="Wrap" Text="InvocationScript  Parameters(JSON)" Grid.Row="3" Grid.RowSpan="1" Grid.ColumnSpan="1" FontSize="15"  VerticalAlignment="Top" />
+                <TextBox  AcceptsReturn="True" AcceptsTab="True" x:Name="jsonParam" Grid.Row="3" Grid.Column="1" Grid.RowSpan="1" Background="#BFFFFFFF" Text=""/>
+                <Button Content="GenCode" Grid.Row="3" Grid.Column="2" Height="26" Margin="25,0" Click="Button_Click" ></Button>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="AVM(Bin)" Margin="25,2,2,25" Background="#7F070B5D" BorderThickness="0" Grid.Row="1" Grid.ColumnSpan="1">
+            <TextBlock  x:Name="asmBinText" Text="ASM" xml:space="preserve" TextWrapping="Wrap" ></TextBlock>
+        </GroupBox>
+        <GroupBox Header="AVM(ASM)" Margin="2,2,25,25" Background="#7FD8D81E" BorderThickness="0" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="1">
+            <ListBox x:Name="asmList" Background="{x:Null}"></ListBox>
+        </GroupBox>
+    </Grid>
+</Window>

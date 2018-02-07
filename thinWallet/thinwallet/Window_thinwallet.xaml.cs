@@ -411,8 +411,8 @@ namespace thinWallet
                 }
             }
 
-            var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
-            var address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+            var pubkey = this.privatekey != null ? ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey) : null;
+            var address = pubkey != null ? ThinNeo.Helper.GetAddressFromPublicKey(pubkey) : null;
             {//处理见证人
                 List<string> witness = new List<string>();
                 foreach (ThinNeo.Witness w in listWitness.Items)
@@ -754,7 +754,7 @@ namespace thinWallet
             else
             {
                 MessageBox.Show("transaction error");
-                ClearTran();
+                //ClearTran();
                 return null;
             }
         }
@@ -857,26 +857,41 @@ namespace thinWallet
         private void MenuItem_Click_3(object sender, RoutedEventArgs e)
         {        //edit select witness
             var wit = listWitness.SelectedItem as ThinNeo.Witness;
-            if(wit!=null)
+            if (wit != null)
             {
-
-            }
-        }
-        private void MenuItem_Click_4(object sender, RoutedEventArgs e)
-        {        //add curkey witness
-
-            var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
-            var address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
-            foreach (ThinNeo.Witness k in listWitness.Items)
-            {
-                if (k.Address == address)
+                var b = Dialog_Witness_Edit.ShowDialog(this, wit);
+                if (b != null)
                 {
-                    break;
+                    wit.InvocationScript = b;
                 }
             }
-            ThinNeo.Witness wit = new ThinNeo.Witness();
-            wit.VerificationScript = ThinNeo.Helper.GetScriptFromPublicKey(pubkey);
-            listWitness.Items.Add(wit);
+            listWitness.InvalidateVisual();
         }
+        //witness 和input 严格对应，这两个功能没任何意义
+        //private void MenuItem_Click_4(object sender, RoutedEventArgs e)
+        //{        //add curkey witness
+
+        //    var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
+        //    var address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+        //    foreach (ThinNeo.Witness k in listWitness.Items)
+        //    {
+        //        if (k.Address == address)
+        //        {
+        //            return;
+        //        }
+        //    }
+        //    ThinNeo.Witness wit = new ThinNeo.Witness();
+        //    wit.VerificationScript = ThinNeo.Helper.GetScriptFromPublicKey(pubkey);
+        //    listWitness.Items.Add(wit);
+        //}
+
+        //private void MenuItem_Click_5(object sender, RoutedEventArgs e)
+        //{
+        //    var wit = listWitness.SelectedItem as ThinNeo.Witness;
+        //    if (wit != null)
+        //    {
+        //        listWitness.Items.Remove(wit);
+        //    }
+        //}
     }
 }
