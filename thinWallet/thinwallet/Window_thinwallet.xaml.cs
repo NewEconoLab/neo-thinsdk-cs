@@ -709,8 +709,8 @@ namespace thinWallet
             trans.witnesses = new ThinNeo.Witness[this.listWitness.Items.Count];
             //检查签名
 
-            var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey);
-            var addr = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+            var pubkey = this.privatekey!=null?ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey):null;
+            var addr = pubkey!=null?ThinNeo.Helper.GetAddressFromPublicKey(pubkey):null;
 
             for (var i = 0; i < listWitness.Items.Count; i++)
             {
