@@ -281,10 +281,16 @@ namespace thinWallet
             }
             try
             {
-
-                var json = api_getUTXO().AsList();
                 myasset = new Tools.Asset();
-                myasset.ParseUTXO(json);
+                try
+                {
+                    var json = api_getUTXO().AsList();
+                    myasset.ParseUTXO(json);
+                }
+                catch
+                {
+                    //沒刷出來不要緊張
+                }
                 foreach (var nep5 in Tools.CoinTool.assetNep5)
                 {
                     var dec = rpc_getNep5Balance(nep5.Key);
