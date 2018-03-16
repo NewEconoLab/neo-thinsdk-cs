@@ -233,7 +233,52 @@ namespace ThinNeo
             }
         }
     }
+    public class ClaimTransData : IExtData
+    {
+        public TransactionInput[] claims;
+        public void Serialize(Transaction trans, Stream writer)
+        {
+            Transaction.writeVarInt(writer, (ulong)this.claims.Length);
+            for (var i = 0; i < this.claims.Length; i++)
+            {
+                writer.Write(this.claims[i].hash, 0, 32);
+                var buf = BitConverter.GetBytes(claims[i].index);
+                writer.Write(buf, 0, 2);
+            }
+        }
+        public void Deserialize(Transaction trans, Stream reader)
+        {
+            var countClaims = (int)Transaction.readVarInt(reader);
+            this.claims = new TransactionInput[countClaims];
+            for (var i = 0; i < countClaims; i++)
+            {
+                this.claims[i] = new TransactionInput();
+                this.claims[i].hash = new byte[32];
+                reader.Read(this.claims[i].hash, 0, 32);
+                var buf = new byte[2];
+                reader.Read(buf, 0, 2);
+                UInt16 index = (UInt16)(buf[1] * 256 + buf[0]);
+                this.claims[i].index = index;
+            }
+        }
+    }
+    public class MinerTransData : IExtData
+    {
+        public UInt32 nonce;
+        public void Serialize(Transaction trans, Stream writer)
+        {
+            var buf = BitConverter.GetBytes(this.nonce);
+            writer.Write(buf, 0, 4);
 
+        }
+        public void Deserialize(Transaction trans, Stream reader)
+        {
+            var buf = new byte[4];
+            reader.Read(buf, 0, 4);
+
+            this.nonce = BitConverter.ToUInt32(buf, 0);
+        }
+    }
     public class Transaction
     {
         public TransactionType type;
@@ -249,12 +294,25 @@ namespace ThinNeo
             //write version
             writer.WriteByte(version);
             //SerializeExclusiveData(writer);
-            if (type == TransactionType.ContractTransaction)//每个交易类型有一些自己独特的处理
+            if (type == TransactionType.ContractTransaction
+                ||type== TransactionType.IssueTransaction)//每个交易类型有一些自己独特的处理
             {
                 //ContractTransaction 就是最常见的转账交易
                 //他没有自己的独特处理
             }
             else if (type == TransactionType.InvocationTransaction)
+            {
+                extdata.Serialize(this, writer);
+            }
+            else if (type == TransactionType.InvocationTransaction)
+            {
+                extdata.Serialize(this, writer);
+            }
+            else if (type == TransactionType.ClaimTransaction)
+            {
+                extdata.Serialize(this, writer);
+            }
+            else if (type == TransactionType.MinerTransaction)
             {
                 extdata.Serialize(this, writer);
             }
@@ -377,7 +435,8 @@ namespace ThinNeo
 
             this.type = (TransactionType)ms.ReadByte();//读一个字节，交易类型
             this.version = (byte)ms.ReadByte();
-            if (this.type == TransactionType.ContractTransaction)//每个交易类型有一些自己独特的处理
+            if (this.type == TransactionType.ContractTransaction
+                || this.type == TransactionType.IssueTransaction)//每个交易类型有一些自己独特的处理
             {
                 //ContractTransaction 就是最常见的合约交易，
                 //他没有自己的独特处理
@@ -387,6 +446,15 @@ namespace ThinNeo
             {
                 extdata = new InvokeTransData();
             }
+            else if (this.type == TransactionType.ClaimTransaction)
+            {
+                extdata = new ClaimTransData();
+            }
+            else if (this.type == TransactionType.MinerTransaction)
+            {
+                extdata = new MinerTransData();
+            }
+
             else
             {
                 throw new Exception("未编写针对这个交易类型的代码");
