@@ -1,9 +1,6 @@
 ﻿using System;
-using Neo;
-using System.Linq;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-using System.Security.Cryptography;
+using System.Linq;
 
 namespace smartContractDemo
 {
@@ -32,8 +29,7 @@ namespace smartContractDemo
 
             ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder();
 
-            byte[] scriptaddress = nnc.Replace("0x","").HexToBytes().Reverse().ToArray();
-
+            byte[] scriptaddress = ThinNeo.Helper.HexString2Bytes(nnc.Replace("0x", "")).Reverse().ToArray();
             //Parameter inversion 
             MyJson.JsonNode_Array JAParams = new MyJson.JsonNode_Array();
             JAParams.Add(new MyJson.JsonNode_ValueString("(address)" + address));
@@ -49,13 +45,13 @@ namespace smartContractDemo
             tran.extdata = extdata;
 
             byte[] msg = tran.GetMessage();
-            byte[] signdata =ThinNeo.Helper.Sign(msg, prikey);
+            byte[] signdata = ThinNeo.Helper.Sign(msg, prikey);
             tran.AddWitness(signdata, pubkey, address);
-            string txid = tran.GetHash().Reverse().ToHexString();
+            string txid = ThinNeo.Helper.Bytes2HexString(tran.GetHash().Reverse().ToArray());
             byte[] data = tran.GetRawData();
-            var scripthash = data.ToHexString();
+            string scripthash = ThinNeo.Helper.Bytes2HexString(data);
 
-            string response = http.HttpGet(api+"?method=sendrawtransaction&id=1&params=[\"" + scripthash + "\"]");
+            string response = http.HttpGet(api + "?method=sendrawtransaction&id=1&params=[\"" + scripthash + "\"]");
             MyJson.JsonNode_Object resJO = (MyJson.JsonNode_Object)MyJson.Parse(response);
             Console.WriteLine(resJO["result"].ToString());
         }
@@ -65,21 +61,21 @@ namespace smartContractDemo
         //获取地址的utxo来得出地址的资产  
         Dictionary<string, List<Utxo>> GetBalanceByUtxo(string _addr)
         {
-            var response = JObject.Parse(http.HttpGet(api+"?method=getutxo&id=1&params=['" + _addr + "']"));
-            JArray resJA = (JArray)response["result"];
+            MyJson.JsonNode_Object response = (MyJson.JsonNode_Object)MyJson.Parse(http.HttpGet(api + "?method=getutxo&id=1&params=['" + _addr + "']"));
+            MyJson.JsonNode_Array resJA = (MyJson.JsonNode_Array)response["result"];
             Dictionary<string, List<Utxo>> _dir = new Dictionary<string, List<Utxo>>();
-            foreach (var j in resJA)
+            foreach (MyJson.JsonNode_Object j in resJA)
             {
-                Utxo utxo = new Utxo((string)j["addr"], (string)j["txid"], (string)j["asset"],(decimal)j["value"], (int)j["n"]);
-                if (_dir.ContainsKey((string)j["asset"]))
+                Utxo utxo = new Utxo(j["addr"].ToString(), j["txid"].ToString(), j["asset"].ToString(), decimal.Parse(j["value"].ToString()), int.Parse(j["n"].ToString()));
+                if (_dir.ContainsKey(j["asset"].ToString()))
                 {
-                    _dir[(string)j["asset"]].Add(utxo);
+                    _dir[j["asset"].ToString()].Add(utxo);
                 }
                 else
                 {
                     List<Utxo> l = new List<Utxo>();
                     l.Add(utxo);
-                    _dir[(string)j["asset"]] = l;
+                    _dir[j["asset"].ToString()] = l;
                 }
 
             }
@@ -87,7 +83,7 @@ namespace smartContractDemo
         }
 
 
-        ThinNeo.Transaction makeTran(List<Utxo> utxos,string targetaddr,string assetid,decimal sendcount)
+        ThinNeo.Transaction makeTran(List<Utxo> utxos, string targetaddr, string assetid, decimal sendcount)
         {
             var tran = new ThinNeo.Transaction();
             tran.type = ThinNeo.TransactionType.ContractTransaction;
@@ -110,12 +106,12 @@ namespace smartContractDemo
             for (var i = 0; i < utxos.Count; i++)
             {
                 ThinNeo.TransactionInput input = new ThinNeo.TransactionInput();
-                input.hash = utxos[i].txid.Replace("0x","").HexToBytes().Reverse().ToArray();
+                input.hash = ThinNeo.Helper.HexString2Bytes(utxos[i].txid.Replace("0x", "")).Reverse().ToArray();
                 input.index = (ushort)utxos[i].n;
                 list_inputs.Add(input);
                 count += utxos[i].value;
                 scraddr = utxos[i].addr;
-                if (count>=sendcount)
+                if (count >= sendcount)
                 {
                     break;
                 }
@@ -128,20 +124,20 @@ namespace smartContractDemo
                 if (sendcount > decimal.Zero)
                 {
                     ThinNeo.TransactionOutput output = new ThinNeo.TransactionOutput();
-                    output.assetId = assetid.Replace("0x","").HexToBytes().Reverse().ToArray();
-                    output.value =  sendcount;
+                    output.assetId = ThinNeo.Helper.HexString2Bytes(assetid.Replace("0x", "")).Reverse().ToArray();
+                    output.value = sendcount;
                     output.toAddress = ThinNeo.Helper.GetPublicKeyHashFromAddress(targetaddr);
                     list_outputs.Add(output);
                 }
 
                 //找零
-                var change = count -sendcount;
+                var change = count - sendcount;
                 if (change > decimal.Zero)
                 {
                     ThinNeo.TransactionOutput outputchange = new ThinNeo.TransactionOutput();
                     outputchange.toAddress = ThinNeo.Helper.GetPublicKeyHashFromAddress(scraddr);
                     outputchange.value = change;
-                    outputchange.assetId = assetid.Replace("0x", "").HexToBytes().Reverse().ToArray();
+                    outputchange.assetId = ThinNeo.Helper.HexString2Bytes(assetid.Replace("0x", "")).Reverse().ToArray();
                     list_outputs.Add(outputchange);
 
                 }

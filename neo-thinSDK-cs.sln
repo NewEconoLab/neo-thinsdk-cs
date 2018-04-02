@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2010
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "thinSDK", "thinSDK\thinSDK.csproj", "{9ABEEF32-2BFC-4D02-BAE0-4073F44AFEBF}"
 EndProject
@@ -12,6 +12,15 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D58FE252-FE4E-4747-97E8-516E41B5AD6C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "thinSDK_neo", "thinSDK_neo\thinSDK_neo.csproj", "{4C4BC840-34E5-4699-A96D-41E5864DCBF8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "smartContractDemo_dotnet", "smartContractDemo\smartContractDemo_dotnet.csproj", "{55C1FA79-88C4-4B33-B45C-3E5309B86DCA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "smartContractDemo_win", "smartContractDemo_win\smartContractDemo_win.csproj", "{9F10BE4C-A935-46EE-AAFA-D445310CA639}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9ABEEF32-2BFC-4D02-BAE0-4073F44AFEBF} = {9ABEEF32-2BFC-4D02-BAE0-4073F44AFEBF}
+		{4C4BC840-34E5-4699-A96D-41E5864DCBF8} = {4C4BC840-34E5-4699-A96D-41E5864DCBF8}
+		{7061B8E1-1174-44BD-85B5-33DA9D38919E} = {7061B8E1-1174-44BD-85B5-33DA9D38919E}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +44,14 @@ Global
 		{4C4BC840-34E5-4699-A96D-41E5864DCBF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C4BC840-34E5-4699-A96D-41E5864DCBF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C4BC840-34E5-4699-A96D-41E5864DCBF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55C1FA79-88C4-4B33-B45C-3E5309B86DCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55C1FA79-88C4-4B33-B45C-3E5309B86DCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55C1FA79-88C4-4B33-B45C-3E5309B86DCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55C1FA79-88C4-4B33-B45C-3E5309B86DCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F10BE4C-A935-46EE-AAFA-D445310CA639}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F10BE4C-A935-46EE-AAFA-D445310CA639}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F10BE4C-A935-46EE-AAFA-D445310CA639}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F10BE4C-A935-46EE-AAFA-D445310CA639}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

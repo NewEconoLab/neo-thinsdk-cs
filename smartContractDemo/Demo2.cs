@@ -11,7 +11,7 @@ namespace smartContractDemo
 
         httpHelper http = new httpHelper();
 
-        void Demo()
+        public void Demo()
         {
             string nnc = "0x3fccdb91c9bb66ef2446010796feb6ca4ed96b05".Replace("0x", "");
             var sb = new ThinNeo.ScriptBuilder();

@@ -11,7 +11,7 @@ namespace smartContractDemo
 
         httpHelper http = new httpHelper();
 
-        void Demo()
+        public void Demo()
         {
             string scriptaddress = "0x2e88caf10afe621e90142357236834e010b16df2";
             string key = "9b87a694f0a282b2b5979e4138944b6805350c6fa3380132b21a2f12f9c2f4b6";

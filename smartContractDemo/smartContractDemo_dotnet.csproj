@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Neo" Version="2.7.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="thinSDK_neo">
+      <HintPath>..\thinSDK\bin\Debug\net47\thinSDK_neo.dll</HintPath>
+    </Reference>
+    <Reference Include="thinSDK">
+      <HintPath>..\thinSDK\bin\Debug\net47\thinSDK.dll</HintPath>
+    </Reference>
+    <Reference Include="llvm">
+      <HintPath>..\llvm\bin\Debug\net47\llvm.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
