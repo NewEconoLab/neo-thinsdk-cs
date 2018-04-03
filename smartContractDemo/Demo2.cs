@@ -1,5 +1,4 @@
 ﻿using System;
-using Neo;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
@@ -18,7 +17,7 @@ namespace smartContractDemo
 
             sb.EmitParamJson(new MyJson.JsonNode_Array());//参数倒序入
             sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)name"));//参数倒序入
-            byte[] shash = nnc.HexToBytes();
+            byte[] shash = ThinNeo.Helper.HexString2Bytes(nnc);
             sb.EmitAppCall(shash.Reverse().ToArray());//nep5脚本
 
             sb.EmitParamJson(new MyJson.JsonNode_Array());
@@ -33,7 +32,7 @@ namespace smartContractDemo
             sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)totalSupply"));
             sb.EmitAppCall(shash.Reverse().ToArray());
             var data = sb.ToArray();
-            var scripthash = data.ToHexString();
+            var scripthash = ThinNeo.Helper.Bytes2HexString(data);
 
             //api 是 https://api.nel.group/api/testne?jsonrpc=2.0&id=1&method=getstorage&params=[]
             string result = http.HttpGet(api + "?jsonrpc=2.0&id=1&method=invokescript&params=[\"" + scripthash + "\"]");
