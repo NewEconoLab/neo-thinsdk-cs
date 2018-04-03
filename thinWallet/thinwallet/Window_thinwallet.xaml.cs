@@ -121,10 +121,13 @@ namespace thinWallet
             var height = ulong.Parse(json[0].AsDict()["blockcount"].ToString()) - 1;
             return height;
         }
+
+
+
         async Task<ulong> rpc_getHeight()
         {
             System.Net.WebClient wc = new System.Net.WebClient();
-            var str = WWW.MakeRpcUrl(this.labelRPC.Text, "getblockcount");
+            var str = WWW.MakeRpcUrl(this.labelApi.Text, "getrpcblockcount");
             var result = await WWW.Get(str);
             var json = MyJson.Parse(result).AsDict()["result"].ToString();
             var height = ulong.Parse(json) - 1;
@@ -186,7 +189,7 @@ namespace thinWallet
         }
         private void Button_Click_4(object sender, RoutedEventArgs e)
         {
-            var ss = Dialog_Script_Make.ShowDialog(this, this.labelRPC.Text);
+            var ss = Dialog_Script_Make.ShowDialog(this, this.labelApi.Text);
             if (ss != null)
             {
                 lastScript = ss;
@@ -238,9 +241,9 @@ namespace thinWallet
             var nep5 = Tools.CoinTool.assetNep5[nep5asset];
 
             var symbol = ThinNeo.Helper.Bytes2HexString(sb.ToArray());
-            var str = WWW.MakeRpcUrl(labelRPC.Text, "invokescript", new MyJson.JsonNode_ValueString(symbol));
+            var str = WWW.MakeRpcUrl(labelApi.Text, "invokescript", new MyJson.JsonNode_ValueString(symbol));
             var resultstr = WWW.GetWithDialog(this, str);
-            var json = MyJson.Parse(resultstr).AsDict()["result"].AsDict();
+            var json = MyJson.Parse(resultstr).AsDict()["result"].AsList()[0].AsDict();
             if (json["state"].AsString().Contains("HALT") == false)
                 throw new Exception("error state");
             var value = json["stack"].AsList()[0].AsDict();
@@ -335,7 +338,7 @@ namespace thinWallet
 
         private void Button_Click_6(object sender, RoutedEventArgs e)
         {
-            Dialog_Config_Nep5.ShowDialog(this, this.labelRPC.Text);
+            Dialog_Config_Nep5.ShowDialog(this, this.labelApi.Text);
 
             Tools.CoinTool.SaveNep5();
         }
@@ -576,7 +579,7 @@ namespace thinWallet
         byte[] rpc_getScript(byte[] scripthash)
         {
             System.Net.WebClient wc = new System.Net.WebClient();
-            var url = this.labelRPC.Text;
+            var url = this.labelApi.Text;
             //url = "http://127.0.0.1:20332/";//本地测试
 
             var sid = ThinNeo.Helper.Bytes2HexString(scripthash);
@@ -588,7 +591,7 @@ namespace thinWallet
                 var json = MyJson.Parse(result);
                 if (json.AsDict().ContainsKey("error"))
                     return null;
-                var script = json.AsDict()["result"].AsDict()["script"].AsString();
+                var script = json.AsDict()["result"].AsList()[0].AsDict()["script"].AsString();
                 return ThinNeo.Helper.HexString2Bytes(script);
             }
             return null;
@@ -597,14 +600,14 @@ namespace thinWallet
         {
             var sid = ThinNeo.Helper.Bytes2HexString(rawdata);
 
-            var url = this.labelRPC.Text;
+            var url = this.labelApi.Text;
             byte[] data;
             var str = WWW.MakeRpcUrlPost(url, "sendrawtransaction", out data, new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(sid) });
             var result = WWW.PostWithDialog(this, str, data);
             var json = MyJson.Parse(result);
             if (json.AsDict().ContainsKey("error"))
                 return false;
-            return json.AsDict()["result"].AsBool();
+            return json.AsDict()["result"].AsList()[0].AsBool();
         }
         private void Button_Click_7(object sender, RoutedEventArgs e)
         {//sign and broadcast 
@@ -773,14 +776,14 @@ namespace thinWallet
             {
                 var symbol = ThinNeo.Helper.Bytes2HexString(lastScript);
                 byte[] data;
-                var str = WWW.MakeRpcUrlPost(labelRPC.Text, "invokescript", out data, new MyJson.JsonNode_ValueString(symbol));
+                var str = WWW.MakeRpcUrlPost(labelApi.Text, "invokescript", out data, new MyJson.JsonNode_ValueString(symbol));
                 var resultstr = WWW.PostWithDialog(this, str, data);
                 var json = MyJson.Parse(resultstr).AsDict();
                 var gas = json["result"].AsDict()["gas_consumed"].ToString();
                 lastFee = decimal.Parse(gas);
                 labelFee.Text = "Fee:" + lastFee;
                 StringBuilder sb = new StringBuilder();
-                json["result"].AsDict().ConvertToStringWithFormat(sb, 4);
+                json["result"].AsList()[0].AsDict().ConvertToStringWithFormat(sb, 4);
 
                 //移除撒GAS
                 foreach (Tools.Output list in listOutput.Items)
@@ -838,7 +841,7 @@ namespace thinWallet
         //发布智能合约
         private void Button_Click_9(object sender, RoutedEventArgs e)
         {
-            var ss = Dialog_Script_Publish.ShowDialog(this, this.labelRPC.Text);
+            var ss = Dialog_Script_Publish.ShowDialog(this, this.labelApi.Text);
             if (ss != null)
             {
                 lastScript = ss;
@@ -850,7 +853,7 @@ namespace thinWallet
         //load custom contract
         private void Button_Click_10(object sender, RoutedEventArgs e)
         {
-            var ss = Dialog_Script_Custom.ShowDialog(this, this.labelRPC.Text);
+            var ss = Dialog_Script_Custom.ShowDialog(this);
             if (ss != null)
             {
                 lastScript = ss;

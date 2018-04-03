@@ -23,12 +23,12 @@ namespace thinWallet
         {
             InitializeComponent();
         }
-        string rpcurl;
-        public static bool ShowDialog(Window owner, string rpcurl)
+        string apiurl;
+        public static bool ShowDialog(Window owner, string apiurl)
         {
 
             var d = new Dialog_Config_Nep5();
-            d.rpcurl = rpcurl;
+            d.apiurl = apiurl;
             d.Owner = owner;
 
             if (d.ShowDialog() == true)
@@ -114,9 +114,9 @@ namespace thinWallet
         private string[] GetNep5Info()
         {
             var symbol = ThinNeo.Helper.Bytes2HexString(createNep5FindScript(assetid.Text));
-            var str = WWW.MakeRpcUrl(rpcurl, "invokescript", new MyJson.JsonNode_ValueString(symbol));
+            var str = WWW.MakeRpcUrl(apiurl, "invokescript", new MyJson.JsonNode_ValueString(symbol));
             var info = WWW.GetWithDialog(this, str);
-            var json = MyJson.Parse(info).AsDict()["result"].AsDict();
+            var json = MyJson.Parse(info).AsDict()["result"].AsList()[0].AsDict();
             if (json["state"].AsString().Contains("HALT") == false)
             {
                 throw new Exception("not succ.");

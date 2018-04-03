@@ -23,23 +23,13 @@ namespace thinWallet
         {
             InitializeComponent();
         }
-        public string rpcurl
-        {
-            get
-            {
-                return textRpc.Text;
-            }
-            set
-            {
-                textRpc.Text = value;
-            }
-        }
+
         public byte[] script;
-        public static byte[] ShowDialog(Window owner, string rpcurl)
+        public static byte[] ShowDialog(Window owner)
         {
             var d = new Dialog_Script_Custom();
             d.Owner = owner;
-            d.rpcurl = rpcurl;
+
             if (d.ShowDialog() == true)
             {
                 return d.script;

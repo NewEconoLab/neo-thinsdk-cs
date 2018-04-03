@@ -220,7 +220,7 @@ namespace thinWallet
 
 
                 var callstr = ThinNeo.Helper.Bytes2HexString(scrb.ToArray());
-                var str = WWW.MakeRpcUrl(labelRPC.Text, "invokescript", new MyJson.JsonNode_ValueString(callstr));
+                var str = WWW.MakeRpcUrl(labelApi.Text, "invokescript", new MyJson.JsonNode_ValueString(callstr));
                 var result = WWW.GetWithDialog(this, str);
 
                 this.dapp_result.Text = "";
@@ -239,13 +239,13 @@ namespace thinWallet
                     else
                     {
                         StringBuilder sb = new StringBuilder();
-                        json["result"].AsDict().ConvertToStringWithFormat(sb, 4);
+                        //json["result"].AsDict().ConvertToStringWithFormat(sb, 4);
                         this.dapp_result_raw.Text = sb.ToString();
                         //var gas = json["result"].AsDict()["gas_consumed"].ToString();
                         //this.dapp_result.Items.Add("Fee:" + gas);
                         //var state = json["result"].AsDict()["state"].ToString();
                         //this.dapp_result.Items.Add("State:" + state);
-                        var stack = json["result"].AsDict()["stack"].AsList();
+                        var stack = json["result"].AsList()[0].AsDict()["stack"].AsList();
                         this.dapp_result.Text += ("StackCount=" + stack.Count) + "\r\n";
                         for (var i = 0; i < func.results.Length; i++)
                         {
@@ -434,7 +434,7 @@ namespace thinWallet
         string rpc_getStorage(byte[] scripthash, byte[] key)
         {
             System.Net.WebClient wc = new System.Net.WebClient();
-            var url = this.labelRPC.Text;
+            var url = this.labelApi.Text;
             var shstr = ThinNeo.Helper.Bytes2HexString(scripthash.Reverse().ToArray());
             var keystr = ThinNeo.Helper.Bytes2HexString(key);
             var str = WWW.MakeRpcUrl(url, "getstorage", new MyJson.JsonNode_ValueString(shstr), new MyJson.JsonNode_ValueString(keystr));
@@ -445,7 +445,8 @@ namespace thinWallet
                 var json = MyJson.Parse(result);
                 if (json.AsDict().ContainsKey("error"))
                     return null;
-                var script = json.AsDict()["result"].AsString();
+                var _result = json.AsDict()["result"].AsList();
+                var script = _result[0].AsDict()["storagevalue"].AsString();
                 return script;
             }
             return null;

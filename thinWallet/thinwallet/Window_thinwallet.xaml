@@ -53,7 +53,6 @@
                 <TextBlock Text="API for UTXO(testnet)" Grid.Column="2" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"  Foreground="White" FontSize="15"/>
                 <TextBlock x:Name="labelApi" Text="http://47.96.168.8:81/api/testnet"  Grid.Column="2" Grid.Row="1" HorizontalAlignment="Left" Margin="36,0,0,0" VerticalAlignment="Top" Foreground="White" FontSize="15"/>
                 <TextBlock Text="RPC Node(testnet)" Grid.Row="2"  Grid.Column="2" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.213,-0.261" Foreground="White" FontSize="15"/>
-                <TextBlock x:Name="labelRPC" Text="http://47.96.168.8:20332" Grid.Row="3"   Grid.Column="2" HorizontalAlignment="Left" Margin="36,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.213,-0.261" Foreground="White" FontSize="15"/>
                 <Image Grid.Column="1" Grid.Row="0"  Grid.RowSpan="2"  Source="logo02.png" Margin="2" />
                 <Image Grid.Column="1" Grid.Row="2"  Grid.RowSpan="2" Source="logo04.png" Margin="2" />
                 <Button Grid.Row="1" Grid.RowSpan="2" Click="Button_Click_3">

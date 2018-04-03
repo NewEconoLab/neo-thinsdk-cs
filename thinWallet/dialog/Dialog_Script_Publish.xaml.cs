@@ -23,7 +23,7 @@ namespace thinWallet
         {
             InitializeComponent();
         }
-        public string rpcurl
+        public string apiurl
         {
             get
             {
@@ -35,11 +35,11 @@ namespace thinWallet
             }
         }
         public byte[] script;
-        public static byte[] ShowDialog(Window owner, string rpcurl)
+        public static byte[] ShowDialog(Window owner, string apiurl)
         {
             var d = new Dialog_Script_Publish();
             d.Owner = owner;
-            d.rpcurl = rpcurl;
+            d.apiurl = apiurl;
             if (d.ShowDialog() == true)
             {
                 return d.script;
@@ -49,7 +49,7 @@ namespace thinWallet
         MyJson.IJsonNode rpc_getScript(byte[] scripthash)
         {
             System.Net.WebClient wc = new System.Net.WebClient();
-            var url = this.rpcurl;
+            var url = this.apiurl;
             //url = "http://127.0.0.1:20332/";//本地测试
 
             var sid = ThinNeo.Helper.Bytes2HexString(scripthash);
@@ -61,7 +61,7 @@ namespace thinWallet
                 var json = MyJson.Parse(result);
                 if (json.AsDict().ContainsKey("error"))
                     return null;
-                return json.AsDict()["result"];
+                return json.AsDict()["result"].AsList()[0] ;
             }
             return null;
         }
