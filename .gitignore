@@ -8,3 +8,12 @@
 /thinWallet/obj
 /thinSDK_neo/bin
 /thinSDK_neo/obj
+/thinsdk_forUnity/unityproj/UnityPackageManager
+/thinsdk_forUnity/unityproj/.vs
+/thinsdk_forUnity/unityproj/Library
+/thinsdk_forUnity/unityproj/obj
+/thinsdk_forUnity/unityproj/Temp
+/thinsdk_forUnity/unityproj/Assembly-CSharp.csproj
+/thinsdk_forUnity/unityproj/New Unity Project.csproj
+/thinsdk_forUnity/unityproj/New Unity Project.sln
+/thinsdk_forUnity/unityproj/New Unity Project.userprefs
