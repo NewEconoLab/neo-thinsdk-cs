@@ -607,7 +607,7 @@ namespace thinWallet
             var json = MyJson.Parse(result);
             if (json.AsDict().ContainsKey("error"))
                 return false;
-            return json.AsDict()["result"].AsList()[0].AsBool();
+            return json.AsDict()["result"].AsList()[0].AsDict()["sendrawtransactionresult"].AsBool();
         }
         private void Button_Click_7(object sender, RoutedEventArgs e)
         {//sign and broadcast 
@@ -667,9 +667,17 @@ namespace thinWallet
                     throw new Exception("need test script");
 
                 trans.type = ThinNeo.TransactionType.InvocationTransaction;
+                trans.version = 1;
                 trans.extdata = new ThinNeo.InvokeTransData();
-                (trans.extdata as ThinNeo.InvokeTransData).script = lastScript;
-                (trans.extdata as ThinNeo.InvokeTransData).gas = lastFee.Value;
+                var invokedata = (trans.extdata as ThinNeo.InvokeTransData);
+                invokedata.script = lastScript;
+                
+                //gas 系統費衹收整數？
+                decimal gas = lastFee.Value - (decimal)10.0;
+                if (gas < 0) gas = 0;
+                gas = Math.Ceiling(gas);
+                invokedata.gas = gas;
+                //(trans.extdata as ThinNeo.InvokeTransData).gas = lastFee.Value;
             }
             trans.inputs = new ThinNeo.TransactionInput[this.listInput.Items.Count];
             var _listOutput = new List<ThinNeo.TransactionOutput>();
@@ -718,8 +726,8 @@ namespace thinWallet
             trans.witnesses = new ThinNeo.Witness[this.listWitness.Items.Count];
             //检查签名
 
-            var pubkey = this.privatekey!=null?ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey):null;
-            var addr = pubkey!=null?ThinNeo.Helper.GetAddressFromPublicKey(pubkey):null;
+            var pubkey = this.privatekey != null ? ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey) : null;
+            var addr = pubkey != null ? ThinNeo.Helper.GetAddressFromPublicKey(pubkey) : null;
 
             for (var i = 0; i < listWitness.Items.Count; i++)
             {
