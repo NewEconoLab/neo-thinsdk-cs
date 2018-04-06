@@ -776,10 +776,14 @@ namespace thinWallet
             {
                 var symbol = ThinNeo.Helper.Bytes2HexString(lastScript);
                 byte[] data;
+                //var strget = WWW.MakeRpcUrl(labelApi.Text, "invokescript", new MyJson.JsonNode_ValueString(symbol));
+                //var resultstr = WWW.GetWithDialog(this, strget);
+
                 var str = WWW.MakeRpcUrlPost(labelApi.Text, "invokescript", out data, new MyJson.JsonNode_ValueString(symbol));
                 var resultstr = WWW.PostWithDialog(this, str, data);
+
                 var json = MyJson.Parse(resultstr).AsDict();
-                var gas = json["result"].AsDict()["gas_consumed"].ToString();
+                var gas = json["result"].AsList()[0].AsDict()["gas_consumed"].ToString();
                 lastFee = decimal.Parse(gas);
                 labelFee.Text = "Fee:" + lastFee;
                 StringBuilder sb = new StringBuilder();
