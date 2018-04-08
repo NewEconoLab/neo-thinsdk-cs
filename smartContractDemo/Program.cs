@@ -27,11 +27,14 @@ namespace smartContractDemo
         }
         static void InitTest()
         {
+            RegTest(new Height());
+
             RegTest(new SCDemo1());
             RegTest(new SCDemo2());
             RegTest(new SCDemo3());
             RegTest(new PubScDemo());
             RegTest(new Nep55_1());
+            RegTest(new Nep55_2());
 
         }
         static void ShowMenu()
@@ -39,7 +42,7 @@ namespace smartContractDemo
             Console.WriteLine("===all test===");
             foreach (var item in alltest)
             {
-                Console.WriteLine("type '" + item + "' to Run: " + item.Value.Name);
+                Console.WriteLine("type '" + item.Key + "' to Run: " + item.Value.Name);
             }
             Console.WriteLine("type '?' to Get this list.");
         }

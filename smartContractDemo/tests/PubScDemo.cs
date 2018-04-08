@@ -174,21 +174,5 @@ namespace smartContractDemo
             return tran;
         }
 
-        public string MakeRpcUrl(string url, string method, params MyJson.IJsonNode[] _params)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (url.Last() != '/')
-                url = url + "/";
-
-            sb.Append(url + "?jsonrpc=2.0&id=1&method=" + method + "&params=[");
-            for (var i = 0; i < _params.Length; i++)
-            {
-                _params[i].ConvertToString(sb);
-                if (i != _params.Length - 1)
-                    sb.Append(",");
-            }
-            sb.Append("]");
-            return sb.ToString();
-        }
     }
 }
