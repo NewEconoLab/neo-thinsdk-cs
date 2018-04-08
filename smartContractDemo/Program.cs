@@ -1,45 +1,82 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace smartContractDemo
 {
+    interface ITest
+    {
+        string Name
+        {
+            get;
+        }
+        string ID
+        {
+            get;
+        }
+        void Demo();
+    }
     class Program
     {
+        static Dictionary<string, ITest> alltest = new System.Collections.Generic.Dictionary<string, ITest>();
+        static void RegTest(ITest test)
+        {
+            alltest[test.ID.ToLower()] = test;
+        }
+        static void InitTest()
+        {
+            RegTest(new SCDemo1());
+            RegTest(new SCDemo2());
+            RegTest(new SCDemo3());
+            RegTest(new PubScDemo());
+
+        }
+        static void ShowMenu()
+        {
+            Console.WriteLine("===all test===");
+            foreach (var item in alltest)
+            {
+                Console.WriteLine("type '" + item + "' to Run: " + item.Value.Name);
+            }
+            Console.WriteLine("type '?' to Get this list.");
+        }
         static void Main(string[] args)
         {
-            try
+            InitTest();
+            ShowMenu();
+            while (true)
             {
-                /*
-                Console.WriteLine("按任意健开始");
-                Console.ReadKey();
-                Console.WriteLine("合约一连--------根据合约脚本散列和存储的key，返回存储的value");
-                new Demo1().Demo();
-                Console.WriteLine("按任意健继续");
-                Console.ReadKey();
+                var line = Console.ReadLine().ToLower();
+                if (line == "?" || line == "？")
+                {
+                    ShowMenu();
+                }
+                else if(line=="")
+                {
+                    continue;
+                }
+                else if (alltest.ContainsKey(line))
+                {
+                    var test = alltest[line];
+                    try
+                    {
+                        Console.WriteLine("[begin]" + test.Name);
 
-                //demo2
-                Console.WriteLine("合约二连--------通过虚拟机传递脚本之后返回结果。");
-                new Demo2().Demo();
-                Console.WriteLine("按任意健继续");
-                Console.ReadKey();
+                        test.Demo();
 
+                        Console.WriteLine("[end]" + test.Name);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("unknown line.");
 
-                //demo3
-                Console.WriteLine("合约三连--------调用合约得到结果");
-                new Demo3().Demo();
-                Console.WriteLine("按任意健结束");
-                Console.ReadKey();
-                */
-
-                Console.WriteLine("发布");
-                new Demo4().Demo();
-                Console.ReadKey();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                Console.ReadLine();
+                }
             }
         }
 

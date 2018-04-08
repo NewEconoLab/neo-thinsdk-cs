@@ -4,13 +4,15 @@ using Newtonsoft.Json.Linq;
 
 namespace smartContractDemo
 {
-    public class Demo2
+    public class SCDemo2:ITest
     {
         string api = "https://api.nel.group/api/testnet";
         string api2 = "http://seed2.neo.org:20332";
 
         httpHelper http = new httpHelper();
+        public string Name => "智能合约3连 2/3";
 
+        public string ID => "SC2/3";
         public void Demo()
         {
             string nnc = "0x3fccdb91c9bb66ef2446010796feb6ca4ed96b05".Replace("0x", "");

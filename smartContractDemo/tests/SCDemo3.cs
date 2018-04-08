@@ -4,12 +4,16 @@ using System.Linq;
 
 namespace smartContractDemo
 {
-    public class Demo3
+    public class SCDemo3:ITest
     {
         string api = "https://api.nel.group/api/testnet";
         string api2 = "http://seed2.neo.org:20332";
 
         httpHelper http = new httpHelper();
+
+        public string Name => "智能合约3连 3/3";
+
+        public string ID => "SC3/3";
 
         public void Demo()
         {

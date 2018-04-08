@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace smartContractDemo
 {
     //发布智能合约的例子
-    class Demo4
+    class PubScDemo:ITest
     {
         string uri = "https://api.nel.group";
         string url = "/api/testnet";
@@ -17,6 +17,11 @@ namespace smartContractDemo
         httpHelper http = new httpHelper();
 
         string id_GAS = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
+
+        public string Name => "智能合约发布";
+
+        public string ID => "pubsc";
+
         public void Demo()
         {
             Console.WriteLine("请输入你的wif");
