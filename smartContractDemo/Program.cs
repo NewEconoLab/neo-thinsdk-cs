@@ -31,6 +31,7 @@ namespace smartContractDemo
             RegTest(new SCDemo2());
             RegTest(new SCDemo3());
             RegTest(new PubScDemo());
+            RegTest(new Nep55_1());
 
         }
         static void ShowMenu()
