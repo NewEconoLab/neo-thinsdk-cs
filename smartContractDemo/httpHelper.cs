@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -20,12 +21,9 @@ namespace smartContractDemo
         /// <returns></returns>
 
         public string HttpGet(string url, List<KeyValuePair<string, string>> formData = null)
-
         {
-
             HttpClient httpClient = new HttpClient();
             //HttpContent content = new FormUrlEncodedContent(formData);
-
             //if (formData != null)
             //{
             //    content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
@@ -69,6 +67,8 @@ namespace smartContractDemo
         /// <returns></returns>
         public string HttpPost(string uri, string url, List<KeyValuePair<string, string>> formData = null, string charset = "UTF-8", string mediaType = "application/x-www-form-urlencoded")
         {
+
+
             string tokenUri = url;
             var client = new HttpClient();
             client.BaseAddress = new Uri(uri);
@@ -166,10 +166,18 @@ namespace smartContractDemo
         }
 
         //流模式post
-        public string Post(string url, string data, Encoding encoding, int type = 3)
+        public string Post(string url,string method, MyJson.JsonNode_Array _params, Encoding encoding, int type = 3)
         {
             try
             {
+                MyJson.JsonNode_Object json = new MyJson.JsonNode_Object();
+                json["id"] = new MyJson.JsonNode_ValueNumber(1);
+                json["jsonrpc"] = new MyJson.JsonNode_ValueString("2.0");
+                json["method"] = new MyJson.JsonNode_ValueString(method);
+                json["params"] = _params;
+
+                string data = json.ToString();
+
                 HttpWebRequest req = WebRequest.CreateHttp(new Uri(url));
                 if (type == 1)
                 {
@@ -224,5 +232,6 @@ namespace smartContractDemo
                 if (rsp != null) rsp.Dispose();
             }
         }
+
     }
 }

@@ -7,6 +7,7 @@ namespace smartContractDemo
     public class Demo2
     {
         string api = "https://api.nel.group/api/testnet";
+        string api2 = "http://seed2.neo.org:20332";
 
         httpHelper http = new httpHelper();
 
@@ -34,7 +35,6 @@ namespace smartContractDemo
             var data = sb.ToArray();
             var scripthash = ThinNeo.Helper.Bytes2HexString(data);
 
-            //api 是 https://api.nel.group/api/testne?jsonrpc=2.0&id=1&method=getstorage&params=[]
             string result = http.HttpGet(api + "?jsonrpc=2.0&id=1&method=invokescript&params=[\"" + scripthash + "\"]");
             Console.WriteLine("得到的结果是：" + result);
 

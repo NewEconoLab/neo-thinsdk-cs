@@ -7,6 +7,7 @@ namespace smartContractDemo
     public class Demo3
     {
         string api = "https://api.nel.group/api/testnet";
+        string api2 = "http://seed2.neo.org:20332";
 
         httpHelper http = new httpHelper();
 
@@ -20,7 +21,7 @@ namespace smartContractDemo
             string id_GAS = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
 
             //获取地址的资产列表
-            Dictionary<string, List<Utxo>> dir = GetBalanceByUtxo(address);
+            Dictionary<string, List<Utxo>> dir = GetBalanceByAddress(address);
 
 
             string targeraddr = address;  //Transfer it to yourself. 
@@ -59,7 +60,7 @@ namespace smartContractDemo
 
 
         //获取地址的utxo来得出地址的资产  
-        Dictionary<string, List<Utxo>> GetBalanceByUtxo(string _addr)
+        Dictionary<string, List<Utxo>> GetBalanceByAddress(string _addr)
         {
             MyJson.JsonNode_Object response = (MyJson.JsonNode_Object)MyJson.Parse(http.HttpGet(api + "?method=getutxo&id=1&params=['" + _addr + "']"));
             MyJson.JsonNode_Array resJA = (MyJson.JsonNode_Array)response["result"];
@@ -121,7 +122,7 @@ namespace smartContractDemo
             {
                 List<ThinNeo.TransactionOutput> list_outputs = new List<ThinNeo.TransactionOutput>();
                 //输出
-                if (sendcount > decimal.Zero)
+                if (sendcount > decimal.Zero && targetaddr != null)
                 {
                     ThinNeo.TransactionOutput output = new ThinNeo.TransactionOutput();
                     output.assetId = ThinNeo.Helper.HexString2Bytes(assetid.Replace("0x", "")).Reverse().ToArray();
@@ -151,23 +152,4 @@ namespace smartContractDemo
         }
     }
 
-
-
-
-    public class Utxo
-    {
-        public string addr;
-        public string txid;
-        public string asset;
-        public decimal value;
-        public int n;
-        public Utxo(string _addr, string _txid, string _asset, decimal _value, int _n)
-        {
-            this.addr = _addr;
-            this.txid = _txid;
-            this.asset = _asset;
-            this.value = _value;
-            this.n = _n;
-        }
-    }
 }
