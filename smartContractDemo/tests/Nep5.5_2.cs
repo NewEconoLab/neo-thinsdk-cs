@@ -34,8 +34,8 @@ namespace smartContractDemo
                     var array = new MyJson.JsonNode_Array();
                     sb.EmitParamJson(array);//参数倒序入
                     sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)mintTokens"));//参数倒序入
-                    byte[] shash = ThinNeo.Helper.HexString2Bytes(Nep55_1.nep55);
-                    sb.EmitAppCall(shash.Reverse().ToArray());//nep5脚本
+                    byte[] shash = ThinNeo.Helper.HexString2Bytes(Nep55_1.nep55).Reverse().ToArray();
+                    sb.EmitAppCall(shash);//nep5脚本
                     script = sb.ToArray();
                 }
                 byte[] nep5scripthash = ThinNeo.Helper.HexString2Bytes(Nep55_1.nep55).Reverse().ToArray();
