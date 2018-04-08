@@ -607,7 +607,7 @@ namespace thinWallet
             var json = MyJson.Parse(result);
             if (json.AsDict().ContainsKey("error"))
                 return false;
-            return json.AsDict()["result"].AsList()[0].AsBool();
+            return json.AsDict()["result"].AsList()[0].AsDict()["sendrawtransactionresult"].AsBool();
         }
         private void Button_Click_7(object sender, RoutedEventArgs e)
         {//sign and broadcast 
@@ -667,9 +667,17 @@ namespace thinWallet
                     throw new Exception("need test script");
 
                 trans.type = ThinNeo.TransactionType.InvocationTransaction;
+                trans.version = 1;
                 trans.extdata = new ThinNeo.InvokeTransData();
-                (trans.extdata as ThinNeo.InvokeTransData).script = lastScript;
-                (trans.extdata as ThinNeo.InvokeTransData).gas = lastFee.Value;
+                var invokedata = (trans.extdata as ThinNeo.InvokeTransData);
+                invokedata.script = lastScript;
+                
+                //gas 系統費衹收整數？
+                decimal gas = lastFee.Value - (decimal)10.0;
+                if (gas < 0) gas = 0;
+                gas = Math.Ceiling(gas);
+                invokedata.gas = gas;
+                //(trans.extdata as ThinNeo.InvokeTransData).gas = lastFee.Value;
             }
             trans.inputs = new ThinNeo.TransactionInput[this.listInput.Items.Count];
             var _listOutput = new List<ThinNeo.TransactionOutput>();
@@ -718,8 +726,8 @@ namespace thinWallet
             trans.witnesses = new ThinNeo.Witness[this.listWitness.Items.Count];
             //检查签名
 
-            var pubkey = this.privatekey!=null?ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey):null;
-            var addr = pubkey!=null?ThinNeo.Helper.GetAddressFromPublicKey(pubkey):null;
+            var pubkey = this.privatekey != null ? ThinNeo.Helper.GetPublicKeyFromPrivateKey(this.privatekey) : null;
+            var addr = pubkey != null ? ThinNeo.Helper.GetAddressFromPublicKey(pubkey) : null;
 
             for (var i = 0; i < listWitness.Items.Count; i++)
             {
@@ -776,10 +784,14 @@ namespace thinWallet
             {
                 var symbol = ThinNeo.Helper.Bytes2HexString(lastScript);
                 byte[] data;
+                //var strget = WWW.MakeRpcUrl(labelApi.Text, "invokescript", new MyJson.JsonNode_ValueString(symbol));
+                //var resultstr = WWW.GetWithDialog(this, strget);
+
                 var str = WWW.MakeRpcUrlPost(labelApi.Text, "invokescript", out data, new MyJson.JsonNode_ValueString(symbol));
                 var resultstr = WWW.PostWithDialog(this, str, data);
+
                 var json = MyJson.Parse(resultstr).AsDict();
-                var gas = json["result"].AsDict()["gas_consumed"].ToString();
+                var gas = json["result"].AsList()[0].AsDict()["gas_consumed"].ToString();
                 lastFee = decimal.Parse(gas);
                 labelFee.Text = "Fee:" + lastFee;
                 StringBuilder sb = new StringBuilder();

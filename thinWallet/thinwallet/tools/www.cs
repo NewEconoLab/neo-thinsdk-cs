@@ -27,7 +27,8 @@ namespace thinWallet
         {
             System.Net.WebClient wc = new System.Net.WebClient();
             wc.Encoding = Encoding.UTF8;
-            var resultbts = await wc.UploadDataTaskAsync(url, data);
+            wc.Headers["content-type"] = "text/plain;charset=UTF-8";
+            var resultbts = await wc.UploadDataTaskAsync(url,"POST", data);
             return System.Text.Encoding.UTF8.GetString(resultbts);
         }
         public static string GetWithDialog(Window owner, string url)
