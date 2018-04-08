@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace smartContractDemo
 {
     public class SCDemo3:ITest
     {
         string api = "https://api.nel.group/api/testnet";
-        string api2 = "http://seed2.neo.org:20332";
-
-        httpHelper http = new httpHelper();
 
         public string Name => "智能合约3连 3/3";
 
         public string ID => "SC3/3";
 
-        public void Demo()
+        async public Task Demo()
         {
             string nnc = "0x3fccdb91c9bb66ef2446010796feb6ca4ed96b05";
             byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF("L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW");
@@ -25,7 +23,7 @@ namespace smartContractDemo
             string id_GAS = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
 
             //获取地址的资产列表
-            Dictionary<string, List<Utxo>> dir = GetBalanceByAddress(address);
+            Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(api,address);
 
 
             string targeraddr = address;  //Transfer it to yourself. 
@@ -56,36 +54,12 @@ namespace smartContractDemo
             byte[] data = tran.GetRawData();
             string scripthash = ThinNeo.Helper.Bytes2HexString(data);
 
-            string response = http.HttpGet(api + "?method=sendrawtransaction&id=1&params=[\"" + scripthash + "\"]");
+            string response = await Helper.HttpGet(api + "?method=sendrawtransaction&id=1&params=[\"" + scripthash + "\"]");
             MyJson.JsonNode_Object resJO = (MyJson.JsonNode_Object)MyJson.Parse(response);
             Console.WriteLine(resJO["result"].ToString());
         }
 
 
-
-        //获取地址的utxo来得出地址的资产  
-        Dictionary<string, List<Utxo>> GetBalanceByAddress(string _addr)
-        {
-            MyJson.JsonNode_Object response = (MyJson.JsonNode_Object)MyJson.Parse(http.HttpGet(api + "?method=getutxo&id=1&params=['" + _addr + "']"));
-            MyJson.JsonNode_Array resJA = (MyJson.JsonNode_Array)response["result"];
-            Dictionary<string, List<Utxo>> _dir = new Dictionary<string, List<Utxo>>();
-            foreach (MyJson.JsonNode_Object j in resJA)
-            {
-                Utxo utxo = new Utxo(j["addr"].ToString(), j["txid"].ToString(), j["asset"].ToString(), decimal.Parse(j["value"].ToString()), int.Parse(j["n"].ToString()));
-                if (_dir.ContainsKey(j["asset"].ToString()))
-                {
-                    _dir[j["asset"].ToString()].Add(utxo);
-                }
-                else
-                {
-                    List<Utxo> l = new List<Utxo>();
-                    l.Add(utxo);
-                    _dir[j["asset"].ToString()] = l;
-                }
-
-            }
-            return _dir;
-        }
 
 
         ThinNeo.Transaction makeTran(List<Utxo> utxos, string targetaddr, string assetid, decimal sendcount)

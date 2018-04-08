@@ -10,11 +10,8 @@ namespace smartContractDemo
     //发布智能合约的例子
     class PubScDemo:ITest
     {
-        string uri = "https://api.nel.group";
-        string url = "/api/testnet";
-        string api = "https://api.nel.group/api/testnet";
 
-        httpHelper http = new httpHelper();
+        string api = "https://api.nel.group/api/testnet";
 
         string id_GAS = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
 
@@ -22,7 +19,7 @@ namespace smartContractDemo
 
         public string ID => "pubsc";
 
-        public void Demo()
+        async public Task Demo()
         {
             Console.WriteLine("请输入你的wif");
             string  wif = Console.ReadLine();
@@ -34,7 +31,7 @@ namespace smartContractDemo
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
 
-            Dictionary<string, List<Utxo>> dir = GetBalanceByAddress(address);
+            Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(api,address);
 
             //从文件中读取合约脚本
             //byte[] script = System.IO.File.ReadAllBytes("Nep5.avm"); //这里填你的合约所在地址
@@ -68,7 +65,11 @@ namespace smartContractDemo
 
                 string scriptPublish = ThinNeo.Helper.Bytes2HexString(sb.ToArray());
                 //用ivokescript试运行并得到消耗
-                string result = http.Post(api, "invokescript", new MyJson.JsonNode_Array() { new MyJson.JsonNode_ValueString(scriptPublish) },Encoding.UTF8);
+
+                byte[] postdata;
+                var url = Helper.MakeRpcUrlPost(api, "invokescript", out postdata, new MyJson.JsonNode_ValueString(scriptPublish));
+                var result = await Helper.HttpPost(url, postdata);
+                //string result = http.Post(api, "invokescript", new MyJson.JsonNode_Array() { new MyJson.JsonNode_ValueString(scriptPublish) },Encoding.UTF8);
                 var consume =((( MyJson.Parse(result) as MyJson.JsonNode_Object)["result"] as MyJson.JsonNode_Array)[0] as MyJson.JsonNode_Object)["gas_consumed"].ToString();
                 decimal gas_consumed = decimal.Parse(consume);
                 ThinNeo.InvokeTransData extdata = new ThinNeo.InvokeTransData();
@@ -87,38 +88,19 @@ namespace smartContractDemo
                 tran.AddWitness(signdata, pubkey, address);
                 string txid = ThinNeo.Helper.Bytes2HexString(tran.GetHash().Reverse().ToArray());
                 byte[] data = tran.GetRawData();
-                string scripthash = ThinNeo.Helper.Bytes2HexString(data);
+                string rawdata = ThinNeo.Helper.Bytes2HexString(data);
 
                 //Console.WriteLine("scripthash:"+scripthash);
-                result = http.Post(api, "sendrawtransaction", new MyJson.JsonNode_Array() { new MyJson.JsonNode_ValueString(scripthash) }, Encoding.UTF8);
+
+                url = Helper.MakeRpcUrlPost(api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(rawdata));
+                result = await Helper.HttpPost(url, postdata);
+
                 MyJson.JsonNode_Object resJO = (MyJson.JsonNode_Object)MyJson.Parse(result);
                 Console.WriteLine(resJO.ToString());
             }
         }
 
-        //获取地址的utxo来得出地址的资产  
-        Dictionary<string, List<Utxo>> GetBalanceByAddress(string _addr)
-        {
-            MyJson.JsonNode_Object response = (MyJson.JsonNode_Object)MyJson.Parse(http.HttpGet(api + "?method=getutxo&id=1&params=['" + _addr + "']"));
-            MyJson.JsonNode_Array resJA = (MyJson.JsonNode_Array)response["result"];
-            Dictionary<string, List<Utxo>> _dir = new Dictionary<string, List<Utxo>>();
-            foreach (MyJson.JsonNode_Object j in resJA)
-            {
-                Utxo utxo = new Utxo(j["addr"].ToString(), j["txid"].ToString(), j["asset"].ToString(), decimal.Parse(j["value"].ToString()), int.Parse(j["n"].ToString()));
-                if (_dir.ContainsKey(j["asset"].ToString()))
-                {
-                    _dir[j["asset"].ToString()].Add(utxo);
-                }
-                else
-                {
-                    List<Utxo> l = new List<Utxo>();
-                    l.Add(utxo);
-                    _dir[j["asset"].ToString()] = l;
-                }
 
-            }
-            return _dir;
-        }
 
         //拼交易体
         ThinNeo.Transaction makeTran(Dictionary<string, List<Utxo>> dir_utxos, string targetaddr, string assetid, decimal sendcount)

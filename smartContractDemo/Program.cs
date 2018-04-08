@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 namespace smartContractDemo
 {
@@ -15,7 +16,7 @@ namespace smartContractDemo
         {
             get;
         }
-        void Demo();
+        Task Demo();
     }
     class Program
     {
@@ -41,10 +42,8 @@ namespace smartContractDemo
             }
             Console.WriteLine("type '?' to Get this list.");
         }
-        static void Main(string[] args)
+        async static void AsyncLoop()
         {
-            InitTest();
-            ShowMenu();
             while (true)
             {
                 var line = Console.ReadLine().ToLower();
@@ -52,7 +51,7 @@ namespace smartContractDemo
                 {
                     ShowMenu();
                 }
-                else if(line=="")
+                else if (line == "")
                 {
                     continue;
                 }
@@ -63,7 +62,7 @@ namespace smartContractDemo
                     {
                         Console.WriteLine("[begin]" + test.Name);
 
-                        test.Demo();
+                        await test.Demo();
 
                         Console.WriteLine("[end]" + test.Name);
                     }
@@ -80,23 +79,19 @@ namespace smartContractDemo
             }
         }
 
-    }
 
-
-    public class Utxo
-    {
-        public string addr;
-        public string txid;
-        public string asset;
-        public decimal value;
-        public int n;
-        public Utxo(string _addr, string _txid, string _asset, decimal _value, int _n)
+        static void Main(string[] args)
         {
-            this.addr = _addr;
-            this.txid = _txid;
-            this.asset = _asset;
-            this.value = _value;
-            this.n = _n;
+            InitTest();
+            ShowMenu();
+
+            AsyncLoop();
+            while (true)
+            {
+                System.Threading.Thread.Sleep(100);
+            }
         }
+
     }
+
 }
