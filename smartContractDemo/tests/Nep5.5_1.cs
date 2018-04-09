@@ -12,10 +12,13 @@ namespace smartContractDemo
         //public const string nep55 = "0x2648a04c31d0be649065275db7239d8a8fe0f021";
         //public const string nep55 = "0xc57052599db703fb28fbf0a8a45b5afb36720866";//gas 55 第三版
         //public const string nep55 = "0xdcd55d42a8311f8bccd7badc0d26c221933fc522";//gas 55 第四版
-        public const string nep55 = "0x76894aa9f2a6469d0f8852d1d21ffe5ea247f514";//gas 55 第五版
+        //public const string nep55 = "0x76894aa9f2a6469d0f8852d1d21ffe5ea247f514";//gas 55 第五版
+        //public const string nep55 = "0x5a7483c89243fc366f7236d0a2a97d1d31c62ca3";//gas 55 不计数了，排除法
+        public const string nep55 = "0x11ff9455b2283beea6165f08aa7f90dfd0ca369f";//gas 55 第七版
       
         public const string testwif = "L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";
 
+        public static ThinNeo.Hash256 lastNep5Tran;
         public string Name => "Nep5.5 查询余额";
 
         public string ID => "N5 1";
@@ -27,43 +30,61 @@ namespace smartContractDemo
             byte[] scripthash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
             Console.WriteLine("address=" + address);
 
-            string script = null;
-            using (var sb = new ThinNeo.ScriptBuilder())
-            {
-                var array = new MyJson.JsonNode_Array();
-                array.AddArrayValue("(bytes)" + ThinNeo.Helper.Bytes2HexString(scripthash));
-                sb.EmitParamJson(array);//参数倒序入
-                sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)balanceOf"));//参数倒序入
-                ThinNeo.Hash160 shash = new ThinNeo.Hash160(nep55);
-                sb.EmitAppCall(shash);//nep5脚本
+            {//查balance
+                string script = null;
+                using (var sb = new ThinNeo.ScriptBuilder())
+                {
+                    var array = new MyJson.JsonNode_Array();
+                    array.AddArrayValue("(bytes)" + ThinNeo.Helper.Bytes2HexString(scripthash));
+                    sb.EmitParamJson(array);//参数倒序入
+                    sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)balanceOf"));//参数倒序入
+                    ThinNeo.Hash160 shash = new ThinNeo.Hash160(nep55);
+                    sb.EmitAppCall(shash);//nep5脚本
+                    var data = sb.ToArray();
+                    script = ThinNeo.Helper.Bytes2HexString(data);
 
+                }
 
+                //var url = Helper.MakeRpcUrl(api, "invokescript", new MyJson.JsonNode_ValueString(script));
+                //string result = await Helper.HttpGet(url);
 
-
-                var data = sb.ToArray();
-                script = ThinNeo.Helper.Bytes2HexString(data);
-
+                byte[] postdata;
+                var url = Helper.MakeRpcUrlPost(api, "invokescript", out postdata, new MyJson.JsonNode_ValueString(script));
+                var result = await Helper.HttpPost(url, postdata);
+                Console.WriteLine("得到的结果是：" + result);
+                var json = MyJson.Parse(result).AsDict();
+                if (json.ContainsKey("result"))
+                {
+                    var resultv = json["result"].AsList()[0].AsDict()["stack"].AsList()[0].AsDict();
+                    var rtype = resultv["type"].AsString();
+                    var rvalue = resultv["value"].AsString();
+                    Console.WriteLine("type=" + rtype + "  value=" + rvalue);
+                    var n = new System.Numerics.BigInteger(ThinNeo.Helper.HexString2Bytes(rvalue));
+                    Console.WriteLine("value dec=" + n.ToString());
+                }
             }
 
-            //var url = Helper.MakeRpcUrl(api, "invokescript", new MyJson.JsonNode_ValueString(script));
-            //string result = await Helper.HttpGet(url);
-
-            byte[] postdata;
-            var url = Helper.MakeRpcUrlPost(api, "invokescript", out postdata, new MyJson.JsonNode_ValueString(script));
-            var result = await Helper.HttpPost(url, postdata);
-            Console.WriteLine("得到的结果是：" + result);
-            var json = MyJson.Parse(result).AsDict();
-            if (json.ContainsKey("result"))
+            if(lastNep5Tran!=null)
             {
-                var resultv = json["result"].AsList()[0].AsDict()["stack"].AsList()[0].AsDict();
-                var rtype = resultv["type"].AsString();
-                var rvalue = resultv["value"].AsString();
-                Console.WriteLine("type=" + rtype + "  value=" + rvalue);
-                var n = new System.Numerics.BigInteger(ThinNeo.Helper.HexString2Bytes(rvalue));
-                Console.WriteLine("value dec=" + n.ToString());
+                string script = null;
+                using (var sb = new ThinNeo.ScriptBuilder())
+                {
+                    var array = new MyJson.JsonNode_Array();
+                    array.AddArrayValue("(hex256)" + lastNep5Tran.ToString());
+                    sb.EmitParamJson(array);//参数倒序入
+                    sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)gettxinfo"));//参数倒序入
+                    ThinNeo.Hash160 shash = new ThinNeo.Hash160(nep55);
+                    sb.EmitAppCall(shash);//nep5脚本
+                    var data = sb.ToArray();
+                    script = ThinNeo.Helper.Bytes2HexString(data);
+
+                }
+                byte[] postdata;
+                var url = Helper.MakeRpcUrlPost(api, "invokescript", out postdata, new MyJson.JsonNode_ValueString(script));
+                var result = await Helper.HttpPost(url, postdata);
+                Console.WriteLine("得到的结果是：" + result);
 
             }
-
         }
     }
 }

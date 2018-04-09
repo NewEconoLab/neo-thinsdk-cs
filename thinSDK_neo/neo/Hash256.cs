@@ -40,6 +40,11 @@ namespace ThinNeo
             }
             return 0;
         }
+        public override bool Equals(object obj)
+        {
+            return CompareTo(obj as Hash256) == 0;
+        }
+
         public static implicit operator byte[] (Hash256 value)
         {
             return value.data;

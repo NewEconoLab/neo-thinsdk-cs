@@ -6,14 +6,19 @@ using System.Collections.Generic;
 
 namespace smartContractDemo
 {
-    public class Nep55_3 : ITest
+    public class Nep55_4 : ITest
     {
-        public string Name => "Nep5.5 退回Gas";
+        public string Name => "Nep5.5 取回Gas";
 
-        public string ID => "N5 3";
-        public static ThinNeo.Hash256 lasttxid;
+        public string ID => "N5 4";
         async public Task Demo()
         {
+            var lasthash = Nep55_3.lasttxid;
+            if (lasthash == null)
+            {
+                Console.WriteLine("你还没有正确执行N5 3");
+                return;
+            }
             byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(Nep55_1.testwif);
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
@@ -32,63 +37,53 @@ namespace smartContractDemo
                 Console.WriteLine("no gas");
                 return;
             }
-            List<Utxo> newlist = new List<Utxo>(dir[Nep55_1.id_GAS]);
-            for (var i = newlist.Count - 1; i >= 0; i--)
+            List<Utxo> newlist = new List<Utxo>();
+            foreach (var utxo in dir[Nep55_1.id_GAS])
             {
+                if (utxo.n == 0 && utxo.txid.Equals(lasthash))
+                    newlist.Add(utxo);
+            }
+            if (newlist.Count == 0)
+            {
+                Console.WriteLine("找不到要使用的UTXO");
+                return;
+            }
+
+            {//检查utxo
                 byte[] script = null;
                 using (var sb = new ThinNeo.ScriptBuilder())
                 {
                     var array = new MyJson.JsonNode_Array();
-                    array.AddArrayValue("(hex256)" + newlist[i].txid.ToString());
+                    array.AddArrayValue("(hex256)" + newlist[0].txid.ToString());
                     sb.EmitParamJson(array);//参数倒序入
                     sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)getUTXOTarget"));//参数倒序入
                     var shash = new ThinNeo.Hash160(Nep55_1.nep55);
                     sb.EmitAppCall(shash);//nep5脚本
                     script = sb.ToArray();
                 }
-                if (newlist[i].n > 0)
-                    continue;
-
                 var urlCheckUTXO = Helper.MakeRpcUrl(Nep55_1.api, "invokescript", new MyJson.JsonNode_ValueString(ThinNeo.Helper.Bytes2HexString(script)));
                 string resultCheckUTXO = await Helper.HttpGet(urlCheckUTXO);
                 var jsonCU = MyJson.Parse(resultCheckUTXO);
                 var stack = jsonCU.AsDict()["result"].AsList()[0].AsDict()["stack"].AsList()[0].AsDict();
                 var value = stack["value"].AsString();
-                if(value.Length>0)//已经标记的UTXO，不能使用
+                if (value.Length == 0)//未标记的UTXO，不能使用
                 {
-                    newlist.RemoveAt(i);
+                    Console.WriteLine("这个utxo没有标记");
+                    return;
+                }
+                var hash = new ThinNeo.Hash160(ThinNeo.Helper.HexString2Bytes(value));
+                if (hash.ToString()!= scripthash.ToString())
+                {
+                    Console.WriteLine("这个utxo不是标记给你用的");
+                    return;
                 }
             }
 
 
-            ThinNeo.Transaction tran = null;
-            {
-                byte[] script = null;
-                using (var sb = new ThinNeo.ScriptBuilder())
-                {
-                    var array = new MyJson.JsonNode_Array();
-                    array.AddArrayValue("(bytes)" + ThinNeo.Helper.Bytes2HexString(scripthash));
-                    sb.EmitParamJson(array);//参数倒序入
-                    sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)exchangeUTXO"));//参数倒序入
-                    var shash = new ThinNeo.Hash160(Nep55_1.nep55);
-                    sb.EmitAppCall(shash);//nep5脚本
-                    script = sb.ToArray();
-                }
-                Console.WriteLine("contract address=" + nep55_address);//往合约地址转账
+            ThinNeo.Transaction tran = Helper.makeTran(newlist, address, new ThinNeo.Hash256(Nep55_1.id_GAS), newlist[0].value);
+            tran.type = ThinNeo.TransactionType.ContractTransaction;
+            tran.version = 0;
 
-                //生成交易
-                tran = Helper.makeTran(newlist, nep55_address, new ThinNeo.Hash256(Nep55_1.id_GAS), (decimal)2.1);
-                tran.type = ThinNeo.TransactionType.InvocationTransaction;
-                var idata = new ThinNeo.InvokeTransData();
-                tran.extdata = idata;
-                idata.script = script;
-
-                //附加鉴证
-                tran.attributes = new ThinNeo.Attribute[1];
-                tran.attributes[0] = new ThinNeo.Attribute();
-                tran.attributes[0].usage = ThinNeo.TransactionAttributeUsage.Script;
-                tran.attributes[0].data = scripthash;
-            }
 
             //sign and broadcast
             {//做智能合约的签名
@@ -103,16 +98,14 @@ namespace smartContractDemo
                 byte[] iscript = null;
                 using (var sb = new ThinNeo.ScriptBuilder())
                 {
-                    sb.EmitPushString("whatever");
-                    sb.EmitPushNumber(250);
+                    sb.EmitPushNumber(0);
+                    sb.EmitPushNumber(0);
                     iscript = sb.ToArray();
                 }
                 tran.AddWitnessScript(n55contract, iscript);
             }
-            {//做提款人的签名
-                var signdata = ThinNeo.Helper.Sign(tran.GetMessage(), prikey);
-                tran.AddWitness(signdata, pubkey, address);
-            }
+           
+
             var trandata = tran.GetRawData();
             var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
 
@@ -127,10 +120,12 @@ namespace smartContractDemo
             //sendraw api 有bug，所以先加这个
             //url = "http://localhost:20332";
 
+
             string poststr = System.Text.Encoding.UTF8.GetString(postdata);
             Console.WriteLine("-----post info begin----");
             Console.WriteLine(poststr);
             Console.WriteLine("-----post info end----");
+
             var result = await Helper.HttpPost(url, postdata);
             Console.WriteLine("得到的结果是：" + result);
             var json = MyJson.Parse(result).AsDict();
@@ -139,7 +134,7 @@ namespace smartContractDemo
                 bool bSucc = false;
                 if (json["result"].type == MyJson.jsontype.Value_Number)
                 {
-                     bSucc = json["result"].AsBool();
+                    bSucc = json["result"].AsBool();
                     Console.WriteLine("cli=" + json["result"].ToString());
                 }
                 else
@@ -149,15 +144,10 @@ namespace smartContractDemo
                     bSucc = txid.Length > 0;
                     Console.WriteLine("txid=" + txid);
                 }
-                if(bSucc)
+                if (bSucc)
                 {
-                    lasttxid = tran.GetHash();
                     Nep55_1.lastNep5Tran = tran.GetHash();
-                    Console.WriteLine("你可以从这个UTXO拿走GAS了 txid=" + lasttxid.ToString()+"[0]");
-                }
-                else
-                {
-                    lasttxid = null;
+                    Console.WriteLine("besucc txid=" + tran.GetHash().ToString());
                 }
             }
 

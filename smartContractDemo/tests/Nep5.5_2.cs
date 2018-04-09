@@ -64,6 +64,10 @@ namespace smartContractDemo
             {
                 var resultv = json["result"].AsList()[0].AsDict();
                 var txid = resultv["txid"].AsString();
+                if(txid.Length>0)
+                {
+                    Nep55_1.lastNep5Tran = tran.GetHash();
+                }
                 Console.WriteLine("txid=" + txid);
             }
 
