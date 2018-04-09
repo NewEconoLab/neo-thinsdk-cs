@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ThinNeo
 {
-    public class Hash256
+    public class Hash256 : IComparable<Hash256>
     {
         public Hash256(byte[] data)
         {
@@ -27,6 +27,19 @@ namespace ThinNeo
         }
         public byte[] data;
 
+        public int CompareTo(Hash256 other)
+        {
+            byte[] x = data;
+            byte[] y = other.data;
+            for (int i = x.Length - 1; i >= 0; i--)
+            {
+                if (x[i] > y[i])
+                    return 1;
+                if (x[i] < y[i])
+                    return -1;
+            }
+            return 0;
+        }
         public static implicit operator byte[] (Hash256 value)
         {
             return value.data;

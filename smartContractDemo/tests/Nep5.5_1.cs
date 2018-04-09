@@ -9,7 +9,11 @@ namespace smartContractDemo
     {
         public const string api = "https://api.nel.group/api/testnet";
         public const string id_GAS = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
-        public const string nep55 = "0x2648a04c31d0be649065275db7239d8a8fe0f021";
+        //public const string nep55 = "0x2648a04c31d0be649065275db7239d8a8fe0f021";
+        //public const string nep55 = "0xc57052599db703fb28fbf0a8a45b5afb36720866";//gas 55 第三版
+        //public const string nep55 = "0xdcd55d42a8311f8bccd7badc0d26c221933fc522";//gas 55 第四版
+        public const string nep55 = "0x76894aa9f2a6469d0f8852d1d21ffe5ea247f514";//gas 55 第五版
+      
         public const string testwif = "L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";
 
         public string Name => "Nep5.5 查询余额";

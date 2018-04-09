@@ -162,14 +162,14 @@ namespace ThinNeo
                 return ThinNeo.Helper.GetAddressFromScriptHash(hash);
             }
         }
-        public string hashstr
+        public Hash160 Hash
         {
             get
             {
-                var hash = ThinNeo.Helper.GetScriptHashFromScript(VerificationScript);
-                return ThinNeo.Helper.Bytes2HexString(hash);
+                return ThinNeo.Helper.GetScriptHashFromScript(VerificationScript);
             }
         }
+
 
         public bool isSmartContract
         {
@@ -190,7 +190,7 @@ namespace ThinNeo
         {
             if (isSmartContract)
             {
-                return "[SC]" + hashstr;
+                return "[SC]" + Hash.ToString();
             }
             else
             {
@@ -700,6 +700,10 @@ namespace ThinNeo
             }
 
             wit.Add(newwit);
+            wit.Sort((a, b) =>
+            {
+                return a.Hash.CompareTo(b.Hash);
+            });
             witnesses = wit.ToArray();
 
         }

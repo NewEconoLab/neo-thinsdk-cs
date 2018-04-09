@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ThinNeo
 {
-    public class Hash160
+    public class Hash160: IComparable<Hash160>
     {
         public Hash160(byte[] data)
         {
@@ -28,6 +28,19 @@ namespace ThinNeo
         }
         public byte[] data;
 
+        public int CompareTo(Hash160 other)
+        {
+            byte[] x = data;
+            byte[] y = other.data;
+            for (int i = x.Length - 1; i >= 0; i--)
+            {
+                if (x[i] > y[i])
+                    return 1;
+                if (x[i] < y[i])
+                    return -1;
+            }
+            return 0;
+        }
         public static implicit operator byte[] (Hash160 value)
         {
             return value.data;

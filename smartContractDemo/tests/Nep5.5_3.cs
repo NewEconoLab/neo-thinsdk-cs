@@ -11,12 +11,13 @@ namespace smartContractDemo
         public string Name => "Nep5.5 退回Gas";
 
         public string ID => "N5 3";
+        public static ThinNeo.Hash256 lasttxid;
         async public Task Demo()
         {
             byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(Nep55_1.testwif);
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
-            byte[] scripthash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
+            var scripthash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
 
             var nep55_shash = new ThinNeo.Hash160(Nep55_1.nep55);
             string nep55_address = ThinNeo.Helper.GetAddressFromScriptHash(nep55_shash);
@@ -31,6 +32,35 @@ namespace smartContractDemo
                 Console.WriteLine("no gas");
                 return;
             }
+            List<Utxo> newlist = new List<Utxo>(dir[Nep55_1.id_GAS]);
+            for (var i = newlist.Count - 1; i >= 0; i--)
+            {
+                byte[] script = null;
+                using (var sb = new ThinNeo.ScriptBuilder())
+                {
+                    var array = new MyJson.JsonNode_Array();
+                    array.AddArrayValue("(hex256)" + newlist[i].txid.ToString());
+                    sb.EmitParamJson(array);//参数倒序入
+                    sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)getUTXOTarget"));//参数倒序入
+                    var shash = new ThinNeo.Hash160(Nep55_1.nep55);
+                    sb.EmitAppCall(shash);//nep5脚本
+                    script = sb.ToArray();
+                }
+                if (newlist[i].n > 0)
+                    continue;
+
+                var urlCheckUTXO = Helper.MakeRpcUrl(Nep55_1.api, "invokescript", new MyJson.JsonNode_ValueString(ThinNeo.Helper.Bytes2HexString(script)));
+                string resultCheckUTXO = await Helper.HttpGet(urlCheckUTXO);
+                var jsonCU = MyJson.Parse(resultCheckUTXO);
+                var stack = jsonCU.AsDict()["result"].AsList()[0].AsDict()["stack"].AsList()[0].AsDict();
+                var value = stack["value"].AsString();
+                if(value.Length>0)//已经标记的UTXO，不能使用
+                {
+                    newlist.RemoveAt(i);
+                }
+            }
+
+
             ThinNeo.Transaction tran = null;
             {
                 byte[] script = null;
@@ -47,7 +77,7 @@ namespace smartContractDemo
                 Console.WriteLine("contract address=" + nep55_address);//往合约地址转账
 
                 //生成交易
-                tran = Helper.makeTran(dir[Nep55_1.id_GAS], nep55_address, new ThinNeo.Hash256(Nep55_1.id_GAS), (decimal)2.1);
+                tran = Helper.makeTran(newlist, nep55_address, new ThinNeo.Hash256(Nep55_1.id_GAS), (decimal)2.1);
                 tran.type = ThinNeo.TransactionType.InvocationTransaction;
                 var idata = new ThinNeo.InvokeTransData();
                 tran.extdata = idata;
@@ -91,15 +121,37 @@ namespace smartContractDemo
 
             byte[] postdata;
             var url = Helper.MakeRpcUrlPost(Nep55_1.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
-            //url = "http://localhost:20332";
+
+
+            //bug
+            //sendraw api 有bug，所以先加这个
+            url = "http://localhost:20332";
+
+
+
             var result = await Helper.HttpPost(url, postdata);
             Console.WriteLine("得到的结果是：" + result);
             var json = MyJson.Parse(result).AsDict();
             if (json.ContainsKey("result"))
             {
-                var resultv = json["result"].AsList()[0].AsDict();
-                var txid = resultv["txid"].AsString();
-                Console.WriteLine("txid=" + txid);
+                bool bSucc = false;
+                if (json["result"].type == MyJson.jsontype.Value_Number)
+                {
+                     bSucc = json["result"].AsBool();
+                    Console.WriteLine("cli=" + json["result"].ToString());
+                }
+                else
+                {
+                    var resultv = json["result"].AsList()[0].AsDict();
+                    var txid = resultv["txid"].AsString();
+                    bSucc = txid.Length > 0;
+                    Console.WriteLine("txid=" + txid);
+                }
+                if(bSucc)
+                {
+                    lasttxid = tran.GetHash();
+                    Console.WriteLine("besucc txid=" + lasttxid.ToString());
+                }
             }
 
         }
