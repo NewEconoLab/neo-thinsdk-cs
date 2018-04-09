@@ -79,7 +79,7 @@ namespace thinWallet.Tools
         public static List<string> UtxoHistory = new List<string>();
         public static string RecordTran(ThinNeo.Transaction trans)
         {
-            var txid = ThinNeo.Helper.Bytes2HexString(trans.GetHash().Reverse().ToArray());
+            var txid = trans.GetHash().ToString();
             TranInfo info = new TranInfo();
             info.time = DateTime.Now;
             info.type = trans.type;

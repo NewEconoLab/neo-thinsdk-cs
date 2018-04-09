@@ -705,7 +705,7 @@ namespace ThinNeo
         }
 
         //TXID
-        public byte[] GetHash()
+        public Hash256 GetHash()
         {
             var msg = GetMessage();
             var data = ThinNeo.Helper.Sha256(msg);

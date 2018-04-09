@@ -34,16 +34,16 @@ namespace smartContractDemo
                     var array = new MyJson.JsonNode_Array();
                     sb.EmitParamJson(array);//参数倒序入
                     sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)mintTokens"));//参数倒序入
-                    byte[] shash = ThinNeo.Helper.HexString2Bytes(Nep55_1.nep55).Reverse().ToArray();
+                    ThinNeo.Hash160 shash = new ThinNeo.Hash160(Nep55_1.nep55);
                     sb.EmitAppCall(shash);//nep5脚本
                     script = sb.ToArray();
                 }
-                byte[] nep5scripthash = ThinNeo.Helper.HexString2Bytes(Nep55_1.nep55).Reverse().ToArray();
+                var nep5scripthash = new ThinNeo.Hash160(Nep55_1.nep55);
                 var targetaddr = ThinNeo.Helper.GetAddressFromScriptHash(nep5scripthash);
                 Console.WriteLine("contract address=" + targetaddr);//往合约地址转账
 
                 //生成交易
-                tran = Helper.makeTran(dir[Nep55_1.id_GAS], targetaddr, Nep55_1.id_GAS, 5);
+                tran = Helper.makeTran(dir[Nep55_1.id_GAS], targetaddr, new ThinNeo.Hash256(Nep55_1.id_GAS), 5);
                 tran.type = ThinNeo.TransactionType.InvocationTransaction;
                 var idata = new ThinNeo.InvokeTransData();
                 tran.extdata = idata;

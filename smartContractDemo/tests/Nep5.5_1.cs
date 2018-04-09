@@ -30,8 +30,8 @@ namespace smartContractDemo
                 array.AddArrayValue("(bytes)" + ThinNeo.Helper.Bytes2HexString(scripthash));
                 sb.EmitParamJson(array);//参数倒序入
                 sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)balanceOf"));//参数倒序入
-                byte[] shash = ThinNeo.Helper.HexString2Bytes(nep55);
-                sb.EmitAppCall(shash.Reverse().ToArray());//nep5脚本
+                ThinNeo.Hash160 shash = new ThinNeo.Hash160(nep55);
+                sb.EmitAppCall(shash);//nep5脚本
 
 
 

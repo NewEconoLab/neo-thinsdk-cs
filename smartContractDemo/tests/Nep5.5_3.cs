@@ -18,7 +18,7 @@ namespace smartContractDemo
             string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
             byte[] scripthash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
 
-            byte[] nep55_shash = ThinNeo.Helper.HexString2Bytes(Nep55_1.nep55).Reverse().ToArray();
+            var nep55_shash = new ThinNeo.Hash160(Nep55_1.nep55);
             string nep55_address = ThinNeo.Helper.GetAddressFromScriptHash(nep55_shash);
 
 
@@ -40,14 +40,14 @@ namespace smartContractDemo
                     array.AddArrayValue("(bytes)" + ThinNeo.Helper.Bytes2HexString(scripthash));
                     sb.EmitParamJson(array);//参数倒序入
                     sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)exchangeUTXO"));//参数倒序入
-                    byte[] shash = ThinNeo.Helper.HexString2Bytes(Nep55_1.nep55).Reverse().ToArray();
+                    var shash = new ThinNeo.Hash160(Nep55_1.nep55);
                     sb.EmitAppCall(shash);//nep5脚本
                     script = sb.ToArray();
                 }
                 Console.WriteLine("contract address=" + nep55_address);//往合约地址转账
 
                 //生成交易
-                tran = Helper.makeTran(dir[Nep55_1.id_GAS], nep55_address, Nep55_1.id_GAS, (decimal)2.1);
+                tran = Helper.makeTran(dir[Nep55_1.id_GAS], nep55_address, new ThinNeo.Hash256(Nep55_1.id_GAS), (decimal)2.1);
                 tran.type = ThinNeo.TransactionType.InvocationTransaction;
                 var idata = new ThinNeo.InvokeTransData();
                 tran.extdata = idata;

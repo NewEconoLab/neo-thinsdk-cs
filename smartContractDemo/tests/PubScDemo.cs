@@ -79,14 +79,14 @@ namespace smartContractDemo
                 extdata.gas = Math.Ceiling(gas_consumed-10);
 
                 //拼装交易体
-                ThinNeo.Transaction tran = makeTran(dir,null, id_GAS, extdata.gas);
+                ThinNeo.Transaction tran = makeTran(dir,null, new ThinNeo.Hash256(id_GAS), extdata.gas);
                 tran.version = 1;
                 tran.extdata = extdata;
                 tran.type = ThinNeo.TransactionType.InvocationTransaction;
                 byte[] msg = tran.GetMessage();
                 byte[] signdata = ThinNeo.Helper.Sign(msg, prikey);
                 tran.AddWitness(signdata, pubkey, address);
-                string txid = ThinNeo.Helper.Bytes2HexString(tran.GetHash().Reverse().ToArray());
+                string txid = tran.GetHash().ToString();
                 byte[] data = tran.GetRawData();
                 string rawdata = ThinNeo.Helper.Bytes2HexString(data);
 
@@ -103,12 +103,12 @@ namespace smartContractDemo
 
 
         //拼交易体
-        ThinNeo.Transaction makeTran(Dictionary<string, List<Utxo>> dir_utxos, string targetaddr, string assetid, decimal sendcount)
+        ThinNeo.Transaction makeTran(Dictionary<string, List<Utxo>> dir_utxos, string targetaddr, ThinNeo.Hash256 assetid, decimal sendcount)
         {
-            if (!dir_utxos.ContainsKey(assetid))
+            if (!dir_utxos.ContainsKey(assetid.ToString()))
                 throw new Exception("no enough money.");
 
-            List<Utxo> utxos = dir_utxos[assetid];
+            List<Utxo> utxos = dir_utxos[assetid.ToString()];
             var tran = new ThinNeo.Transaction();
             tran.type = ThinNeo.TransactionType.ContractTransaction;
             tran.version = 0;//0 or 1
@@ -130,7 +130,7 @@ namespace smartContractDemo
             for (var i = 0; i < utxos.Count; i++)
             {
                 ThinNeo.TransactionInput input = new ThinNeo.TransactionInput();
-                input.hash = ThinNeo.Helper.HexString2Bytes(utxos[i].txid.Replace("0x", "")).Reverse().ToArray();
+                input.hash = utxos[i].txid;
                 input.index = (ushort)utxos[i].n;
                 list_inputs.Add(input);
                 count += utxos[i].value;
@@ -148,7 +148,7 @@ namespace smartContractDemo
                 if (sendcount > decimal.Zero && targetaddr != null)
                 {
                     ThinNeo.TransactionOutput output = new ThinNeo.TransactionOutput();
-                    output.assetId = ThinNeo.Helper.HexString2Bytes(assetid.Replace("0x", "")).Reverse().ToArray();
+                    output.assetId = assetid;
                     output.value = sendcount;
                     output.toAddress = ThinNeo.Helper.GetPublicKeyHashFromAddress(targetaddr);
                     list_outputs.Add(output);
@@ -161,7 +161,7 @@ namespace smartContractDemo
                     ThinNeo.TransactionOutput outputchange = new ThinNeo.TransactionOutput();
                     outputchange.toAddress = ThinNeo.Helper.GetPublicKeyHashFromAddress(scraddr);
                     outputchange.value = change;
-                    outputchange.assetId = ThinNeo.Helper.HexString2Bytes(assetid.Replace("0x", "")).Reverse().ToArray();
+                    outputchange.assetId = assetid;
                     list_outputs.Add(outputchange);
 
                 }

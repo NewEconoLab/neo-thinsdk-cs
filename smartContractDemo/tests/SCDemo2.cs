@@ -21,20 +21,20 @@ namespace smartContractDemo
 
                 sb.EmitParamJson(new MyJson.JsonNode_Array());//参数倒序入
                 sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)name"));//参数倒序入
-                byte[] shash = ThinNeo.Helper.HexString2Bytes(nnc);
-                sb.EmitAppCall(shash.Reverse().ToArray());//nep5脚本
+                ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc);
+                sb.EmitAppCall(shash);//nep5脚本
 
                 sb.EmitParamJson(new MyJson.JsonNode_Array());
                 sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)symbol"));
-                sb.EmitAppCall(shash.Reverse().ToArray());
+                sb.EmitAppCall(shash);
 
                 sb.EmitParamJson(new MyJson.JsonNode_Array());
                 sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)decimals"));
-                sb.EmitAppCall(shash.Reverse().ToArray());
+                sb.EmitAppCall(shash);
 
                 sb.EmitParamJson(new MyJson.JsonNode_Array());
                 sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)totalSupply"));
-                sb.EmitAppCall(shash.Reverse().ToArray());
+                sb.EmitAppCall(shash);
 
 
                 var data = sb.ToArray();

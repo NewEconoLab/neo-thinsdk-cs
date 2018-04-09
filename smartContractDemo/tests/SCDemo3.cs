@@ -27,12 +27,12 @@ namespace smartContractDemo
 
 
             string targeraddr = address;  //Transfer it to yourself. 
-            ThinNeo.Transaction tran = Helper.makeTran(dir[id_GAS], targeraddr, id_GAS, decimal.Zero);
+            ThinNeo.Transaction tran = Helper.makeTran(dir[id_GAS], targeraddr, new ThinNeo.Hash256(id_GAS), decimal.Zero);
             tran.type = ThinNeo.TransactionType.InvocationTransaction;
 
             ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder();
 
-            byte[] scriptaddress = ThinNeo.Helper.HexString2Bytes(nnc.Replace("0x", "")).Reverse().ToArray();
+            var scriptaddress = new ThinNeo.Hash160(nnc);
             //Parameter inversion 
             MyJson.JsonNode_Array JAParams = new MyJson.JsonNode_Array();
             JAParams.Add(new MyJson.JsonNode_ValueString("(address)" + address));
@@ -50,7 +50,7 @@ namespace smartContractDemo
             byte[] msg = tran.GetMessage();
             byte[] signdata = ThinNeo.Helper.Sign(msg, prikey);
             tran.AddWitness(signdata, pubkey, address);
-            string txid = ThinNeo.Helper.Bytes2HexString(tran.GetHash().Reverse().ToArray());
+            string txid = tran.GetHash().ToString();
             byte[] data = tran.GetRawData();
             string scripthash = ThinNeo.Helper.Bytes2HexString(data);
 

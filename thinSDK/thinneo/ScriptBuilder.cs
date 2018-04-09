@@ -36,10 +36,8 @@ namespace ThinNeo
             return this;
         }
 
-        public ScriptBuilder EmitAppCall(byte[] scriptHash, bool useTailCall = false)
+        public ScriptBuilder EmitAppCall(Hash160 scriptHash, bool useTailCall = false)
         {
-            if (scriptHash.Length != 20)
-                throw new ArgumentException();
             return Emit(useTailCall ? OpCode.TAILCALL : OpCode.APPCALL, scriptHash);
         }
 
