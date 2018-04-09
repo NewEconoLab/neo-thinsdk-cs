@@ -85,6 +85,10 @@ namespace smartContractDemo
             }
             var trandata = tran.GetRawData();
             var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
+
+            ThinNeo.Transaction testde = new ThinNeo.Transaction();
+            testde.Deserialize(new System.IO.MemoryStream(trandata));
+
             byte[] postdata;
             var url = Helper.MakeRpcUrlPost(Nep55_1.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
             //url = "http://localhost:20332";

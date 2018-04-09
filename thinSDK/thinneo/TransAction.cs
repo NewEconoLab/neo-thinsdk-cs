@@ -295,7 +295,7 @@ namespace ThinNeo
             writer.WriteByte(version);
             //SerializeExclusiveData(writer);
             if (type == TransactionType.ContractTransaction
-                ||type== TransactionType.IssueTransaction)//每个交易类型有一些自己独特的处理
+                || type == TransactionType.IssueTransaction)//每个交易类型有一些自己独特的处理
             {
                 //ContractTransaction 就是最常见的转账交易
                 //他没有自己的独特处理
@@ -469,6 +469,8 @@ namespace ThinNeo
             Console.WriteLine("countAttributes:" + countAttributes);
             for (UInt64 i = 0; i < countAttributes; i++)
             {
+                this.attributes[i] = new Attribute();
+
                 //读取attributes
                 byte[] attributeData;
                 var Usage = (TransactionAttributeUsage)ms.ReadByte();
@@ -502,6 +504,9 @@ namespace ThinNeo
                 }
                 else
                     throw new FormatException();
+
+                this.attributes[i].usage = Usage;
+                this.attributes[i].data = attributeData;
             }
 
             //inputs  输入表示基于哪些交易
@@ -547,6 +552,26 @@ namespace ThinNeo
 
                 this.outputs[i] = outp;
 
+            }
+
+            //读取鉴证
+            if (ms.Position < ms.Length)
+            {
+                var witnesscount = readVarInt(ms);
+                this.witnesses = new Witness[witnesscount];
+                for (var i = 0; i < (int)witnesscount; i++)
+                {
+                    this.witnesses[i] = new Witness();
+                    var _witness = this.witnesses[i];
+
+                    var iscriptlen = readVarInt(ms);
+                    _witness.InvocationScript = new byte[iscriptlen];
+                    ms.Read(_witness.InvocationScript, 0, _witness.InvocationScript.Length);
+
+                    var vscriptlen = readVarInt(ms);
+                    _witness.VerificationScript = new byte[vscriptlen];
+                    ms.Read(_witness.VerificationScript, 0, _witness.VerificationScript.Length);
+                }
             }
         }
         public static void writeVarInt(System.IO.Stream stream, UInt64 value)
