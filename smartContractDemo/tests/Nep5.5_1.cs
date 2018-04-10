@@ -14,7 +14,10 @@ namespace smartContractDemo
         //public const string nep55 = "0xdcd55d42a8311f8bccd7badc0d26c221933fc522";//gas 55 第四版
         //public const string nep55 = "0x76894aa9f2a6469d0f8852d1d21ffe5ea247f514";//gas 55 第五版
         //public const string nep55 = "0x5a7483c89243fc366f7236d0a2a97d1d31c62ca3";//gas 55 不计数了，排除法
-        public const string nep55 = "0x11ff9455b2283beea6165f08aa7f90dfd0ca369f";//gas 55 第七版
+        //public const string nep55 = "0x11ff9455b2283beea6165f08aa7f90dfd0ca369f";//gas 55 第七版
+        //public const string nep55 = "0x35fb9eb15370b54d6c14abf3272c2a0ffc5c79a0";//gas 55 第八版
+        //public const string nep55 = "0x219fb2735bcf4f77a7240c446261402ab594c3e9";//gas 55 第九版
+        public const string nep55 = "0xc6a306ac02c31e5764cde34dc63c74b4a988c2a0";//gas 55 第十版
       
         public const string testwif = "L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";
 
@@ -72,7 +75,7 @@ namespace smartContractDemo
                     var array = new MyJson.JsonNode_Array();
                     array.AddArrayValue("(hex256)" + lastNep5Tran.ToString());
                     sb.EmitParamJson(array);//参数倒序入
-                    sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)gettxinfo"));//参数倒序入
+                    sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)getTXInfo"));//参数倒序入
                     ThinNeo.Hash160 shash = new ThinNeo.Hash160(nep55);
                     sb.EmitAppCall(shash);//nep5脚本
                     var data = sb.ToArray();

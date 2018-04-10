@@ -56,7 +56,7 @@ namespace smartContractDemo
                     var array = new MyJson.JsonNode_Array();
                     array.AddArrayValue("(hex256)" + newlist[0].txid.ToString());
                     sb.EmitParamJson(array);//参数倒序入
-                    sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)getUTXOTarget"));//参数倒序入
+                    sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)getRefundTarget"));//参数倒序入
                     var shash = new ThinNeo.Hash160(Nep55_1.nep55);
                     sb.EmitAppCall(shash);//nep5脚本
                     script = sb.ToArray();
