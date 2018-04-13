@@ -124,17 +124,17 @@ namespace thinWallet
 
 
 
-        async Task<ulong> rpc_getHeight()
-        {
-            System.Net.WebClient wc = new System.Net.WebClient();
-            var str = WWW.MakeRpcUrl(this.labelApi.Text, "getrpcblockcount");
-            var result = await WWW.Get(str);
-            var json = MyJson.Parse(result).AsDict()["result"].ToString();
-            var height = ulong.Parse(json) - 1;
-            return height;
-        }
+        //async Task<ulong> rpc_getHeight()
+        //{
+        //    System.Net.WebClient wc = new System.Net.WebClient();
+        //    var str = WWW.MakeRpcUrl(this.labelApi.Text, "getrpcblockcount");
+        //    var result = await WWW.Get(str);
+        //    var json = MyJson.Parse(result).AsDict()["result"].ToString();
+        //    var height = ulong.Parse(json) - 1;
+        //    return height;
+        //}
         ulong apiHeight;
-        ulong rpcHeight;
+        //ulong rpcHeight;
         async void update()
         {
             try
@@ -153,22 +153,22 @@ namespace thinWallet
                     this.stateAPI.Text = "offline";
                 });
             }
-            try
-            {
-                var height = await rpc_getHeight();
-                rpcHeight = height;
-                this.Dispatcher.Invoke(() =>
-                {
-                    this.stateRPC.Text = "height=" + height;
-                });
-            }
-            catch
-            {
-                this.Dispatcher.Invoke(() =>
-                {
-                    this.stateRPC.Text = "offline";
-                });
-            }
+            //try
+            //{
+            //    var height = await rpc_getHeight();
+            //    rpcHeight = height;
+            //    this.Dispatcher.Invoke(() =>
+            //    {
+            //        this.stateRPC.Text = "height=" + height;
+            //    });
+            //}
+            //catch
+            //{
+            //    this.Dispatcher.Invoke(() =>
+            //    {
+            //        this.stateRPC.Text = "offline";
+            //    });
+            //}
         }
 
         byte[] lastScript;
