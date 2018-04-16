@@ -41,6 +41,8 @@ namespace smartContractDemo
             RegTest(new nnc_1());
             RegTest(new nnc_2());
             RegTest(new nnc_3());
+            RegTest(new nnc_4());
+            RegTest(new nnc());
         }
         static void ShowMenu()
         {
@@ -87,7 +89,6 @@ namespace smartContractDemo
                 }
             }
         }
-
 
         static void Main(string[] args)
         {

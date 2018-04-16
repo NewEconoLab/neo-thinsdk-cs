@@ -44,9 +44,6 @@ namespace smartContractDemo
 
                 }
 
-                //var url = Helper.MakeRpcUrl(api, "invokescript", new MyJson.JsonNode_ValueString(script));
-                //string result = await Helper.HttpGet(url);
-
                 byte[] postdata;
                 var url = Helper.MakeRpcUrlPost(api, "invokescript", out postdata, new MyJson.JsonNode_ValueString(script));
                 var result = await Helper.HttpPost(url, postdata);
