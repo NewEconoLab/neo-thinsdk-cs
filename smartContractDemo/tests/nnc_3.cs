@@ -41,7 +41,7 @@ namespace smartContractDemo
                     array.AddArrayValue("(int)10000000000");//value
                     sb.EmitParamJson(array);//参数倒序入
                     sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)getmoneyback"));//参数倒序入
-                    ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc_1.sc_nnc);
+                    ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc_1.sc_sell);
                     sb.EmitAppCall(shash);//nep5脚本
                     script = sb.ToArray();
                 }
