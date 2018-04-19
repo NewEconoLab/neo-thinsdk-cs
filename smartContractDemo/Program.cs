@@ -43,6 +43,9 @@ namespace smartContractDemo
             RegTest(new nnc_3());
             RegTest(new nnc_4());
             RegTest(new nnc());
+            RegTest(new nns_admin());
+            RegTest(new nns_user());
+
         }
         static void ShowMenu()
         {
