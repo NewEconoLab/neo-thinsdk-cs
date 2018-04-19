@@ -441,5 +441,19 @@ namespace ThinNeo
             }
         }
 
+        public static byte[] nameHash(string domain)
+        {
+            return Sha256(System.Text.Encoding.UTF8.GetBytes(domain));
+        }
+
+        public static byte[] nameHashSub(byte[] roothash, string subdomain)
+        {
+            var bs = System.Text.Encoding.UTF8.GetBytes(subdomain);
+            if (bs.Length == 0)
+                return roothash;
+
+            byte[] domain = Sha256(bs).Concat(roothash).ToArray();
+            return Sha256(domain);
+        }
     }
 }
