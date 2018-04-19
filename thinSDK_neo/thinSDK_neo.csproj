@@ -13,6 +13,10 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Optimize>true</Optimize>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net47|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net47'">
     <PackageReference Include="Replicon.Cryptography.SCrypt">
       <Version>1.1.6.13</Version>
