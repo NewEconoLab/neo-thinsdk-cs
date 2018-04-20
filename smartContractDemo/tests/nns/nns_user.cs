@@ -27,6 +27,7 @@ namespace smartContractDemo
         {
             infos["get .test info"] = test_gettestinfo;
             infos["get abc.test info"] = test_get_abc_test_info;
+            infos["request neodun.test domain"] = test_request_neodun_test_domain;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
         #endregion
@@ -196,6 +197,62 @@ namespace smartContractDemo
             subPrintLine("getinfo ttl=" + info.value.subItem[0].subItem[2].AsInteger());
             subPrintLine("getinfo parentOwner=" + info.value.subItem[0].subItem[2].AsHash160());
         }
+
+        async Task test_request_neodun_test_domain()
+        {
+            string testwif = nnc_1.testwif;
+            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);
+            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
+            string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+            byte[] scripthash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
+
+            //获取地址的资产列表
+            Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(Nep55_1.api, address);
+            if (dir.ContainsKey(Nep55_1.id_GAS) == false)
+            {
+                Console.WriteLine("no gas");
+                return;
+            }
+            //MakeTran
+            ThinNeo.Transaction tran = null;
+            {
+
+                byte[] script = null;
+                using (var sb = new ThinNeo.ScriptBuilder())
+                {
+                    var rootHash = new ThinNeo.Hash256(ThinNeo.Helper.nameHash("test"));
+
+                    var array = new MyJson.JsonNode_Array();
+                    array.AddArrayValue("(addr)" + address);
+                    array.AddArrayValue("(hex256)" + rootHash);
+                    array.AddArrayValue("(str)neodun");//可以更改成想注册的二级域名
+                    sb.EmitParamJson(array);//参数倒序入
+                    sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)requestSubDomain"));//参数倒序入
+                    string testRegister = "0x9a20a91392d90f468fb18dd3070754bec8e573e6"; //这是test根域名的注册器  可以用test_gettestinfo例子获取
+                    ThinNeo.Hash160 shash = new ThinNeo.Hash160(testRegister);
+                    sb.EmitAppCall(shash);//
+                    script = sb.ToArray();
+                }
+
+                tran = Helper.makeTran(dir[Nep55_1.id_GAS], null, new ThinNeo.Hash256(Nep55_1.id_GAS), 0);
+                tran.type = ThinNeo.TransactionType.InvocationTransaction;
+                var idata = new ThinNeo.InvokeTransData();
+                tran.extdata = idata;
+                idata.script = script;
+                idata.gas = 0;
+            }
+
+            //sign and broadcast
+            var signdata = ThinNeo.Helper.Sign(tran.GetMessage(), prikey);
+            tran.AddWitness(signdata, pubkey, address);
+            var trandata = tran.GetRawData();
+            var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
+            byte[] postdata;
+            var url = Helper.MakeRpcUrlPost(nnc_1.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
+            var result = await Helper.HttpPost(url, postdata);
+            Console.WriteLine("sendrawtransaction得到的结果是：" + result);
+        }
+
         #endregion
 
         void showMenu()
