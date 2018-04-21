@@ -26,8 +26,8 @@ namespace smartContractDemo
         public nns_user()
         {
             infos["get .test info"] = test_gettestinfo;
-            infos["get abc.test info"] = test_get_abc_test_info;
-            infos["request neodun.test domain"] = test_request_neodun_test_domain;
+            infos["get [xxx].test info"] = test_get_xxx_test_info;
+            infos["request [xxx].test domain"] = test_request_xxx_test_domain;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
         #endregion
@@ -179,15 +179,18 @@ namespace smartContractDemo
             subPrintLine("getinfo ttl=" + info.value.subItem[0].subItem[2].AsInteger());
             subPrintLine("getinfo parentOwner=" + info.value.subItem[0].subItem[2].AsHash160());
         }
-        async Task test_get_abc_test_info()
+        async Task test_get_xxx_test_info()
         {
+            subPrintLine("get [xxx].test 's info:input xxx:");
+            var subname = Console.ReadLine();
+
             var r_test = await api_InvokeScript(sc_nns, "nameHash", "(string)test");
             var hash_test = r_test.value.subItem[0].AsHash256();
-            var r_abc_test = await api_InvokeScript(sc_nns, "nameHashSub", "(hex256)" + r_test.value.subItem[0].AsHash256().ToString(), "(string)abc");
+            var r_abc_test = await api_InvokeScript(sc_nns, "nameHashSub", "(hex256)" + r_test.value.subItem[0].AsHash256().ToString(), "(string)"+ subname);
             subPrintLine("得到:" + r_abc_test.value.subItem[0].AsHash256());
 
             var mh = nameHash("test");
-            var mh_abc = nameHashSub(mh, "abc");
+            var mh_abc = nameHashSub(mh, subname);
 
             subPrintLine("calc=" + mh_abc.ToString());
             var info = await api_InvokeScript(sc_nns, "getOwnerInfo", "(hex256)" + mh_abc.ToString());
@@ -198,8 +201,11 @@ namespace smartContractDemo
             subPrintLine("getinfo parentOwner=" + info.value.subItem[0].subItem[2].AsHash160());
         }
 
-        async Task test_request_neodun_test_domain()
+        async Task test_request_xxx_test_domain()
         {
+            subPrintLine("request [xxx].test 's domain:input xxx:");
+            var subname = Console.ReadLine();
+
             string testwif = nnc_1.testwif;
             byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
@@ -225,7 +231,7 @@ namespace smartContractDemo
                     var array = new MyJson.JsonNode_Array();
                     array.AddArrayValue("(addr)" + address);
                     array.AddArrayValue("(hex256)" + rootHash);
-                    array.AddArrayValue("(str)neodun");//可以更改成想注册的二级域名
+                    array.AddArrayValue("(str)"+subname);//可以更改成想注册的二级域名
                     sb.EmitParamJson(array);//参数倒序入
                     sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)requestSubDomain"));//参数倒序入
                     string testRegister = "0x9a20a91392d90f468fb18dd3070754bec8e573e6"; //这是test根域名的注册器  可以用test_gettestinfo例子获取
