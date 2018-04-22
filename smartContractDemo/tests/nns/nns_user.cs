@@ -29,6 +29,8 @@ namespace smartContractDemo
             infos["request [xxx].test domain"] = test_request_xxx_test_domain;
             infos["set resolver [xxx].test"] = test_set_resolver;
             infos["owner chaange [xxx].test"] = test_owner_change;
+            infos["config resolve 1.[xxx].test"] = test_config_resolve_1_xxx;
+            infos["resolve text://1.[xxx].test"] = test_resolve_1_xxx;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
         #endregion
@@ -96,19 +98,19 @@ namespace smartContractDemo
                 "(hex256)" + nns_common.nameHash("test"),
                 "(str)" + subname);
 
-            Console.WriteLine("sendrawtransaction得到的结果是：" + result);
+            subPrintLine("sendrawtransaction得到的结果是：" + result);
         }
 
         async Task test_set_resolver()
         {
-            subPrintLine("set resolver [xxx].test");
+            subPrintLine("set resolver [xxx].test input xxx:");
             var subname = Console.ReadLine();
             string testwif = nnc_1.testwif;
             byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             Hash160 hash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
 
-            var resolver = new Hash160("0x375a7e4630c44fb7e18bdce56fd74c597c86a075");
+            var resolver = new Hash160("0xabb0f1f3f035dd7ad80ca805fce58d62c517cc6b");
             var testhash = nns_common.nameHash("test");
             var subhash = nns_common.nameHashSub(testhash, subname);
             var result = await nns_common.api_SendTransaction(prikey, nns_common.sc_nns, "owner_SetResolver",
@@ -116,11 +118,11 @@ namespace smartContractDemo
                "(hex256)" + subhash.ToString(),//参数2 域名fullhash
                "(hex160)" + resolver.ToString()//参数3 解析器地址
                );
-            Console.WriteLine("result=" + result);
+            subPrintLine("result=" + result);
         }
         async Task test_owner_change()
         {
-            subPrintLine("owner chaange [xxx].test");
+            subPrintLine("owner chaange [xxx].test input xxx:");
             var subname = Console.ReadLine();
             string testwif = nnc_1.testwif;
             byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);
@@ -135,7 +137,58 @@ namespace smartContractDemo
                "(hex256)" + subhash.ToString(),//参数2 域名fullhash
                "(hex160)" + newowner.ToString()//参数3 新所有者
                );
-            Console.WriteLine("result=" + result);
+            subPrintLine("result=" + result);
+        }
+        async Task test_config_resolve_1_xxx()
+        {
+            subPrintLine("config resolve 1.[xxx].test  input xxx:");
+            var subname = Console.ReadLine();
+
+            var testhash = nns_common.nameHash("test");
+            var subhash = nns_common.nameHashSub(testhash, subname);
+
+            var _result = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo",
+                "(hex256)" + subhash.ToString());
+            var resolver = new Hash160(_result.value.subItem[0].subItem[2].data);
+            subPrintLine("resolver=" + resolver.ToString());
+
+            var owner = new Hash160(_result.value.subItem[0].subItem[0].data);
+            string testwif = nnc_1.testwif;
+            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);
+            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
+            Hash160 hash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
+            if (owner.Equals(hash) == false)
+            {
+                subPrintLine("this is not your domain.");
+                return;
+            }
+            var newowner = ThinNeo.Helper.GetPublicKeyHashFromAddress("ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj");
+            var result = await nns_common.api_SendTransaction(prikey, resolver, "setResolveData",
+               "(hex160)" + hash.ToString(),//参数1 所有者
+               "(hex256)" + subhash.ToString(),//参数2 域名fullhash
+               "(string)" + "1",//参数3 要设置的子域名
+               "(string)" + "text",//参数4 协议
+               "(string)" + "hello world"//解析内容
+               );
+            subPrintLine("result=" + result);
+
+        }
+        async Task test_resolve_1_xxx()
+        {
+            subPrintLine("resolve 1.[xxx].test  input xxx:");
+            var subname = Console.ReadLine();
+
+            var testhash = nns_common.nameHash("test");
+            var subhash = nns_common.nameHashSub(testhash, subname);
+
+            var _result = await nns_common.api_InvokeScript(nns_common.sc_nns, "resolve",
+                "(string)text",
+                "(hex256)" + subhash.ToString(),
+                "(string)1"
+                );
+
+            subPrintLine("result=" + _result.value.subItem[0].AsString());
+
         }
         #endregion
 
