@@ -12,7 +12,7 @@ namespace smartContractDemo
         public string ID => "nc 1";
 
         public const string sc_nnc = "0xbab964febd82c9629cc583596975f51811f25f47";//nnc 合约地址
-        public const string sc_sell = "0x1d26568b244c27d2417acd06b9e7cb9ab9faee03";//注册器合约地址
+        public const string sc_sell = "0x6895b8ed4583dc4bcb255b1a961188ebfb4bb291";//注册器合约地址
 
         public const string api = "https://api.nel.group/api/testnet";
         public const string testwif = "L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";

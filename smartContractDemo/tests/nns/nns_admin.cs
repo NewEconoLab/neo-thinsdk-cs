@@ -26,6 +26,7 @@ namespace smartContractDemo
         {
             infos["set jump _target"] = test_setjumptarget;
             infos["initroot .test"] = test_initroot_test;
+            infos["initroot .sell"] = test_initroot_sell;
             //infos["get [xxx].test info"] = test_get_xxx_test_info;
             //infos["request [xxx].test domain"] = test_request_xxx_test_domain;
             this.submenu = new List<string>(infos.Keys).ToArray();
@@ -45,6 +46,16 @@ namespace smartContractDemo
                 "initRoot",
                 "(str)test",//根域名的名字
                 "(hex160)" + fiforegistor.ToString());
+            subPrintLine("result=" + result);
+
+        }
+        async Task test_initroot_sell()
+        {
+            var sellregistor = new ThinNeo.Hash160("0x6895b8ed4583dc4bcb255b1a961188ebfb4bb291");
+            var result = await nns_common.api_SendTransaction(this.superadminprikey, nns_common.sc_nns,
+                "initRoot",
+                "(str)sell",//根域名的名字
+                "(hex160)" + sellregistor.ToString());
             subPrintLine("result=" + result);
 
         }
