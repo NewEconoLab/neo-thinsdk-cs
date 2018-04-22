@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using ThinNeo;
 
 namespace smartContractDemo
 {
@@ -14,6 +15,7 @@ namespace smartContractDemo
         public string address;
         byte[] scripthash;
         byte[] pubkey;
+        Hash160 reg_sc;//注册器合约地址
         public string[] LIST = {
             "exit",
             "totalSupply",
@@ -37,6 +39,10 @@ namespace smartContractDemo
 
         public async Task Demo()
         {
+            //得到注册器
+            var info_reg = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash("sell").ToString());
+            this.reg_sc = new Hash160(info_reg.value.subItem[0].subItem[1].data);
+            Console.WriteLine("reg=" + reg_sc.ToString());
 
             for (int i = 0; i < LIST.Length; i++)
             {
@@ -204,7 +210,7 @@ namespace smartContractDemo
 
             sb.EmitParamJson(array);//参数倒序入
             sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)balanceOf"));//参数倒序入
-            sb.EmitAppCall(new ThinNeo.Hash160(nnc_1.sc_sell));//nep5脚本
+            sb.EmitAppCall(reg_sc);//nep5脚本
         }
 
         private void NewBonus(ThinNeo.ScriptBuilder sb)
@@ -232,7 +238,7 @@ namespace smartContractDemo
             sb.EmitPushNumber(1);
             sb.Emit(ThinNeo.VM.OpCode.PACK);
             sb.EmitPushString("setmoneyin");
-            sb.EmitAppCall(new ThinNeo.Hash160(nnc_1.sc_sell));
+            sb.EmitAppCall(reg_sc);
         }
 
         private void CheckBonus(ThinNeo.ScriptBuilder sb)
@@ -246,7 +252,7 @@ namespace smartContractDemo
         }
         private void Transfer(ThinNeo.ScriptBuilder sb)
         {
-            string addressto = ThinNeo.Helper.GetAddressFromScriptHash(new ThinNeo.Hash160(nnc_1.sc_sell));
+            string addressto = ThinNeo.Helper.GetAddressFromScriptHash(reg_sc);
 
             var array = new MyJson.JsonNode_Array();
             array.AddArrayValue("(addr)" + address);//from
@@ -266,7 +272,7 @@ namespace smartContractDemo
             sb.EmitPushNumber(1);
             sb.Emit(ThinNeo.VM.OpCode.PACK);
             sb.EmitPushString("setmoneyin");
-            sb.EmitAppCall(new ThinNeo.Hash160(nnc_1.sc_sell));
+            sb.EmitAppCall(reg_sc);
         }
     }
 }

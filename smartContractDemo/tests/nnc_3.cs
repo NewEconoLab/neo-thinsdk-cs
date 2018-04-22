@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using ThinNeo;
 
 namespace smartContractDemo
 {
@@ -19,7 +20,13 @@ namespace smartContractDemo
             byte[] scripthash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
             Console.WriteLine("address=" + address);
 
-            string addressto = ThinNeo.Helper.GetAddressFromScriptHash(new ThinNeo.Hash160(nnc_1.sc_sell));
+            //得到注册器
+            var info_reg = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash("sell").ToString());
+            var reg_sc = new Hash160(info_reg.value.subItem[0].subItem[1].data);
+            Console.WriteLine("reg=" + reg_sc.ToString());
+
+
+            string addressto = ThinNeo.Helper.GetAddressFromScriptHash(reg_sc);
             Console.WriteLine("addressFrom=" + addressto);
 
             //获取地址的资产列表
@@ -41,8 +48,7 @@ namespace smartContractDemo
                     array.AddArrayValue("(int)10000000000");//value
                     sb.EmitParamJson(array);//参数倒序入
                     sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)getmoneyback"));//参数倒序入
-                    ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc_1.sc_sell);
-                    sb.EmitAppCall(shash);//nep5脚本
+                    sb.EmitAppCall(reg_sc);
                     script = sb.ToArray();
                 }
 

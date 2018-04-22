@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using ThinNeo;
 
 namespace smartContractDemo
 {
@@ -12,7 +13,7 @@ namespace smartContractDemo
         public string ID => "nc 1";
 
         public const string sc_nnc = "0xbab964febd82c9629cc583596975f51811f25f47";//nnc 合约地址
-        public const string sc_sell = "0x6895b8ed4583dc4bcb255b1a961188ebfb4bb291";//注册器合约地址
+        //public const string sc_sell = "0x0989dfa7a767857f35711eb6afa0e4091643bbd1";//注册器合约地址
 
         public const string api = "https://api.nel.group/api/testnet";
         public const string testwif = "L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";
@@ -22,6 +23,12 @@ namespace smartContractDemo
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
             byte[] scripthash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
+
+            //得到注册器
+            var info_reg = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash("sell").ToString());
+            var reg_sc = new Hash160(info_reg.value.subItem[0].subItem[1].data);
+            Console.WriteLine("reg=" + reg_sc.ToString());
+
             Console.WriteLine("address=" + address);
             {//查balance
                 string script = null;
@@ -37,7 +44,7 @@ namespace smartContractDemo
 
                     sb.EmitParamJson(array);//参数倒序入
                     sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)balanceOf"));//参数倒序入
-                    sb.EmitAppCall(new ThinNeo.Hash160(sc_sell));//nep5脚本
+                    sb.EmitAppCall(reg_sc);
 
                     var data = sb.ToArray();
                     script = ThinNeo.Helper.Bytes2HexString(data);

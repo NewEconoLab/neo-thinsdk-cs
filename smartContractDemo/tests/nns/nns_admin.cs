@@ -51,7 +51,7 @@ namespace smartContractDemo
         }
         async Task test_initroot_sell()
         {
-            var sellregistor = new ThinNeo.Hash160("0x6895b8ed4583dc4bcb255b1a961188ebfb4bb291");
+            var sellregistor = new ThinNeo.Hash160("0x0989dfa7a767857f35711eb6afa0e4091643bbd1");
             var result = await nns_common.api_SendTransaction(this.superadminprikey, nns_common.sc_nns,
                 "initRoot",
                 "(str)sell",//根域名的名字
