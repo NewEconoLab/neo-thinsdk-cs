@@ -34,7 +34,7 @@ namespace smartContractDemo
         #region testarea
         async Task test_setjumptarget()
         {
-            var target = new ThinNeo.Hash160("0x8b6f1bd09bafb800a6b579e227942cd1f4724010");
+            var target = new ThinNeo.Hash160("0x2b881a0998cb8e91783b8d671e0f0f42adf4840f");
             var result = await nns_common.api_SendTransaction(this.superadminprikey, nns_common.sc_nns, "_setTarget", "(hex160)" + target.ToString());
             subPrintLine("result=" + result);
         }

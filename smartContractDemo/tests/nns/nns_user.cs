@@ -27,6 +27,8 @@ namespace smartContractDemo
             infos["get .test info"] = test_gettestinfo;
             infos["get [xxx].test info"] = test_get_xxx_test_info;
             infos["request [xxx].test domain"] = test_request_xxx_test_domain;
+            infos["set resolver [xxx].test"] = test_set_resolver;
+            infos["owner chaange [xxx].test"] = test_owner_change;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
         #endregion
@@ -44,6 +46,9 @@ namespace smartContractDemo
             subPrintLine("getinfo resovler=" + info.value.subItem[0].subItem[2].AsHash160());
             subPrintLine("getinfo ttl=" + info.value.subItem[0].subItem[3].AsInteger());
             subPrintLine("getinfo parentOwner=" + info.value.subItem[0].subItem[4].AsHash160());
+            subPrintLine("getinfo domain=" + info.value.subItem[0].subItem[5].AsString());
+            subPrintLine("getinfo parentHash=" + info.value.subItem[0].subItem[6].AsHash256());
+            subPrintLine("getinfo root=" + info.value.subItem[0].subItem[7].AsInteger());
         }
         async Task test_get_xxx_test_info()
         {
@@ -65,6 +70,10 @@ namespace smartContractDemo
             subPrintLine("getinfo resovler=" + info.value.subItem[0].subItem[2].AsHash160());
             subPrintLine("getinfo ttl=" + info.value.subItem[0].subItem[3].AsInteger());
             subPrintLine("getinfo parentOwner=" + info.value.subItem[0].subItem[4].AsHash160());
+
+            subPrintLine("getinfo domain=" + info.value.subItem[0].subItem[5].AsString());
+            subPrintLine("getinfo parentHash=" + info.value.subItem[0].subItem[6].AsHash256());
+            subPrintLine("getinfo root=" + info.value.subItem[0].subItem[7].AsInteger());
         }
 
         async Task test_request_xxx_test_domain()
@@ -80,7 +89,7 @@ namespace smartContractDemo
             var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash("test").ToString());
             var _result = info.value.subItem[0];
             var test_reg = _result.subItem[1].AsHash160();//根域名注册器必须获取，写死不行
-            
+
 
             var result = await nns_common.api_SendTransaction(prikey, test_reg, "requestSubDomain",
                 "(addr)" + address,
@@ -90,6 +99,44 @@ namespace smartContractDemo
             Console.WriteLine("sendrawtransaction得到的结果是：" + result);
         }
 
+        async Task test_set_resolver()
+        {
+            subPrintLine("set resolver [xxx].test");
+            var subname = Console.ReadLine();
+            string testwif = nnc_1.testwif;
+            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);
+            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
+            Hash160 hash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
+
+            var resolver = new Hash160("0x375a7e4630c44fb7e18bdce56fd74c597c86a075");
+            var testhash = nns_common.nameHash("test");
+            var subhash = nns_common.nameHashSub(testhash, subname);
+            var result = await nns_common.api_SendTransaction(prikey, nns_common.sc_nns, "owner_SetResolver",
+               "(hex160)" + hash.ToString(),//参数1 所有者
+               "(hex256)" + subhash.ToString(),//参数2 域名fullhash
+               "(hex160)" + resolver.ToString()//参数3 解析器地址
+               );
+            Console.WriteLine("result=" + result);
+        }
+        async Task test_owner_change()
+        {
+            subPrintLine("owner chaange [xxx].test");
+            var subname = Console.ReadLine();
+            string testwif = nnc_1.testwif;
+            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);
+            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
+            Hash160 hash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
+
+            var newowner = ThinNeo.Helper.GetPublicKeyHashFromAddress("ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj");
+            var testhash = nns_common.nameHash("test");
+            var subhash = nns_common.nameHashSub(testhash, subname);
+            var result = await nns_common.api_SendTransaction(prikey, nns_common.sc_nns, "owner_SetOwner",
+               "(hex160)" + hash.ToString(),//参数1 所有者
+               "(hex256)" + subhash.ToString(),//参数2 域名fullhash
+               "(hex160)" + newowner.ToString()//参数3 新所有者
+               );
+            Console.WriteLine("result=" + result);
+        }
         #endregion
 
         void showMenu()
