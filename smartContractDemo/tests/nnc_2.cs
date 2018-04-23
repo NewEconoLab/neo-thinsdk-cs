@@ -19,9 +19,11 @@ namespace smartContractDemo
             string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
             byte[] scripthash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
 
+            Console.WriteLine("Input root name:");
+            var root = Console.ReadLine();
 
             //得到注册器
-            var info_reg = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash("sell").ToString());
+            var info_reg = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(root).ToString());
             var reg_sc = new Hash160(info_reg.value.subItem[0].subItem[1].data);
             Console.WriteLine("reg=" + reg_sc.ToString());
 

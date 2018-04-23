@@ -13,8 +13,9 @@ namespace smartContractDemo
         public string ID => "nns sell";
         #region menuandlog
         public delegate Task testAction();
-        public Dictionary<string, testAction> infos = new Dictionary<string, testAction>();
+        public Dictionary<string, testAction> infos = null ;// = new Dictionary<string, testAction>();
         string[] submenu;
+        private string root ="sell";
         void subPrintLine(string line)
         {
             Console.WriteLine("    " + line);
@@ -22,21 +23,28 @@ namespace smartContractDemo
 
         public nns_sell()
         {
-            infos["get .sell info"] = test_getsellinfo;
-            infos["get [xxx].sell info"] = test_get_xxx_sell_info;
-            infos["wantbuy [xxx].sell"] = test_wantbuy_xxx_sell;
-            infos["addprice 10 for [xxx].sell"] = test_addprice_xxx_sell;
-            infos["endselling [xxx].sell"] = test_endselling;//结束拍卖，如果中标我的钱就全没了，没中标退还90%
-            infos["get [xxx].sell domain"] = test_getsellingdomaain;//
+            this.initManu();
+        }
+
+        private void initManu()
+        {
+            infos = new Dictionary<string, testAction>();
+            infos["get ." + root + " info"] = test_getsellinfo;
+            infos["get [xxx]." + root + " info"] = test_get_xxx_sell_info;
+            infos["wantbuy [xxx]." + root] = test_wantbuy_xxx_sell;
+            infos["addprice 10 for [xxx]." + root] = test_addprice_xxx_sell;
+            infos["endselling [xxx]." + root] = test_endselling;//结束拍卖，如果中标我的钱就全没了，没中标退还90%
+            infos["get [xxx]." + root + " domain"] = test_getsellingdomaain;//
+            infos["switch root name"] = test_switch_root;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
         #endregion
         #region testarea
         async Task test_getsellinfo()
         {
-            var r = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)sell");
+            var r = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)" + root);
             subPrintLine("得到:" + new Hash256(r.value.subItem[0].data).ToString());
-            var mh = nns_common.nameHash("sell");
+            var mh = nns_common.nameHash(root);
             subPrintLine("calc=" + mh.ToString());
             var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + mh.ToString());
             subPrintLine("getinfo owner=" + info.value.subItem[0].subItem[0].AsHash160());
@@ -53,12 +61,12 @@ namespace smartContractDemo
             subPrintLine("get [xxx].test 's info:input xxx:");
             var subname = Console.ReadLine();
 
-            var r_test = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)sell");
+            var r_test = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)" + root);
             var hash_test = r_test.value.subItem[0].AsHash256();
             var r_abc_test = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHashSub", "(hex256)" + r_test.value.subItem[0].AsHash256().ToString(), "(string)" + subname);
             subPrintLine("得到:" + r_abc_test.value.subItem[0].AsHash256());
 
-            var roothash = nns_common.nameHash("sell");
+            var roothash = nns_common.nameHash(root);
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             subPrintLine("calc=" + fullhash.ToString());
@@ -134,11 +142,11 @@ namespace smartContractDemo
         }
         async Task test_wantbuy_xxx_sell()
         {
-            subPrintLine("wantbuy [xxx].sell.  input xxx:");
+            subPrintLine("wantbuy [xxx]." + root + ".  input xxx:");
             var subname = Console.ReadLine();
 
 
-            var roothash = nns_common.nameHash("sell");
+            var roothash = nns_common.nameHash(root);
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             //得到注册器
@@ -158,11 +166,11 @@ namespace smartContractDemo
         }
         async Task test_addprice_xxx_sell()
         {
-            subPrintLine("addprice 10 for [xxx].sell.  input xxx:");
+            subPrintLine("addprice 10 for [xxx]." + root + ".  input xxx:");
             var subname = Console.ReadLine();
 
 
-            var roothash = nns_common.nameHash("sell");
+            var roothash = nns_common.nameHash(root);
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             //得到注册器
@@ -185,11 +193,11 @@ namespace smartContractDemo
         }
         async Task test_endselling()
         {
-            subPrintLine("endSelling [xxx].sell.  input xxx:");
+            subPrintLine("endSelling [xxx]." + root + ".  input xxx:");
             var subname = Console.ReadLine();
 
 
-            var roothash = nns_common.nameHash("sell");
+            var roothash = nns_common.nameHash(root);
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             //得到注册器
@@ -211,11 +219,11 @@ namespace smartContractDemo
         }
         async Task test_getsellingdomaain()
         {
-            subPrintLine("get [xxx].sell domain.  input xxx:");
+            subPrintLine("get [xxx]." + root + " domain.  input xxx:");
             var subname = Console.ReadLine();
 
 
-            var roothash = nns_common.nameHash("sell");
+            var roothash = nns_common.nameHash(root);
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             //得到注册器
@@ -234,8 +242,18 @@ namespace smartContractDemo
           "(hex256)" + id.ToString()//参数2 交易id
           );
             subPrintLine("result=" + result);
-            
         }
+
+        async Task test_switch_root()
+        {
+            subPrintLine("input root name:");
+            var root = Console.ReadLine();
+            
+            this.root = root;
+            this.initManu();
+            this.showMenu();
+        }
+
         #endregion
         void showMenu()
         {
