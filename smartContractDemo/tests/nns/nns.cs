@@ -10,7 +10,7 @@ namespace smartContractDemo
     public class nns_common
     {
         public const string api = "https://api.nel.group/api/testnet";
-        public const string testwif = "L4ZntdDCocMJi4ozpTw4uTtxtAFNNCP2mX6m3P9CMJN66Dt2YJqP";//"L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";
+        public const string testwif = "L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";
 
         public static readonly Hash160 sc_nns = new Hash160("0x954f285a93eed7b4aed9396a7806a5812f1a5950");//nns 合约地址
 
