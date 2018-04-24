@@ -122,7 +122,8 @@ namespace smartContractDemo
             subPrintLine("getSellingStateByFullhash endBlock=" + info3.value.subItem[0].subItem[6].AsInteger());
 
             subPrintLine("getSellingStateByFullhash maxPrice=" + info3.value.subItem[0].subItem[7].AsInteger());
-            subPrintLine("getSellingStateByFullhash maxBuyer=" + info3.value.subItem[0].subItem[8].AsHash160());
+           var addr =  ThinNeo.Helper.GetAddressFromScriptHash(info3.value.subItem[0].subItem[8].AsHash160());
+            subPrintLine("getSellingStateByFullhash maxBuyer=" + addr);
             subPrintLine("getSellingStateByFullhash lastBlock=" + info3.value.subItem[0].subItem[9].AsInteger());
 
             var id = info3.value.subItem[0].subItem[0].AsHash256();

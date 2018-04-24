@@ -250,29 +250,70 @@ namespace smartContractDemo
             ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc_1.sc_nnc);
             sb.EmitAppCall(shash);//nep5脚本
         }
+
         private void Transfer(ThinNeo.ScriptBuilder sb)
         {
-            string addressto = ThinNeo.Helper.GetAddressFromScriptHash(reg_sc);
-
-            var array = new MyJson.JsonNode_Array();
-            array.AddArrayValue("(addr)" + address);//from
-            array.AddArrayValue("(addr)" + addressto);//to
-            array.AddArrayValue("(int)10000000000");//value
-            sb.EmitParamJson(array);//参数倒序入
-            sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)transfer"));//参数倒序入
+            Console.WriteLine("Input target address:");
+            string addressto = Console.ReadLine();
+            Console.WriteLine("Input amount:");
+            string amount = Console.ReadLine();
             ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc_1.sc_nnc);
-            sb.EmitAppCall(shash);//nep5脚本
-
-            //这个方法是为了在同一笔交易中转账并充值
-            //当然你也可以分为两笔交易
-            //插入下述两条语句，能得到txid
-            sb.EmitSysCall("System.ExecutionEngine.GetScriptContainer");
-            sb.EmitSysCall("Neo.Transaction.GetHash");
-            //把TXID包进Array里
-            sb.EmitPushNumber(1);
-            sb.Emit(ThinNeo.VM.OpCode.PACK);
-            sb.EmitPushString("setmoneyin");
-            sb.EmitAppCall(reg_sc);
+             this.api_SendTransaction(prikey, shash, "(str)transfer",
+              "(int)"+ amount,
+              "(addr)" + addressto,
+              "(addr)" + address
+              );
         }
+
+        public async Task<string> api_SendTransaction(byte[] prikey, Hash160 schash, string methodname, params string[] subparam)
+        {
+            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
+            string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+
+            //获取地址的资产列表
+            Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(nnc_1.api, address);
+            if (dir.ContainsKey(Nep55_1.id_GAS) == false)
+            {
+                Console.WriteLine("no gas");
+                return null;
+            }
+            //MakeTran
+            ThinNeo.Transaction tran = null;
+            {
+
+                byte[] data = null;
+                using (ScriptBuilder sb = new ScriptBuilder())
+                {
+                    MyJson.JsonNode_Array array = new MyJson.JsonNode_Array();
+                    for (var i = 0; i < subparam.Length; i++)
+                    {
+                        array.AddArrayValue(subparam[i]);
+                    }
+                    sb.EmitParamJson(array);
+                    sb.EmitPushString(methodname);
+                    sb.EmitAppCall(schash);
+                    data = sb.ToArray();
+                }
+
+                tran = Helper.makeTran(dir[Nep55_1.id_GAS], null, new ThinNeo.Hash256(Nep55_1.id_GAS), 0);
+                tran.type = ThinNeo.TransactionType.InvocationTransaction;
+                var idata = new ThinNeo.InvokeTransData();
+                tran.extdata = idata;
+                idata.script = data;
+                idata.gas = 0;
+            }
+
+            //sign and broadcast
+            var signdata = ThinNeo.Helper.Sign(tran.GetMessage(), prikey);
+            tran.AddWitness(signdata, pubkey, address);
+            var trandata = tran.GetRawData();
+            var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
+            byte[] postdata;
+            var url = Helper.MakeRpcUrlPost(nnc_1.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
+            var result = await Helper.HttpPost(url, postdata);
+            return result;
+        }
+
     }
+
 }
