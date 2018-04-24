@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using ThinNeo;
@@ -36,6 +37,7 @@ namespace smartContractDemo
             infos["endselling [xxx]." + root] = test_endselling;//结束拍卖，如果中标我的钱就全没了，没中标退还90%
             infos["get [xxx]." + root + " domain"] = test_getsellingdomaain;//
             infos["switch root name"] = test_switch_root;
+            infos["get address balanceof sell"] = test_getbalanceof;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
         #endregion
@@ -245,6 +247,19 @@ namespace smartContractDemo
             subPrintLine("result=" + result);
         }
 
+        async Task test_getbalanceof()
+        {
+            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nns_common.testwif);
+            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
+            var who = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
+
+            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash("sell").ToString());
+            var _result = info.value.subItem[0];
+            var sell_reg = _result.subItem[1].AsHash160();
+
+            var r_abc_test = await nns_common.api_InvokeScript(sell_reg, "balanceOf", "(hex160)" + who.ToString());
+            subPrintLine("sell注册器里的余额:" + r_abc_test.value.subItem[0].AsInteger());
+        }
         async Task test_switch_root()
         {
             subPrintLine("input root name:");

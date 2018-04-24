@@ -24,23 +24,26 @@ namespace smartContractDemo
 
         public nns_user()
         {
-            infos["get .test info"] = test_gettestinfo;
-            infos["get [xxx].test info"] = test_get_xxx_test_info;
-            infos["request [xxx].test domain"] = test_request_xxx_test_domain;
-            infos["set resolver [xxx].test"] = test_set_resolver;
-            infos["owner chaange [xxx].test"] = test_owner_change;
-            infos["config resolve 1.[xxx].test"] = test_config_resolve_1_xxx;
-            infos["resolve text://1.[xxx].test"] = test_resolve_1_xxx;
+            infos["get .[yyy] info"] = test_get_yyy_info;
+            infos["get [xxx].[yyy] info"] = test_get_xxx_test_info;
+            infos["request [xxx].[yyy] domain"] = test_request_xxx_yyy_domain;
+            infos["set resolver [xxx].[yyy]"] = test_set_resolver;
+            infos["owner change [xxx].[yyy]"] = test_owner_change;
+            infos["config resolve 1.[xxx].[yyy]"] = test_config_resolve_1_xxx_yyy;
+            infos["resolve text://1.[xxx].[yyy]"] = test_resolve_1_xxx_yyy;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
         #endregion
 
         #region testarea
-        async Task test_gettestinfo()
+        async Task test_get_yyy_info()
         {
-            var r = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)test");
+            subPrintLine("get .[yyy] 's info:input yyy:");
+            var rootname = Console.ReadLine();
+
+            var r = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)"+ rootname);
             subPrintLine("得到:" + new Hash256(r.value.subItem[0].data).ToString());
-            var mh = nns_common.nameHash("test");
+            var mh = nns_common.nameHash(rootname);
             subPrintLine("calc=" + mh.ToString());
             var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + mh.ToString());
             subPrintLine("getinfo owner=" + info.value.subItem[0].subItem[0].AsHash160());
@@ -54,20 +57,22 @@ namespace smartContractDemo
         }
         async Task test_get_xxx_test_info()
         {
-            subPrintLine("get [xxx].test 's info:input xxx:");
-            var subname = Console.ReadLine();
+            subPrintLine("get [xxx].[yyy] 's info:input xxx.yyy:");
+            var readline = Console.ReadLine().Split(".");
+            var subname = readline[0];
+            var rootname = readline[1];
 
-            var r_test = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)test");
+            var r_test = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)"+ rootname);
             var hash_test = r_test.value.subItem[0].AsHash256();
             var r_abc_test = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHashSub", "(hex256)" + r_test.value.subItem[0].AsHash256().ToString(), "(string)" + subname);
             subPrintLine("得到:" + r_abc_test.value.subItem[0].AsHash256());
 
-            var mh = nns_common.nameHash("test");
+            var mh = nns_common.nameHash(rootname);
             var mh_abc = nns_common.nameHashSub(mh, subname);
 
             subPrintLine("calc=" + mh_abc.ToString());
             var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + mh_abc.ToString());
-            subPrintLine("getinfo owner=" + info.value.subItem[0].subItem[0].AsHash160());
+            subPrintLine("getinfo owner=" + ThinNeo.Helper.GetAddressFromScriptHash(info.value.subItem[0].subItem[0].AsHash160()));
             subPrintLine("getinfo register=" + info.value.subItem[0].subItem[1].AsHash160());
             subPrintLine("getinfo resovler=" + info.value.subItem[0].subItem[2].AsHash160());
             subPrintLine("getinfo ttl=" + info.value.subItem[0].subItem[3].AsInteger());
@@ -78,24 +83,26 @@ namespace smartContractDemo
             subPrintLine("getinfo root=" + info.value.subItem[0].subItem[7].AsInteger());
         }
 
-        async Task test_request_xxx_test_domain()
+        async Task test_request_xxx_yyy_domain()
         {
-            subPrintLine("request [xxx].test 's domain:input xxx:");
-            var subname = Console.ReadLine();
+            subPrintLine("request [xxx].[yyy] 's domain:input xxx.yyy:");
+            var readline = Console.ReadLine().Split(".");
+            var subname = readline[0];
+            var rootname = readline[1];
 
             string testwif = nnc_1.testwif;
             byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
 
-            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash("test").ToString());
+            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(rootname).ToString());
             var _result = info.value.subItem[0];
             var test_reg = _result.subItem[1].AsHash160();//根域名注册器必须获取，写死不行
 
-
+            var sss = nns_common.nameHash(rootname);
             var result = await nns_common.api_SendTransaction(prikey, test_reg, "requestSubDomain",
                 "(addr)" + address,
-                "(hex256)" + nns_common.nameHash("test"),
+                "(hex256)" + nns_common.nameHash(rootname),
                 "(str)" + subname);
 
             subPrintLine("sendrawtransaction得到的结果是：" + result);
@@ -103,15 +110,18 @@ namespace smartContractDemo
 
         async Task test_set_resolver()
         {
-            subPrintLine("set resolver [xxx].test input xxx:");
-            var subname = Console.ReadLine();
+            subPrintLine("set resolver [xxx].[yyy] input xxx.yyy:");
+            var readline = Console.ReadLine().Split(".");
+            var subname = readline[0];
+            var rootname = readline[1];
+
             string testwif = nnc_1.testwif;
             byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             Hash160 hash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
 
             var resolver = new Hash160("0xabb0f1f3f035dd7ad80ca805fce58d62c517cc6b");
-            var testhash = nns_common.nameHash("test");
+            var testhash = nns_common.nameHash(rootname);
             var subhash = nns_common.nameHashSub(testhash, subname);
             var result = await nns_common.api_SendTransaction(prikey, nns_common.sc_nns, "owner_SetResolver",
                "(hex160)" + hash.ToString(),//参数1 所有者
@@ -122,15 +132,18 @@ namespace smartContractDemo
         }
         async Task test_owner_change()
         {
-            subPrintLine("owner chaange [xxx].test input xxx:");
-            var subname = Console.ReadLine();
+            subPrintLine("owner chaange [xxx].[yyy] input xxx.yyy:");
+            var readline = Console.ReadLine().Split(".");
+            var subname = readline[0];
+            var rootname = readline[1];
+
             string testwif = nnc_1.testwif;
             byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             Hash160 hash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
 
             var newowner = ThinNeo.Helper.GetPublicKeyHashFromAddress("ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj");
-            var testhash = nns_common.nameHash("test");
+            var testhash = nns_common.nameHash(rootname);
             var subhash = nns_common.nameHashSub(testhash, subname);
             var result = await nns_common.api_SendTransaction(prikey, nns_common.sc_nns, "owner_SetOwner",
                "(hex160)" + hash.ToString(),//参数1 所有者
@@ -139,12 +152,14 @@ namespace smartContractDemo
                );
             subPrintLine("result=" + result);
         }
-        async Task test_config_resolve_1_xxx()
+        async Task test_config_resolve_1_xxx_yyy()
         {
-            subPrintLine("config resolve 1.[xxx].test  input xxx:");
-            var subname = Console.ReadLine();
+            subPrintLine("config resolve 1.[xxx].[yyy]  input xxx.yyy:");
+            var readline = Console.ReadLine().Split(".");
+            var subname = readline[0];
+            var rootname = readline[1];
 
-            var testhash = nns_common.nameHash("test");
+            var testhash = nns_common.nameHash(rootname);
             var subhash = nns_common.nameHashSub(testhash, subname);
 
             var _result = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo",
@@ -173,16 +188,18 @@ namespace smartContractDemo
             subPrintLine("result=" + result);
 
         }
-        async Task test_resolve_1_xxx()
+        async Task test_resolve_1_xxx_yyy()
         {
-            subPrintLine("resolve 1.[xxx].test  input xxx:");
-            var subname = Console.ReadLine();
+            subPrintLine("resolve 1.[xxx].[yyy]  input xxx.yyy:");
+            var readline = Console.ReadLine().Split(".");
+            var subname = readline[0];
+            var rootname = readline[1];
 
-            var testhash = nns_common.nameHash("test");
+            var testhash = nns_common.nameHash(rootname);
             var subhash = nns_common.nameHashSub(testhash, subname);
 
             var _result = await nns_common.api_InvokeScript(nns_common.sc_nns, "resolve",
-                "(string)text",
+                "(string)"+ rootname,
                 "(hex256)" + subhash.ToString(),
                 "(string)1"
                 );

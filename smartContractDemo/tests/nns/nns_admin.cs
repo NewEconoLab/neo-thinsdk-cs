@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using ThinNeo;
 
 namespace smartContractDemo
 {
@@ -25,39 +26,30 @@ namespace smartContractDemo
         public nns_admin()
         {
             infos["set jump _target"] = test_setjumptarget;
-            infos["initroot .test"] = test_initroot_test;
-            infos["initroot .sell"] = test_initroot_sell;
+            infos["get _target name"] = test_gettargetname;
+            //infos["initroot .test"] = test_initroot_test;
+            //infos["initroot .sell"] = test_initroot_sell;
             infos["initroot .xxx"] = test_initroot_xxx;
+            infos["get root .xxx info"] = test_get_xxx_info;
             //infos["get [xxx].test info"] = test_get_xxx_test_info;
             //infos["request [xxx].test domain"] = test_request_xxx_test_domain;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
         #endregion
         #region testarea
+        string domaincenterhash = "0x2b881a0998cb8e91783b8d671e0f0f42adf4840f";
         async Task test_setjumptarget()
         {
-            var target = new ThinNeo.Hash160("0x2b881a0998cb8e91783b8d671e0f0f42adf4840f");
+            var target = new ThinNeo.Hash160(domaincenterhash);
             var result = await nns_common.api_SendTransaction(this.superadminprikey, nns_common.sc_nns, "_setTarget", "(hex160)" + target.ToString());
             subPrintLine("result=" + result);
         }
-        async Task test_initroot_test()
-        {
-            var fiforegistor = new ThinNeo.Hash160("0x9a20a91392d90f468fb18dd3070754bec8e573e6");
-            var result = await nns_common.api_SendTransaction(this.superadminprikey, nns_common.sc_nns, 
-                "initRoot",
-                "(str)test",//根域名的名字
-                "(hex160)" + fiforegistor.ToString());
-            subPrintLine("result=" + result);
 
-        }
-        async Task test_initroot_sell()
+        async Task test_gettargetname()
         {
-            var sellregistor = new ThinNeo.Hash160("0x0989dfa7a767857f35711eb6afa0e4091643bbd1");
-            var result = await nns_common.api_SendTransaction(this.superadminprikey, nns_common.sc_nns,
-                "initRoot",
-                "(str)sell",//根域名的名字
-                "(hex160)" + sellregistor.ToString());
-            subPrintLine("result=" + result);
+            var target = new ThinNeo.Hash160(domaincenterhash);
+            var result = await nns_common.api_InvokeScript(target,"name");
+            subPrintLine("result=" + System.Text.Encoding.UTF8.GetString(result.value.subItem[0].data));
         }
         async Task test_initroot_xxx()
         {
@@ -74,6 +66,25 @@ namespace smartContractDemo
                 "(hex160)" + sellregistor.ToString());
             subPrintLine("result=" + result);
 
+        }
+
+        async Task test_get_xxx_info()
+        {
+            subPrintLine("input root domain:");
+            var root = Console.ReadLine();
+            var r = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)"+ root);
+            subPrintLine("得到:" + new Hash256(r.value.subItem[0].data).ToString());
+            var mh = nns_common.nameHash(root);
+            subPrintLine("calc=" + mh.ToString());
+            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + mh.ToString());
+            subPrintLine("getinfo owner=" + ThinNeo.Helper.GetAddressFromScriptHash(info.value.subItem[0].subItem[0].AsHash160()));
+            subPrintLine("getinfo register=" + info.value.subItem[0].subItem[1].AsHash160());
+            subPrintLine("getinfo resovler=" + info.value.subItem[0].subItem[2].AsHash160());
+            subPrintLine("getinfo ttl=" + info.value.subItem[0].subItem[3].AsInteger());
+            subPrintLine("getinfo parentOwner=" + info.value.subItem[0].subItem[4].AsHash160());
+            subPrintLine("getinfo domain=" + info.value.subItem[0].subItem[5].AsString());
+            subPrintLine("getinfo parentHash=" + info.value.subItem[0].subItem[6].AsHash256());
+            subPrintLine("getinfo root=" + info.value.subItem[0].subItem[7].AsInteger());
         }
         #endregion
         void showMenu()
