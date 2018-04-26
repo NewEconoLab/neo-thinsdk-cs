@@ -14,9 +14,13 @@ namespace smartContractDemo
         public string ID => "nns sell";
         #region menuandlog
         public delegate Task testAction();
-        public Dictionary<string, testAction> infos = null ;// = new Dictionary<string, testAction>();
+        public Dictionary<string, testAction> infos = null;// = new Dictionary<string, testAction>();
         string[] submenu;
-        private string root ="sell";
+        private string root = "sell";
+        private string testkey = nns_common.testwif;
+        private byte[] pubkey;
+        private string address = "";
+        private string scriptHash = "";
         void subPrintLine(string line)
         {
             Console.WriteLine("    " + line);
@@ -26,27 +30,42 @@ namespace smartContractDemo
         {
             this.initManu();
         }
+        private void initAccount()
+        {
+            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(this.testkey);
+            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
+            this.scriptHash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey).ToString();
+            this.address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+            Console.WriteLine("\n************************************* -- Current Account -- **************************************\n");
+            subPrintLine("Address    : " + this.address);
+            subPrintLine("Prikey     : " + ThinNeo.Helper.Bytes2HexString(prikey));
+            subPrintLine("Pubkey     : " + ThinNeo.Helper.Bytes2HexString(pubkey));
+            subPrintLine("ScriptHash : " + this.scriptHash);
+            Console.WriteLine("\n**************************************************************************************************\n");
+        }
 
         private void initManu()
         {
             infos = new Dictionary<string, testAction>();
-            infos["get ." + root + " info"] = test_getsellinfo;
-            infos["get [xxx]." + root + " info"] = test_get_xxx_sell_info;
-            infos["wantbuy [xxx]." + root] = test_wantbuy_xxx_sell;
-            infos["addprice 10 for [xxx]." + root] = test_addprice_xxx_sell;
-            infos["endselling [xxx]." + root] = test_endselling;//结束拍卖，如果中标我的钱就全没了，没中标退还90%
-            infos["get [xxx]." + root + " domain"] = test_getsellingdomaain;//
+            infos["get ." + this.root + " info"] = test_getsellinfo;
+            infos["get [xxx]." + this.root + " info"] = test_get_xxx_sell_info;
+            infos["wantbuy [xxx]." + this.root] = test_wantbuy_xxx_sell;
+            infos["addprice 10 for [xxx]." + this.root] = test_addprice_xxx_sell;
+            infos["endselling [xxx]." + this.root] = test_endselling;//结束拍卖，如果中标我的钱就全没了，没中标退还90%
+            infos["get [xxx]." + this.root + " domain"] = test_getsellingdomaain;//
             infos["switch root name"] = test_switch_root;
+            infos["change wif key"] = test_change_key;
             infos["get address balanceof sell"] = test_getbalanceof;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
+
         #endregion
         #region testarea
         async Task test_getsellinfo()
         {
-            var r = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)" + root);
+            var r = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)" + this.root);
             subPrintLine("得到:" + new Hash256(r.value.subItem[0].data).ToString());
-            var mh = nns_common.nameHash(root);
+            var mh = nns_common.nameHash(this.root);
             subPrintLine("calc=" + mh.ToString());
             var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + mh.ToString());
             subPrintLine("getinfo owner=" + info.value.subItem[0].subItem[0].AsHash160());
@@ -63,17 +82,18 @@ namespace smartContractDemo
             subPrintLine("get [xxx].test 's info:input xxx:");
             var subname = Console.ReadLine();
 
-            var r_test = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)" + root);
+            var r_test = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)" + this.root);
             var hash_test = r_test.value.subItem[0].AsHash256();
             var r_abc_test = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHashSub", "(hex256)" + r_test.value.subItem[0].AsHash256().ToString(), "(string)" + subname);
             subPrintLine("得到:" + r_abc_test.value.subItem[0].AsHash256());
 
-            var roothash = nns_common.nameHash(root);
+            var roothash = nns_common.nameHash(this.root);
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             subPrintLine("calc=" + fullhash.ToString());
             var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + fullhash.ToString());
-            subPrintLine("getinfo owner=" + info.value.subItem[0].subItem[0].AsHash160());
+            var owner = ThinNeo.Helper.GetAddressFromScriptHash(info.value.subItem[0].subItem[0].AsHash160());
+            subPrintLine("getinfo owner=" + owner);
             subPrintLine("getinfo register=" + info.value.subItem[0].subItem[1].AsHash160());
             subPrintLine("getinfo resovler=" + info.value.subItem[0].subItem[2].AsHash160());
             subPrintLine("getinfo ttl=" + info.value.subItem[0].subItem[3].AsInteger());
@@ -124,14 +144,13 @@ namespace smartContractDemo
             subPrintLine("getSellingStateByFullhash endBlock=" + info3.value.subItem[0].subItem[6].AsInteger());
 
             subPrintLine("getSellingStateByFullhash maxPrice=" + info3.value.subItem[0].subItem[7].AsInteger());
-           var addr =  ThinNeo.Helper.GetAddressFromScriptHash(info3.value.subItem[0].subItem[8].AsHash160());
+            var addr = ThinNeo.Helper.GetAddressFromScriptHash(info3.value.subItem[0].subItem[8].AsHash160());
             subPrintLine("getSellingStateByFullhash maxBuyer=" + addr);
             subPrintLine("getSellingStateByFullhash lastBlock=" + info3.value.subItem[0].subItem[9].AsInteger());
 
             var id = info3.value.subItem[0].subItem[0].AsHash256();
 
-            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nns_common.testwif);
-            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
+
             var who = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
             var info4 = await nns_common.api_InvokeScript(reg_sc, "balanceOf",
                "(hex160)" + who.ToString());
@@ -145,11 +164,11 @@ namespace smartContractDemo
         }
         async Task test_wantbuy_xxx_sell()
         {
-            subPrintLine("wantbuy [xxx]." + root + ".  input xxx:");
+            subPrintLine("wantbuy [xxx]." + this.root + ".  input xxx:");
             var subname = Console.ReadLine();
 
 
-            var roothash = nns_common.nameHash(root);
+            var roothash = nns_common.nameHash(this.root);
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             //得到注册器
@@ -169,11 +188,11 @@ namespace smartContractDemo
         }
         async Task test_addprice_xxx_sell()
         {
-            subPrintLine("addprice 10 for [xxx]." + root + ".  input xxx:");
+            subPrintLine("addprice 10 for [xxx]." + this.root + ".  input xxx:");
             var subname = Console.ReadLine();
 
 
-            var roothash = nns_common.nameHash(root);
+            var roothash = nns_common.nameHash(this.root);
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             //得到注册器
@@ -196,11 +215,11 @@ namespace smartContractDemo
         }
         async Task test_endselling()
         {
-            subPrintLine("endSelling [xxx]." + root + ".  input xxx:");
+            subPrintLine("endSelling [xxx]." + this.root + ".  input xxx:");
             var subname = Console.ReadLine();
 
 
-            var roothash = nns_common.nameHash(root);
+            var roothash = nns_common.nameHash(this.root);
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             //得到注册器
@@ -222,11 +241,11 @@ namespace smartContractDemo
         }
         async Task test_getsellingdomaain()
         {
-            subPrintLine("get [xxx]." + root + " domain.  input xxx:");
+            subPrintLine("get [xxx]." + this.root + " domain.  input xxx:");
             var subname = Console.ReadLine();
 
 
-            var roothash = nns_common.nameHash(root);
+            var roothash = nns_common.nameHash(this.root);
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             //得到注册器
@@ -264,8 +283,19 @@ namespace smartContractDemo
         {
             subPrintLine("input root name:");
             var root = Console.ReadLine();
-            
+
             this.root = root;
+            this.initManu();
+            this.showMenu();
+        }
+
+        async Task test_change_key()
+        {
+            subPrintLine("input wif key:");
+            var wif = Console.ReadLine();
+
+            this.testkey = wif;
+            this.initAccount();
             this.initManu();
             this.showMenu();
         }
@@ -283,10 +313,12 @@ namespace smartContractDemo
         }
         public async Task Demo()
         {
+            this.initAccount();
             showMenu();
 
             while (true)
             {
+
                 var line = Console.ReadLine().Replace(" ", "").ToLower();
                 if (line == "?" || line == "？")
                 {
@@ -302,8 +334,18 @@ namespace smartContractDemo
                 }
                 else//get .test's info
                 {
-                    var id = int.Parse(line) - 1;
-                    var key = submenu[id];
+                    string key = "";
+                    try
+                    {
+                        var id = int.Parse(line) - 1;
+                        key = submenu[id];
+                    }
+                    catch (Exception err)
+                    {
+                        subPrintLine("Unknown option");
+                        continue;
+                    }
+
                     subPrintLine("[begin]" + key);
                     try
                     {
