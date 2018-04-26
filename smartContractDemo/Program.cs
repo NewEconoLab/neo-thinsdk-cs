@@ -64,7 +64,7 @@ namespace smartContractDemo
             while (true)
             {
                 var line = Console.ReadLine().ToLower();
-                if (line == "?" || line == "？")
+                if (line == "?" || line == "？" || line=="ls")
                 {
                     ShowMenu();
                 }

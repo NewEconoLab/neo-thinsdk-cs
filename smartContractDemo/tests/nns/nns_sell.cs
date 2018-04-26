@@ -92,8 +92,12 @@ namespace smartContractDemo
 
             subPrintLine("calc=" + fullhash.ToString());
             var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + fullhash.ToString());
-            var owner = ThinNeo.Helper.GetAddressFromScriptHash(info.value.subItem[0].subItem[0].AsHash160());
-            subPrintLine("getinfo owner=" + owner);
+            var sh = info.value.subItem[0].subItem[0].AsHash160();
+            if (sh != null)
+            {
+                var owner = ThinNeo.Helper.GetAddressFromScriptHash(sh);
+                subPrintLine("getinfo owner=" + owner);
+            }
             subPrintLine("getinfo register=" + info.value.subItem[0].subItem[1].AsHash160());
             subPrintLine("getinfo resovler=" + info.value.subItem[0].subItem[2].AsHash160());
             subPrintLine("getinfo ttl=" + info.value.subItem[0].subItem[3].AsInteger());
@@ -205,7 +209,7 @@ namespace smartContractDemo
 
             byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nns_common.testwif);
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
-            var who = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);  
+            var who = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
             var result = await nns_common.api_SendTransaction(prikey, reg_sc, "addPrice",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString(),//参数2 交易id
@@ -320,7 +324,7 @@ namespace smartContractDemo
             {
 
                 var line = Console.ReadLine().Replace(" ", "").ToLower();
-                if (line == "?" || line == "？")
+                if (line == "?" || line == "？" || line=="ls")
                 {
                     showMenu();
                 }
@@ -328,7 +332,7 @@ namespace smartContractDemo
                 {
                     continue;
                 }
-                else if (line == "0")
+                else if (line == "0" || line == "cd ..")
                 {
                     return;
                 }
