@@ -205,7 +205,7 @@ namespace smartContractDemo
 
             byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nns_common.testwif);
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
-            var who = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
+            var who = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);  
             var result = await nns_common.api_SendTransaction(prikey, reg_sc, "addPrice",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString(),//参数2 交易id

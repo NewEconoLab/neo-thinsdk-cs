@@ -73,8 +73,6 @@ namespace smartContractDemo
                 var idata = new ThinNeo.InvokeTransData();
                 tran.extdata = idata;
                 idata.script = script;
-
-
             }
             //sign and broadcast
             var signdata = ThinNeo.Helper.Sign(tran.GetMessage(), prikey);
