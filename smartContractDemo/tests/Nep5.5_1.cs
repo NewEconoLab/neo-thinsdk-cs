@@ -18,7 +18,8 @@ namespace smartContractDemo
         //public const string nep55 = "0x35fb9eb15370b54d6c14abf3272c2a0ffc5c79a0";//gas 55 第八版
         //public const string nep55 = "0x219fb2735bcf4f77a7240c446261402ab594c3e9";//gas 55 第九版
         public const string nep55 = "0xc6a306ac02c31e5764cde34dc63c74b4a988c2a0";//gas 55 第十版
-      
+        //public const string nep55 = "0x5926cd4991b2a946b87c3b02da8b89d86ea7023b";//gas 55 第十一版
+
         public const string testwif = "L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";
 
         public static ThinNeo.Hash256 lastNep5Tran;
