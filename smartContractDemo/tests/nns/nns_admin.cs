@@ -37,7 +37,7 @@ namespace smartContractDemo
         }
         #endregion
         #region testarea
-        string domaincenterhash = "0x2b881a0998cb8e91783b8d671e0f0f42adf4840f";
+        string domaincenterhash = "0x1ff70bb2147cf56c8b1ce0eb09323eb2b3f57916";
         async Task test_setjumptarget()
         {
             var target = new ThinNeo.Hash160(domaincenterhash);
