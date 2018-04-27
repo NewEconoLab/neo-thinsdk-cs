@@ -19,8 +19,9 @@ namespace smartContractDemo
         private string root = "sell";
         private string testkey = nns_common.testwif;
         private byte[] pubkey;
+        private byte[] prikey;
         private string address = "";
-        private string scriptHash = "";
+        private Hash160 scriptHash;
         void subPrintLine(string line)
         {
             Console.WriteLine("    " + line);
@@ -32,15 +33,15 @@ namespace smartContractDemo
         }
         private void initAccount()
         {
-            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(this.testkey);
-            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
-            this.scriptHash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey).ToString();
+            this.prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(this.testkey);
+            this.pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
+            this.scriptHash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
             this.address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
             Console.WriteLine("\n************************************* -- Current Account -- **************************************\n");
             subPrintLine("Address    : " + this.address);
             subPrintLine("Prikey     : " + ThinNeo.Helper.Bytes2HexString(prikey));
             subPrintLine("Pubkey     : " + ThinNeo.Helper.Bytes2HexString(pubkey));
-            subPrintLine("ScriptHash : " + this.scriptHash);
+            subPrintLine("ScriptHash : " + this.scriptHash.ToString());
             Console.WriteLine("\n**************************************************************************************************\n");
         }
 
@@ -79,7 +80,7 @@ namespace smartContractDemo
         }
         async Task test_get_xxx_sell_info()
         {
-            subPrintLine("get [xxx].test 's info:input xxx:");
+            subPrintLine("get [xxx]."+this.root+" 's info:input xxx:");
             var subname = Console.ReadLine();
 
             var r_test = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)" + this.root);
@@ -148,14 +149,19 @@ namespace smartContractDemo
             subPrintLine("getSellingStateByFullhash endBlock=" + info3.value.subItem[0].subItem[6].AsInteger());
 
             subPrintLine("getSellingStateByFullhash maxPrice=" + info3.value.subItem[0].subItem[7].AsInteger());
-            var addr = ThinNeo.Helper.GetAddressFromScriptHash(info3.value.subItem[0].subItem[8].AsHash160());
-            subPrintLine("getSellingStateByFullhash maxBuyer=" + addr);
+            //var addr_hash = ;
+            //if(addr_hash !=null)
+            //{
+            //var addr = ThinNeo.Helper.GetAddressFromScriptHash(addr_hash.AsHash160());
+            subPrintLine("getSellingStateByFullhash maxBuyer=" + info3.value.subItem[0].subItem[8].AsHash160());
+            //}
+
             subPrintLine("getSellingStateByFullhash lastBlock=" + info3.value.subItem[0].subItem[9].AsInteger());
 
             var id = info3.value.subItem[0].subItem[0].AsHash256();
 
 
-            var who = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
+            var who = this.scriptHash;
             var info4 = await nns_common.api_InvokeScript(reg_sc, "balanceOf",
                "(hex160)" + who.ToString());
             subPrintLine("balanceOf=" + info4.value.subItem[0].AsInteger());
@@ -180,9 +186,8 @@ namespace smartContractDemo
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
 
-            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nns_common.testwif);
-            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
-            var who = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
+
+            var who = this.scriptHash;
             var result = await nns_common.api_SendTransaction(prikey, reg_sc, "wantBuy",
                 "(hex160)" + who.ToString(),
                 "(hex256)" + roothash.ToString(),
@@ -195,7 +200,6 @@ namespace smartContractDemo
             subPrintLine("addprice 10 for [xxx]." + this.root + ".  input xxx:");
             var subname = Console.ReadLine();
 
-
             var roothash = nns_common.nameHash(this.root);
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
@@ -203,14 +207,13 @@ namespace smartContractDemo
             var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
+
             //得到拍卖ID
             var info3 = await nns_common.api_InvokeScript(reg_sc, "getSellingStateByFullhash", "(hex256)" + fullhash.ToString());
             var id = info3.value.subItem[0].subItem[0].AsHash256();
+            var who = this.scriptHash;
 
-            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nns_common.testwif);
-            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
-            var who = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
-            var result = await nns_common.api_SendTransaction(prikey, reg_sc, "addPrice",
+            var result = await nns_common.api_SendTransaction(this.prikey, reg_sc, "addPrice",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString(),//参数2 交易id
           "(int)1000000000"//参数3，加价多少
@@ -230,13 +233,13 @@ namespace smartContractDemo
             var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
+
             //得到拍卖ID
             var info3 = await nns_common.api_InvokeScript(reg_sc, "getSellingStateByFullhash", "(hex256)" + fullhash.ToString());
             var id = info3.value.subItem[0].subItem[0].AsHash256();
 
-            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nns_common.testwif);
-            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
-            var who = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
+
+            var who = this.scriptHash;
             var result = await nns_common.api_SendTransaction(prikey, reg_sc, "endSelling",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString()//参数2 交易id
@@ -247,7 +250,6 @@ namespace smartContractDemo
         {
             subPrintLine("get [xxx]." + this.root + " domain.  input xxx:");
             var subname = Console.ReadLine();
-
 
             var roothash = nns_common.nameHash(this.root);
             var fullhash = nns_common.nameHashSub(roothash, subname);
@@ -260,9 +262,8 @@ namespace smartContractDemo
             var info3 = await nns_common.api_InvokeScript(reg_sc, "getSellingStateByFullhash", "(hex256)" + fullhash.ToString());
             var id = info3.value.subItem[0].subItem[0].AsHash256();
 
-            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nns_common.testwif);
-            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
-            var who = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
+
+            var who = this.scriptHash;
             var result = await nns_common.api_SendTransaction(prikey, reg_sc, "getSellingDomain",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString()//参数2 交易id
@@ -272,9 +273,8 @@ namespace smartContractDemo
 
         async Task test_getbalanceof()
         {
-            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nns_common.testwif);
-            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
-            var who = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
+
+            var who = this.scriptHash;
 
             var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash("sell").ToString());
             var _result = info.value.subItem[0];
@@ -324,7 +324,7 @@ namespace smartContractDemo
             {
 
                 var line = Console.ReadLine().Replace(" ", "").ToLower();
-                if (line == "?" || line == "？" || line=="ls")
+                if (line == "?" || line == "？" || line == "ls")
                 {
                     showMenu();
                 }
