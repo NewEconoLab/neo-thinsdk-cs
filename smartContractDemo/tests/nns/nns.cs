@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ThinNeo;
+using static MyJson;
 
 namespace smartContractDemo
 {
@@ -134,7 +135,7 @@ namespace smartContractDemo
             string script = ThinNeo.Helper.Bytes2HexString(data);
 
             byte[] postdata;
-            var url = Helper.MakeRpcUrlPost(nnc_1.api, "invokescript", out postdata, new MyJson.JsonNode_ValueString(script));
+            var url = Helper.MakeRpcUrlPost(nnc_1.api_local, "invokescript", out postdata, new MyJson.JsonNode_ValueString(script));
             var text = await Helper.HttpPost(url, postdata);
             MyJson.JsonNode_Object json = MyJson.Parse(text) as MyJson.JsonNode_Object;
 
@@ -142,8 +143,7 @@ namespace smartContractDemo
             rest.textInfo = text;
             if (json.ContainsKey("result"))
             {
-
-                var result = json["result"].AsList()[0].AsDict()["stack"].AsList();
+                var result = (json["result"] as MyJson.JsonNode_Object)["stack"].AsList();
                 rest.value = ResultItem.FromJson("Array", result);
             }
             return rest;// subPrintLine("得到的结果是：" + result);
@@ -193,7 +193,7 @@ namespace smartContractDemo
             var trandata = tran.GetRawData();
             var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
             byte[] postdata;
-            var url = Helper.MakeRpcUrlPost(nnc_1.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
+            var url = Helper.MakeRpcUrlPost(nnc_1.api_local, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
             var result = await Helper.HttpPost(url, postdata);
             return result;
         }

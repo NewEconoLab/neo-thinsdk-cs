@@ -6,38 +6,54 @@ using ThinNeo;
 
 namespace smartContractDemo
 {
-    class nnc : ITest
+    class SGAS : ITest
     {
-        public string Name => "NNC NNC合约测试";
+        public string Name => "SGAS 合约测试";
 
-        public string ID => "nnc";
-        byte[] prikey;
-        public string address;
-        byte[] scripthash;
-        byte[] pubkey;
-        Hash160 reg_sc;//注册器合约地址
+        public string ID => "SGAS";
+
         public delegate Task testAction();
         public Dictionary<string, testAction> infos = null;// = new Dictionary<string, testAction>();
         string[] submenu;
+        private string testkey = nns_common.testwif;
+        private byte[] pubkey;
+        private byte[] prikey;
+        private string address = "";
+        public static readonly Hash160 sgas = new Hash160("0xbc0fdb1c1b84601a9c66594cb481b684b90e05bb");//sgas 合约地址
+        private Hash160 scriptHash;
 
         void subPrintLine(string line)
         {
             Console.WriteLine("    " + line);
         }
 
-        public nnc()
+        public SGAS()
         {
             this.initManu();
+        }
+
+        private void initAccount()
+        {
+            this.prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(this.testkey);
+            this.pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
+            this.scriptHash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
+            this.address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+            Console.WriteLine("\n************************************* -- Current Account -- **************************************\n");
+            subPrintLine("Address    : " + this.address);
+            subPrintLine("Prikey     : " + ThinNeo.Helper.Bytes2HexString(prikey));
+            subPrintLine("Pubkey     : " + ThinNeo.Helper.Bytes2HexString(pubkey));
+            subPrintLine("ScriptHash : " + this.scriptHash.ToString());
+            Console.WriteLine("\n**************************************************************************************************\n");
         }
 
         private void initManu()
         {
             infos = new Dictionary<string, testAction>();
 
-            infos["totalSupply"] = test_not_implement_yet;
-            infos["name"] = test_not_implement_yet;
-            infos["symbol"] = test_not_implement_yet;
-            infos["decimals"] = test_not_implement_yet;
+            infos["totalSupply"] = test_totalSupply;
+            infos["name"] = test_name;
+            infos["symbol"] = test_symbol;
+            infos["decimals"] = test_decimals;
             infos["balanceOf"] = test_BalanceOf;
             infos["transfer"] = test_Transfer;
             infos["transfer_app"] = test_not_implement_yet;
@@ -52,21 +68,15 @@ namespace smartContractDemo
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
 
-        public delegate void Method(ThinNeo.ScriptBuilder sb);//第一步：定义委托类型
 
         public async Task Demo()
         {
-            //得到注册器
-            var info_reg = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash("sell").ToString());
-            this.reg_sc = new Hash160(info_reg.value.subItem[0].subItem[1].data);
-            Console.WriteLine("reg=" + reg_sc.ToString());
-
             showMenu();
 
             prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nnc_1.testwif);
             pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
-            scripthash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
+            scriptHash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
 
             while (true)
             {
@@ -117,14 +127,49 @@ namespace smartContractDemo
             subPrintLine("尚未实现");
         }
 
+        #region nep5标准接口
+
+        async Task test_totalSupply()
+        {
+            subPrintLine("Get Total Supply for " + this.ID + ":");
+
+            var result = await nns_common.api_InvokeScript(sgas, "totalSupply");
+            subPrintLine("Total Supply : " + result.value.subItem[0].AsInteger());
+        }
+
+        async Task test_name()
+        {
+            subPrintLine("Get Name for " + this.ID + ":");
+
+            var result = await nns_common.api_InvokeScript(sgas, "name");
+            subPrintLine("Name : " + result.value.subItem[0].AsString());
+        }
+
+        async Task test_symbol()
+        {
+            subPrintLine("Get Symbol for " + this.ID + ":");
+
+            var result = await nns_common.api_InvokeScript(sgas, "symbol");
+            subPrintLine("Symbol : " + result.value.subItem[0].AsString());
+        }
+
+        async Task test_decimals()
+        {
+            subPrintLine("Get decimals for " + this.ID + ":");
+
+            var result = await nns_common.api_InvokeScript(sgas, "decimals");
+            subPrintLine("decimals : " + result.value.subItem[0].AsInteger());
+        }
+
+
         async Task test_BalanceOf()
         {
-            Console.WriteLine("Input target address (" + this.address + "):");
+            Console.WriteLine("    Input target address (" + this.address + "):");
             string addr;
             try
             {
                 addr = Console.ReadLine();
-                if (addr == "\n")
+                if (addr.Length < 34)
                 {
                     addr = this.address;
                 }
@@ -137,10 +182,31 @@ namespace smartContractDemo
             byte[] hash = ThinNeo.Helper.GetPublicKeyHashFromAddress(addr);
             string strhash = ThinNeo.Helper.Bytes2HexString(hash);
 
-            ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc_1.sc_nnc);
-            var result = await nns_common.api_InvokeScript(shash, "balanceOf", "(bytes)" + strhash);
-            //subPrintLine(result);
+            var result = await nns_common.api_InvokeScript(sgas, "balanceOf", "(bytes)" + strhash);
+            Console.Write("    Balance of ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write(addr);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(" = "+result.value.subItem[0].AsInteger() + "");
         }
+
+        async Task test_Transfer()
+        {
+            Console.WriteLine("Input target address:");
+            string addressto = Console.ReadLine();
+            Console.WriteLine("Input amount:");
+            string amount = Console.ReadLine();
+
+            var result = await nns_common.api_SendTransaction(prikey, sgas, "transfer",
+              "(addr)" + address,
+              "(addr)" + addressto,
+              "(int)" + amount
+              );
+            subPrintLine(result);
+        }
+
+        #endregion
+
 
         async Task test_NewBonus()
         {
@@ -156,33 +222,18 @@ namespace smartContractDemo
         {
             ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc_1.sc_nnc);
 
-            var result = await nns_common.api_SendTransaction(shash, prikey, "getBonus", "(bytes)" + ThinNeo.Helper.Bytes2HexString(scripthash));
+            var result = await nns_common.api_SendTransaction(shash, prikey, "getBonus", "(bytes)" + ThinNeo.Helper.Bytes2HexString(scriptHash));
             subPrintLine(result);
         }
 
         async Task test_CheckBonus()
         {
             ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc_1.sc_nnc);
-            var result = await nns_common.api_InvokeScript(shash, "checkBonus", "(bytes)" + ThinNeo.Helper.Bytes2HexString(scripthash));
+            var result = await nns_common.api_InvokeScript(shash, "checkBonus", "(bytes)" + ThinNeo.Helper.Bytes2HexString(scriptHash));
             //subPrintLine(result);
         }
 
-        async Task test_Transfer()
-        {
-            Console.WriteLine("Input target address:");
-            string addressto = Console.ReadLine();
-            Console.WriteLine("Input amount:");
-            string amount = Console.ReadLine();
-
-            ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc_1.sc_nnc);
-
-            var result = await nns_common.api_SendTransaction(prikey, shash, "transfer",
-              "(int)" + amount,
-              "(addr)" + addressto,
-              "(addr)" + address
-              );
-            subPrintLine(result);
-        }
+       
 
     }
 

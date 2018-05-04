@@ -44,7 +44,7 @@ namespace smartContractDemo
             RegTest(new nnc_4());
             RegTest(new Tran_1());
             RegTest(new Tran_2());
-            RegTest(new nnc());
+            RegTest(new SGAS());
             RegTest(new nns_admin());
             RegTest(new nns_user());
             RegTest(new nns_sell());

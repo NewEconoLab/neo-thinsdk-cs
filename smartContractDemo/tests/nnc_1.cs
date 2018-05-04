@@ -16,6 +16,7 @@ namespace smartContractDemo
         //public const string sc_sell = "0x0989dfa7a767857f35711eb6afa0e4091643bbd1";//注册器合约地址
 
         public const string api = "https://api.nel.group/api/testnet";
+        public const string api_local = "http://localhost:20332";
         public const string testwif = nns_common.testwif;//"L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";
         public async Task Demo()
         {
