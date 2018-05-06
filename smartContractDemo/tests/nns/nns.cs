@@ -177,8 +177,51 @@ namespace smartContractDemo
                     sb.EmitPushString(methodname);
                     sb.EmitAppCall(schash);
                     data = sb.ToArray();
+                    Console.WriteLine(ThinNeo.Helper.Bytes2HexString(data));
                 }
 
+                tran = Helper.makeTran(dir[Nep55_1.id_GAS], null, new ThinNeo.Hash256(Nep55_1.id_GAS), 0);
+                tran.type = ThinNeo.TransactionType.InvocationTransaction;
+                var idata = new ThinNeo.InvokeTransData();
+                tran.extdata = idata;
+                idata.script = data;
+                idata.gas = 0;
+            }
+
+            //sign and broadcast
+            var signdata = ThinNeo.Helper.Sign(tran.GetMessage(), prikey);
+            tran.AddWitness(signdata, pubkey, address);
+            var trandata = tran.GetRawData();
+            var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
+            byte[] postdata;
+            var url = Helper.MakeRpcUrlPost(nnc_1.api_local, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
+            var result = await Helper.HttpPost(url, postdata);
+            return result;
+        }
+
+        /// <summary>
+        /// 重载交易构造方法，对于复杂交易传入脚本
+        /// </summary>
+        /// <param name="prikey">私钥</param>
+        /// <param name="script">交易脚本</param>
+        /// <returns></returns>
+        public static async Task<string> api_SendTransaction(byte[] prikey, byte[] script)
+        {
+            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
+            string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+
+            //获取地址的资产列表
+              Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(nnc_1.api, address);
+            if (dir.ContainsKey(Nep55_1.id_GAS) == false)
+            {
+                Console.WriteLine("no gas");
+                return null;
+            }
+            //MakeTran
+            ThinNeo.Transaction tran = null;
+            {
+
+                byte[] data = script;
                 tran = Helper.makeTran(dir[Nep55_1.id_GAS], null, new ThinNeo.Hash256(Nep55_1.id_GAS), 0);
                 tran.type = ThinNeo.TransactionType.InvocationTransaction;
                 var idata = new ThinNeo.InvokeTransData();

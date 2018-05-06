@@ -79,8 +79,8 @@ namespace smartContractDemo
             tran.AddWitness(signdata, pubkey, address);
             var trandata = tran.GetRawData();
             var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
-            byte[] postdata;
-            var url = Helper.MakeRpcUrlPost(Nep55_1.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
+            byte[] postdata;//Nep55_1.api
+            var url = Helper.MakeRpcUrlPost(nnc_1.api_local, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
             var result = await Helper.HttpPost(url, postdata);
             Console.WriteLine("得到的结果是：" + result);
         }
