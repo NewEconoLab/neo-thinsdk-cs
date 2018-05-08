@@ -57,6 +57,7 @@ namespace smartContractDemo
             infos["switch root name"] = test_switch_root;
             infos["change wif key"] = test_change_key;
             infos["get address balanceof sell"] = test_getbalanceof;
+            infos["recharge reg"] = test_rechargeReg;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
 
@@ -116,28 +117,7 @@ namespace smartContractDemo
             var info2 = await nns_common.api_InvokeScript(reg_sc, "getDomainUseState", "(hex256)" + fullhash.ToString());
             subPrintLine("getDomainUseState=" + info2.value.subItem[0].AsInteger());
 
-            //            public class SellingState
-            //{
-            //    public byte[] id; //拍卖id，就是拍卖生成的txid
-
-            //    public byte[] parenthash;//拍卖内容
-            //    public string domain;//拍卖内容
-            //    public BigInteger domainTTL;//域名的TTL，用这个信息来判断域名是否发生了变化
-
-            //    public BigInteger startBlockSelling;//开始销售块
-            //    //public int StartTime 算出
-            //    //step2time //算出
-            //    //rantime //算出
-            //    //endtime //算出
-            //    //最终领取时间 算出，如果超出最终领取时间没有领域名，就不让领了
-            //    public BigInteger startBlockRan;//当第一个在rantime~endtime之后出价的人，记录他出价的块
-            //    //从这个块开始，往后的每一个块出价都有一定几率直接结束
-            //    public BigInteger endBlock;//结束块
-
-            //    public BigInteger maxPrice;//最高出价
-            //    public byte[] maxBuyer;//最大出价者
-            //    public BigInteger lastBlock;//最后出价块
-            //}
+  
             var info3 = await nns_common.api_InvokeScript(reg_sc, "getSellingStateByFullhash", "(hex256)" + fullhash.ToString());
             subPrintLine("getSellingStateByFullhash id=" + info3.value.subItem[0].subItem[0].AsHash256());
             subPrintLine("getSellingStateByFullhash parenthash=" + info3.value.subItem[0].subItem[1].AsHash256());
@@ -276,12 +256,36 @@ namespace smartContractDemo
 
             var who = this.scriptHash;
 
-            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash("sell").ToString());
+            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(root).ToString());
             var _result = info.value.subItem[0];
             var sell_reg = _result.subItem[1].AsHash160();
 
             var r_abc_test = await nns_common.api_InvokeScript(sell_reg, "balanceOf", "(hex160)" + who.ToString());
-            subPrintLine("sell注册器里的余额:" + r_abc_test.value.subItem[0].AsInteger());
+            subPrintLine(root+"注册器里的余额:" + r_abc_test.value.subItem[0].AsInteger());
+        }
+        /// <summary>
+        /// 充值注册器
+        /// </summary>
+        /// <returns></returns>
+        async Task test_rechargeReg()
+        {
+            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(root).ToString());
+            var _result = info.value.subItem[0];
+            var sell_reg = _result.subItem[1].AsHash160();
+
+            string addressto = ThinNeo.Helper.GetAddressFromScriptHash(sell_reg);
+            Console.WriteLine("addressto=" + addressto);
+
+            Console.WriteLine("Input amount:");
+            string amount = Console.ReadLine();
+
+            var result = await nns_common.api_SendTransaction(prikey, SGAS.sgas, "transfer",
+              "(addr)" + address,
+              "(addr)" + addressto,
+              "(int)" + amount
+              );
+            subPrintLine(result);
+
         }
         async Task test_switch_root()
         {

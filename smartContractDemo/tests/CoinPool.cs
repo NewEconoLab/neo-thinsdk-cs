@@ -19,7 +19,7 @@ namespace smartContractDemo
         private byte[] pubkey;
         private byte[] prikey;
         private string address = "";
-        public static readonly Hash160 coinpool = new Hash160("0x0ea2fa310c7875fdb502f34ec674af560f8e6061");//coinpool 合约地址
+        public static readonly Hash160 coinpool = new Hash160("0x7ef0366e03dfda239981a41e20d25258b07fb19a");//coinpool 合约地址
         private Hash160 scriptHash;
 
         void subPrintLine(string line)
