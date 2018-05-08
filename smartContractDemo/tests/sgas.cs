@@ -63,8 +63,6 @@ namespace smartContractDemo
             infos["use_app"] = test_not_implement_yet;
             infos["getTXInfo"] = test_not_implement_yet;
             infos["getBonus"] = test_not_implement_yet;
-            infos["checkBonus"] = test_CheckBonus;
-            infos["newBonus"] = test_NewBonus;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
 
@@ -206,34 +204,6 @@ namespace smartContractDemo
         }
 
         #endregion
-
-
-        async Task test_NewBonus()
-        {
-            //var array = new MyJson.JsonNode_Array();
-            //array.AddArrayValue("(bytes)" + ThinNeo.Helper.Bytes2HexString(scripthash));
-            //sb.EmitParamJson(array);//参数倒序入
-            //sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)newBonus"));//参数倒序入
-            //ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc_1.sc_nnc);
-            //sb.EmitAppCall(shash);//nep5脚本
-        }
-
-        async Task test_GetBonus(ThinNeo.ScriptBuilder sb)
-        {
-            ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc_1.sc_nnc);
-
-            var result = await nns_common.api_SendTransaction(shash, prikey, "getBonus", "(bytes)" + ThinNeo.Helper.Bytes2HexString(scriptHash));
-            subPrintLine(result);
-        }
-
-        async Task test_CheckBonus()
-        {
-            ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc_1.sc_nnc);
-            var result = await nns_common.api_InvokeScript(shash, "checkBonus", "(bytes)" + ThinNeo.Helper.Bytes2HexString(scriptHash));
-            //subPrintLine(result);
-        }
-
-       
 
     }
 

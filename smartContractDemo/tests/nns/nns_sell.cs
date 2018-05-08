@@ -279,11 +279,33 @@ namespace smartContractDemo
             Console.WriteLine("Input amount:");
             string amount = Console.ReadLine();
 
-            var result = await nns_common.api_SendTransaction(prikey, SGAS.sgas, "transfer",
-              "(addr)" + address,
-              "(addr)" + addressto,
-              "(int)" + amount
-              );
+            byte[] script;
+            using (var sb = new ThinNeo.ScriptBuilder())
+            {
+                var array = new MyJson.JsonNode_Array();
+
+                array.AddArrayValue("(addr)" + address);//from
+                array.AddArrayValue("(addr)" + addressto);//to
+                array.AddArrayValue("(int)" + amount);//value
+                sb.EmitParamJson(array);//参数倒序入
+                sb.EmitPushString("transfer");//参数倒序入
+                ThinNeo.Hash160 shash = new ThinNeo.Hash160(SGAS.sgas);
+                sb.EmitAppCall(shash);//nep5脚本
+
+                ////这个方法是为了在同一笔交易中转账并充值
+                ////当然你也可以分为两笔交易
+                ////插入下述两条语句，能得到txid
+                sb.EmitSysCall("System.ExecutionEngine.GetScriptContainer");
+                sb.EmitSysCall("Neo.Transaction.GetHash");
+                //把TXID包进Array里
+                sb.EmitPushNumber(1);
+                sb.Emit(ThinNeo.VM.OpCode.PACK);
+                sb.EmitPushString("setmoneyin");
+                sb.EmitAppCall(sell_reg);
+                script = sb.ToArray();
+                Console.WriteLine(ThinNeo.Helper.Bytes2HexString(script));
+            }
+            var result = await nns_common.api_SendTransaction(prikey, script);
             subPrintLine(result);
 
         }

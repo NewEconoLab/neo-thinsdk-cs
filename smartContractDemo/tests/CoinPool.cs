@@ -52,6 +52,7 @@ namespace smartContractDemo
 
             infos["setSGASIn"] = test_setSGASIn;
             infos["countSGASOnBlock"] = test_countSGASOnBlock;
+            infos["test_pool"] = test_pool;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
 
@@ -114,7 +115,7 @@ namespace smartContractDemo
             subPrintLine("尚未实现");
         }
 
-        #region nep5标准接口
+        #region 接口
 
 
         async Task test_setSGASIn()
@@ -158,17 +159,22 @@ namespace smartContractDemo
         {
             subPrintLine("Get SGAS count for " + this.ID + ":");
 
-            Console.WriteLine("Input Height (" + 1439000 + "):");
+            Console.WriteLine("Input Height (" + 1459000 + "):");
             string heitht = Console.ReadLine();
             if (heitht.Length < 4)
             {
-                heitht = "1439000";
+                heitht = "1459000";
             }
             var result = await nns_common.api_InvokeScript(coinpool, "countSGASOnBlock", "(int)" + heitht);
             Console.Write("Count:");
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(result.value.subItem[0].AsInteger() + "");
             Console.ForegroundColor = ConsoleColor.White;
+        }
+        async Task test_pool()
+        {
+            var result = await nns_common.api_SendTransaction(prikey, new Hash160("0x1c14b9f24e3999ce46c3b0c64ab3f21d352c6754"), "test_pool");
+            subPrintLine(result);
         }
         #endregion
     }
