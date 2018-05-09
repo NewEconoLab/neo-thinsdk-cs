@@ -56,12 +56,10 @@ namespace smartContractDemo
             infos["balanceOf"] = test_BalanceOf;
             infos["transfer"] = test_Transfer;
             infos["transfer_app"] = test_not_implement_yet;
-            infos["deploy"] = test_not_implement_yet;
-            infos["balanceOfDetail"] = test_not_implement_yet;
-            infos["use"] = test_not_implement_yet;
-            infos["use_app"] = test_not_implement_yet;
             infos["getTXInfo"] = test_not_implement_yet;
-            infos["getBonus"] = test_not_implement_yet;
+            infos["mintTokens"] = test_mintTokens;
+            infos["refund"] = test_not_implement_yet;
+            infos["getRefundTarget"] = test_not_implement_yet;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
 
@@ -200,6 +198,61 @@ namespace smartContractDemo
               "(int)" + amount
               );
             subPrintLine(result);
+        }
+
+
+        async Task test_mintTokens()
+        {
+            Console.WriteLine("Input amount:");
+            string amount = Console.ReadLine();
+
+            //获取地址的资产列表
+            Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(Config.api, address);
+            if (dir.ContainsKey(Config.id_GAS )== false)
+            {
+                Console.WriteLine("no gas");
+                return;
+            }
+            ThinNeo.Transaction tran = null;
+            {
+                byte[] script = null;
+                using (var sb = new ThinNeo.ScriptBuilder())
+                {
+                    var array = new MyJson.JsonNode_Array();
+                    sb.EmitParamJson(array);//参数倒序入
+                    sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)mintTokens"));//参数倒序入
+                    ThinNeo.Hash160 shash = Config.dapp_sgas;
+                    sb.EmitAppCall(shash);//nep5脚本
+                    script = sb.ToArray();
+                }
+                var sgasScripthash = Config.dapp_sgas;
+                var targetaddr = ThinNeo.Helper.GetAddressFromScriptHash(sgasScripthash);
+                Console.WriteLine("contract address=" + targetaddr);//往合约地址转账
+
+                //生成交易
+                tran = Helper.makeTran(dir[Config.id_GAS], targetaddr, new ThinNeo.Hash256(Config.id_GAS), decimal.Parse(amount));
+                tran.type = ThinNeo.TransactionType.InvocationTransaction;
+                var idata = new ThinNeo.InvokeTransData();
+                tran.extdata = idata;
+                idata.script = script;
+
+                //sign and broadcast
+                var signdata = ThinNeo.Helper.Sign(tran.GetMessage(), prikey);
+                tran.AddWitness(signdata, pubkey, address);
+                var trandata = tran.GetRawData();
+                var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
+                byte[] postdata;
+                var url = Helper.MakeRpcUrlPost(Config.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
+                var result = await Helper.HttpPost(url, postdata);
+                Console.WriteLine("得到的结果是：" + result);
+                var json = MyJson.Parse(result).AsDict();
+                if (json.ContainsKey("result"))
+                {
+                    var resultv = json["result"].AsList()[0].AsDict();
+                    var txid = resultv["txid"].AsString();
+                    Console.WriteLine("txid=" + txid);
+                }
+            }
         }
 
         #endregion
