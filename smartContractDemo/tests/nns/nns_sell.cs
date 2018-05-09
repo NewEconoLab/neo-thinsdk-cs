@@ -17,7 +17,7 @@ namespace smartContractDemo
         public delegate Task testAction();
         public Dictionary<string, testAction> infos = null;// = new Dictionary<string, testAction>();
         string[] submenu;
-        private string root = "sell";
+        private string root = Config.root;
         private byte[] pubkey;
         private byte[] prikey;
         private string address = "";
@@ -48,7 +48,7 @@ namespace smartContractDemo
         private void initManu()
         {
             infos = new Dictionary<string, testAction>();
-            infos["get ." + this.root + " info"] = test_getsellinfo;
+            infos["get ." + this.root + " info"] = test_getRootinfo;
             infos["get [xxx]." + this.root + " info"] = test_get_xxx_sell_info;
             infos["wantbuy [xxx]." + this.root] = test_wantbuy_xxx_sell;
             infos["addprice 10 for [xxx]." + this.root] = test_addprice_xxx_sell;
@@ -56,14 +56,14 @@ namespace smartContractDemo
             infos["get [xxx]." + this.root + " domain"] = test_getsellingdomaain;//
             infos["switch root name"] = test_switch_root;
             infos["change wif key"] = test_change_key;
-            infos["get address balanceof sell"] = test_getbalanceof;
+            infos["get address balanceof "+this.root] = test_getbalanceof;
             infos["recharge reg"] = test_rechargeReg;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
 
         #endregion
         #region testarea
-        async Task test_getsellinfo()
+        async Task test_getRootinfo()
         {
             var r = await nns_common.api_InvokeScript(Config.sc_nns, "nameHash", "(string)" + this.root);
             subPrintLine("得到:" + new Hash256(r.value.subItem[0].data).ToString());
@@ -196,7 +196,7 @@ namespace smartContractDemo
             var result = await nns_common.api_SendTransaction(this.prikey, reg_sc, "addPrice",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString(),//参数2 交易id
-          "(int)1000000000"//参数3，加价多少
+          "(int)10"+"00000000"//参数3，加价多少
           );
             subPrintLine("result=" + result);
         }
@@ -278,6 +278,7 @@ namespace smartContractDemo
 
             Console.WriteLine("Input amount:");
             string amount = Console.ReadLine();
+            amount += "00000000";
 
             byte[] script;
             using (var sb = new ThinNeo.ScriptBuilder())
