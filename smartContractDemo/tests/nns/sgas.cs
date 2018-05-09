@@ -53,13 +53,14 @@ namespace smartContractDemo
             infos["name"] = test_name;
             infos["symbol"] = test_symbol;
             infos["decimals"] = test_decimals;
-            infos["balanceOf"] = test_BalanceOf;
+            infos["balanceOf 查询sgas的余额"] = test_BalanceOf;
             infos["transfer"] = test_Transfer;
             infos["transfer_app"] = test_not_implement_yet;
             infos["getTXInfo"] = test_not_implement_yet;
-            infos["mintTokens"] = test_mintTokens;
-            infos["refund"] = test_refund;
-            infos["getRefundTarget"] = test_not_implement_yet;
+            infos["mintTokens gas换取sgas"] = test_mintTokens;
+            infos["refund 退回gas"] = test_refund;
+            infos["getRefundTarget 标记给谁"] = test_getRefundTarget;
+            infos["balanceOfGas gas余额"] = test_balanceOfGas;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
 
@@ -159,7 +160,7 @@ namespace smartContractDemo
 
         async Task test_BalanceOf()
         {
-            Console.WriteLine("    Input target address (" + this.address + "):");
+            subPrintLine("    Input target address (" + this.address + "):");
             string addr;
             try
             {
@@ -182,14 +183,14 @@ namespace smartContractDemo
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write(addr);
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(" = "+result.value.subItem[0].AsInteger() + "");
+            subPrintLine(" = "+result.value.subItem[0].AsInteger() + "");
         }
 
         async Task test_Transfer()
         {
-            Console.WriteLine("Input target address:");
+            subPrintLine("Input target address:");
             string addressto = Console.ReadLine();
-            Console.WriteLine("Input amount:");
+            subPrintLine("Input amount:");
             string amount = Console.ReadLine();
 
             var result = await nns_common.api_SendTransaction(prikey, Config.dapp_sgas, "transfer",
@@ -206,7 +207,7 @@ namespace smartContractDemo
             decimal amount = 0;
             while (true)
             {
-                Console.WriteLine("Input amount:");
+                subPrintLine("Input amount:");
                 string str_amount = Console.ReadLine();
                 try
                 {
@@ -215,7 +216,7 @@ namespace smartContractDemo
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("input number");
+                    subPrintLine("input number");
                 }
             }
 
@@ -223,7 +224,7 @@ namespace smartContractDemo
             Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(Config.api, address);
             if (dir.ContainsKey(Config.id_GAS )== false)
             {
-                Console.WriteLine("no gas");
+                subPrintLine("no gas");
                 return;
             }
             ThinNeo.Transaction tran = null;
@@ -240,7 +241,7 @@ namespace smartContractDemo
                 }
                 var sgasScripthash = Config.dapp_sgas;
                 var targetaddr = ThinNeo.Helper.GetAddressFromScriptHash(sgasScripthash);
-                Console.WriteLine("contract address=" + targetaddr);//往合约地址转账
+                subPrintLine("contract address=" + targetaddr);//往合约地址转账
 
                 //生成交易
                 tran = Helper.makeTran(dir[Config.id_GAS], targetaddr, new ThinNeo.Hash256(Config.id_GAS), amount);
@@ -257,13 +258,13 @@ namespace smartContractDemo
                 byte[] postdata;
                 var url = Helper.MakeRpcUrlPost(Config.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
                 var result = await Helper.HttpPost(url, postdata);
-                Console.WriteLine("得到的结果是：" + result);
+                subPrintLine("得到的结果是：" + result);
                 var json = MyJson.Parse(result).AsDict();
                 if (json.ContainsKey("result"))
                 {
                     var resultv = json["result"].AsList()[0].AsDict();
                     var txid = resultv["txid"].AsString();
-                    Console.WriteLine("txid=" + txid);
+                    subPrintLine("txid=" + txid);
                 }
             }
         }
@@ -274,7 +275,7 @@ namespace smartContractDemo
             decimal amount = 0;
             while (true)
             {
-                Console.WriteLine("Input amount:");
+                subPrintLine("Input amount:");
                 string str_amount = Console.ReadLine();
                 try
                 {
@@ -283,7 +284,7 @@ namespace smartContractDemo
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("input number");
+                    subPrintLine("input number");
                 }
             }
 
@@ -293,7 +294,7 @@ namespace smartContractDemo
             Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(Config.api, sgas_address);
             if (dir.ContainsKey(Config.id_GAS) == false)
             {
-                Console.WriteLine("no gas");
+                subPrintLine("no gas");
                 return;
             }
             List<Utxo> newlist = new List<Utxo>(dir[Config.id_GAS]);
@@ -356,13 +357,13 @@ namespace smartContractDemo
 
             //sign and broadcast
             {//做智能合约的签名
-                byte[] n55contract = null;
+                byte[] sgasScript = null;
                 {
                     var urlgetscript = Helper.MakeRpcUrl(Config.api, "getcontractstate", new MyJson.JsonNode_ValueString(Config.dapp_sgas.ToString()));
                     var resultgetscript = await Helper.HttpGet(urlgetscript);
                     var _json = MyJson.Parse(resultgetscript).AsDict();
                     var _resultv = _json["result"].AsList()[0].AsDict();
-                    n55contract = ThinNeo.Helper.HexString2Bytes(_resultv["script"].AsString());
+                    sgasScript = ThinNeo.Helper.HexString2Bytes(_resultv["script"].AsString());
                 }
                 byte[] iscript = null;
                 using (var sb = new ThinNeo.ScriptBuilder())
@@ -371,7 +372,7 @@ namespace smartContractDemo
                     sb.EmitPushNumber(250);
                     iscript = sb.ToArray();
                 }
-                tran.AddWitnessScript(n55contract, iscript);
+                tran.AddWitnessScript(sgasScript, iscript);
             }
             {//做提款人的签名
                 var signdata = ThinNeo.Helper.Sign(tran.GetMessage(), prikey);
@@ -384,7 +385,7 @@ namespace smartContractDemo
             var url = Helper.MakeRpcUrlPost(Config.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
 
             var result = await Helper.HttpPost(url, postdata);
-            Console.WriteLine("得到的结果是：" + result);
+            subPrintLine("得到的结果是：" + result);
             var json = MyJson.Parse(result).AsDict();
             if (json.ContainsKey("result"))
             {
@@ -392,7 +393,7 @@ namespace smartContractDemo
                 if (json["result"].type == MyJson.jsontype.Value_Number)
                 {
                     bSucc = json["result"].AsBool();
-                    Console.WriteLine("cli=" + json["result"].ToString());
+                    subPrintLine("cli=" + json["result"].ToString());
                 }
                 else
                 {
@@ -426,7 +427,6 @@ namespace smartContractDemo
             }
         }
 
-
         private async void TranGas(List<Utxo> list,decimal value)
         {
             var tran = Helper.makeTran(list, address, new ThinNeo.Hash256(Config.id_GAS), value);
@@ -459,9 +459,49 @@ namespace smartContractDemo
             var url = Helper.MakeRpcUrlPost(Config.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
 
             var result = await Helper.HttpPost(url, postdata);
-            Console.WriteLine("得到的结果是：" + result);
+            subPrintLine("得到的结果是：" + result);
         }
 
+        private async Task test_getRefundTarget()
+        {
+            subPrintLine("Input txid:");
+            string txid = Console.ReadLine();
+
+            byte[] script = null;
+            using (var sb = new ThinNeo.ScriptBuilder())
+            {
+                var array = new MyJson.JsonNode_Array();
+                array.AddArrayValue("(hex256)" + txid);
+                sb.EmitParamJson(array);//参数倒序入
+                sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)getRefundTarget"));//参数倒序入
+                var shash = Config.dapp_sgas;
+                sb.EmitAppCall(shash);//nep5脚本
+                script = sb.ToArray();
+            }
+
+            var urlCheckUTXO = Helper.MakeRpcUrl(Config.api, "invokescript", new MyJson.JsonNode_ValueString(ThinNeo.Helper.Bytes2HexString(script)));
+            string resultCheckUTXO = await Helper.HttpGet(urlCheckUTXO);
+            var jsonCU = MyJson.Parse(resultCheckUTXO);
+            var stack = jsonCU.AsDict()["result"].AsList()[0].AsDict()["stack"].AsList()[0].AsDict();
+            var value =ThinNeo.Helper.HexString2Bytes(stack["value"].ToString());
+            subPrintLine("addr:"+ThinNeo.Helper.GetAddressFromScriptHash(value));
+        }
+
+        private async Task test_balanceOfGas()
+        {
+            var url = Helper.MakeRpcUrl(Config.api, "getbalance", new MyJson.JsonNode_ValueString(address));
+            string result = await Helper.HttpGet(url);
+
+            Console.WriteLine("得到的结果是：" + result);
+            var json = MyJson.Parse(result).AsDict()["result"].AsList();
+            foreach (var item in json)
+            {
+                if (item.AsDict()["asset"].AsString() == Config.id_GAS)
+                {
+                    Console.WriteLine("gas=" + item.AsDict()["balance"].ToString());
+                }
+            }
+        }
         #endregion
 
     }
