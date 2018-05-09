@@ -23,7 +23,7 @@ namespace smartContractDemo
         //public const string testwif = "L4ZntdDCocMJi4ozpTw4uTtxtAFNNCP2mX6m3P9CMJN66Dt2YJqP";//"L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";
         public async Task Demo()
         {
-            this.prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nns_common.testwif);
+            this.prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(Config.test_wif);
             this.pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             this.address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
             this.scriptHash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);

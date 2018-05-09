@@ -61,7 +61,7 @@ namespace smartContractDemo
         {
             showMenu();
 
-            prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nnc_1.testwif);
+            prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(Config.test_wif);
             pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
             scriptHash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);

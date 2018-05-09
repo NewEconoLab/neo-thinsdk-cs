@@ -15,7 +15,7 @@ namespace smartContractDemo
 
         public async Task Demo()
         {
-            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nnc_1.testwif);
+            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(Config.test_wif);
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
             byte[] scripthash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);

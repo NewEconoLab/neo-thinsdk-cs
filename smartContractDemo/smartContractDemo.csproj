@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="tests\Nep5.5_1.cs" />
+    <None Include="tests\others\Nep5.5_1.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\llvm\llvm.csproj" />

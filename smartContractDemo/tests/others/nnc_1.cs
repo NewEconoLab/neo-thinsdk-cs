@@ -18,7 +18,7 @@ namespace smartContractDemo
 
         public const string api = "https://api.nel.group/api/testnet";
         public const string api_local = "http://localhost:20332";
-        public const string testwif = nns_common.testwif;//"L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";
+        public  string testwif = Config.test_wif;//"L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";
         public async Task Demo()
         {
             byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);

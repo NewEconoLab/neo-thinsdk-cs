@@ -116,8 +116,8 @@ namespace smartContractDemo
             var subname = readline[0];
             var rootname = readline[1];
 
-            string testwif = nnc_1.testwif;
-            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);
+   
+            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(Config.test_wif);
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             Hash160 hash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
 
@@ -137,9 +137,8 @@ namespace smartContractDemo
             var readline = Console.ReadLine().Split(".");
             var subname = readline[0];
             var rootname = readline[1];
-
-            string testwif = nnc_1.testwif;
-            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);
+            
+            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(Config.test_wif);
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             Hash160 hash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
 
@@ -169,8 +168,8 @@ namespace smartContractDemo
             subPrintLine("resolver=" + resolver.ToString());
 
             var owner = new Hash160(_result.value.subItem[0].subItem[0].data);
-            string testwif = nnc_1.testwif;
-            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(testwif);
+            //string testwif = nnc_1.testwif;
+            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(Config.test_wif);
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             Hash160 hash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
             if (owner.Equals(hash) == false)
