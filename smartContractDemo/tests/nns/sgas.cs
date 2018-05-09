@@ -1,4 +1,5 @@
-﻿using System;
+﻿using smartContractDemo.tests;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -6,20 +7,18 @@ using ThinNeo;
 
 namespace smartContractDemo
 {
-    class CoinPool : ITest
+    class SGAS : ITest
     {
-        public string Name => "CoinPool 合约测试";
+        public string Name => "SGAS 合约测试";
 
-        public string ID => "CoinPool";
+        public string ID => "SGAS";
 
         public delegate Task testAction();
         public Dictionary<string, testAction> infos = null;// = new Dictionary<string, testAction>();
         string[] submenu;
-        private string testkey = nns_common.testwif;
         private byte[] pubkey;
         private byte[] prikey;
         private string address = "";
-        public static readonly Hash160 coinpool = new Hash160("0x7ef0366e03dfda239981a41e20d25258b07fb19a");//coinpool 合约地址
         private Hash160 scriptHash;
 
         void subPrintLine(string line)
@@ -27,14 +26,14 @@ namespace smartContractDemo
             Console.WriteLine("    " + line);
         }
 
-        public CoinPool()
+        public SGAS()
         {
             this.initManu();
         }
 
         private void initAccount()
         {
-            this.prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(this.testkey);
+            this.prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(Config.test_wif);
             this.pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             this.scriptHash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
             this.address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
@@ -50,9 +49,19 @@ namespace smartContractDemo
         {
             infos = new Dictionary<string, testAction>();
 
-            infos["setSGASIn"] = test_setSGASIn;
-            infos["countSGASOnBlock"] = test_countSGASOnBlock;
-            infos["test_pool"] = test_pool;
+            infos["totalSupply"] = test_totalSupply;
+            infos["name"] = test_name;
+            infos["symbol"] = test_symbol;
+            infos["decimals"] = test_decimals;
+            infos["balanceOf"] = test_BalanceOf;
+            infos["transfer"] = test_Transfer;
+            infos["transfer_app"] = test_not_implement_yet;
+            infos["deploy"] = test_not_implement_yet;
+            infos["balanceOfDetail"] = test_not_implement_yet;
+            infos["use"] = test_not_implement_yet;
+            infos["use_app"] = test_not_implement_yet;
+            infos["getTXInfo"] = test_not_implement_yet;
+            infos["getBonus"] = test_not_implement_yet;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
 
@@ -61,7 +70,7 @@ namespace smartContractDemo
         {
             showMenu();
 
-            prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(nnc_1.testwif);
+            prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(Config.test_wif);
             pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
             scriptHash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
@@ -115,68 +124,86 @@ namespace smartContractDemo
             subPrintLine("尚未实现");
         }
 
-        #region 接口
+        #region nep5标准接口
 
-
-        async Task test_setSGASIn()
+        async Task test_totalSupply()
         {
-            string addressto = ThinNeo.Helper.GetAddressFromScriptHash(coinpool);
-            Console.WriteLine("addressto=" + addressto);
+            subPrintLine("Get Total Supply for " + this.ID + ":");
 
+            var result = await nns_common.api_InvokeScript(Config.dapp_sgas, "totalSupply");
+            subPrintLine("Total Supply : " + result.value.subItem[0].AsInteger());
+        }
+
+        async Task test_name()
+        {
+            subPrintLine("Get Name for " + this.ID + ":");
+
+            var result = await nns_common.api_InvokeScript(Config.dapp_sgas, "name");
+            subPrintLine("Name : " + result.value.subItem[0].AsString());
+        }
+
+        async Task test_symbol()
+        {
+            subPrintLine("Get Symbol for " + this.ID + ":");
+
+            var result = await nns_common.api_InvokeScript(Config.dapp_sgas, "symbol");
+            subPrintLine("Symbol : " + result.value.subItem[0].AsString());
+        }
+
+        async Task test_decimals()
+        {
+            subPrintLine("Get decimals for " + this.ID + ":");
+
+            var result = await nns_common.api_InvokeScript(Config.dapp_sgas, "decimals");
+            subPrintLine("decimals : " + result.value.subItem[0].AsInteger());
+        }
+
+
+        async Task test_BalanceOf()
+        {
+            Console.WriteLine("    Input target address (" + this.address + "):");
+            string addr;
+            try
+            {
+                addr = Console.ReadLine();
+                if (addr.Length < 34)
+                {
+                    addr = this.address;
+                }
+            }
+            catch (Exception e)
+            {
+                addr = this.address;
+            }
+
+            byte[] hash = ThinNeo.Helper.GetPublicKeyHashFromAddress(addr);
+            string strhash = ThinNeo.Helper.Bytes2HexString(hash);
+
+            var result = await nns_common.api_InvokeScript(Config.dapp_sgas, "balanceOf", "(bytes)" + strhash);
+            Console.Write("    Balance of ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write(addr);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(" = "+result.value.subItem[0].AsInteger() + "");
+        }
+
+        async Task test_Transfer()
+        {
+            Console.WriteLine("Input target address:");
+            string addressto = Console.ReadLine();
             Console.WriteLine("Input amount:");
             string amount = Console.ReadLine();
-            byte[] script;
-            using (var sb = new ThinNeo.ScriptBuilder())
-            {
-                var array = new MyJson.JsonNode_Array();
 
-                array.AddArrayValue("(addr)" + address);//from
-                array.AddArrayValue("(addr)" + addressto);//to
-                array.AddArrayValue("(int)" + amount);//value
-                sb.EmitParamJson(array);//参数倒序入
-                sb.EmitPushString("transfer");//参数倒序入
-                ThinNeo.Hash160 shash = new ThinNeo.Hash160(SGAS.sgas);
-                sb.EmitAppCall(shash);//nep5脚本
-
-                ////这个方法是为了在同一笔交易中转账并充值
-                ////当然你也可以分为两笔交易
-                ////插入下述两条语句，能得到txid
-                sb.EmitSysCall("System.ExecutionEngine.GetScriptContainer");
-                sb.EmitSysCall("Neo.Transaction.GetHash");
-                //把TXID包进Array里
-                sb.EmitPushNumber(1);
-                sb.Emit(ThinNeo.VM.OpCode.PACK);
-                sb.EmitPushString("setSGASIn");
-                sb.EmitAppCall(coinpool);
-                script = sb.ToArray();
-                Console.WriteLine(ThinNeo.Helper.Bytes2HexString(script));
-            }
-            var result = await nns_common.api_SendTransaction(prikey, script);
+            var result = await nns_common.api_SendTransaction(prikey, Config.dapp_sgas, "transfer",
+              "(addr)" + address,
+              "(addr)" + addressto,
+              "(int)" + amount
+              );
             subPrintLine(result);
         }
 
-        async Task test_countSGASOnBlock()
-        {
-            subPrintLine("Get SGAS count for " + this.ID + ":");
-
-            Console.WriteLine("Input Height (" + 1459000 + "):");
-            string heitht = Console.ReadLine();
-            if (heitht.Length < 4)
-            {
-                heitht = "1459000";
-            }
-            var result = await nns_common.api_InvokeScript(coinpool, "countSGASOnBlock", "(int)" + heitht);
-            Console.Write("Count:");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(result.value.subItem[0].AsInteger() + "");
-            Console.ForegroundColor = ConsoleColor.White;
-        }
-        async Task test_pool()
-        {
-            var result = await nns_common.api_SendTransaction(prikey, new Hash160("0x1c14b9f24e3999ce46c3b0c64ab3f21d352c6754"), "test_pool");
-            subPrintLine(result);
-        }
         #endregion
+
     }
 
 }

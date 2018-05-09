@@ -1,4 +1,5 @@
-﻿using System;
+﻿using smartContractDemo.tests;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,7 +42,7 @@ namespace smartContractDemo
         async Task test_setjumptarget()
         {
             var target = new ThinNeo.Hash160(domaincenterhash);
-            var result = await nns_common.api_SendTransaction(this.superadminprikey, nns_common.sc_nns, "_setTarget", "(hex160)" + target.ToString());
+            var result = await nns_common.api_SendTransaction(this.superadminprikey, Config.sc_nns, "_setTarget", "(hex160)" + target.ToString());
             subPrintLine("result=" + result);
         }
 
@@ -60,7 +61,7 @@ namespace smartContractDemo
             var reg = Console.ReadLine();
             reg = reg.Replace(" ", "");
             var sellregistor = new ThinNeo.Hash160(reg);
-            var result = await nns_common.api_SendTransaction(this.superadminprikey, nns_common.sc_nns,
+            var result = await nns_common.api_SendTransaction(this.superadminprikey, Config.sc_nns,
                 "initRoot",
                 "(str)"+root,//根域名的名字
                 "(hex160)" + sellregistor.ToString());
@@ -72,11 +73,11 @@ namespace smartContractDemo
         {
             subPrintLine("input root domain:");
             var root = Console.ReadLine();
-            var r = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)"+ root);
+            var r = await nns_common.api_InvokeScript(Config.sc_nns, "nameHash", "(string)"+ root);
             subPrintLine("得到:" + new Hash256(r.value.subItem[0].data).ToString());
             var mh = nns_common.nameHash(root);
             subPrintLine("calc=" + mh.ToString());
-            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + mh.ToString());
+            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + mh.ToString());
             subPrintLine("getinfo owner=" + ThinNeo.Helper.GetAddressFromScriptHash(info.value.subItem[0].subItem[0].AsHash160()));
             subPrintLine("getinfo register=" + info.value.subItem[0].subItem[1].AsHash160());
             subPrintLine("getinfo resovler=" + info.value.subItem[0].subItem[2].AsHash160());

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using smartContractDemo.tests;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,10 +11,7 @@ namespace smartContractDemo
 {
     public class nns_common
     {
-        public const string api = "https://api.nel.group/api/testnet";
-        public const string testwif = "L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";
-
-        public static readonly Hash160 sc_nns = new Hash160("0x954f285a93eed7b4aed9396a7806a5812f1a5950");//nns 合约地址
+        static string api = Config.api;//Config.api_local;
 
         public static readonly System.Security.Cryptography.SHA256 sha256 = System.Security.Cryptography.SHA256.Create();
 
@@ -135,7 +133,7 @@ namespace smartContractDemo
             string script = ThinNeo.Helper.Bytes2HexString(data);
 
             byte[] postdata;
-            var url = Helper.MakeRpcUrlPost(nnc_1.api_local, "invokescript", out postdata, new MyJson.JsonNode_ValueString(script));
+            var url = Helper.MakeRpcUrlPost(nns_common.api, "invokescript", out postdata, new MyJson.JsonNode_ValueString(script));
             var text = await Helper.HttpPost(url, postdata);
             MyJson.JsonNode_Object json = MyJson.Parse(text) as MyJson.JsonNode_Object;
 
@@ -151,21 +149,12 @@ namespace smartContractDemo
 
         public static async Task<string> api_SendTransaction(byte[] prikey, Hash160 schash, string methodname, params string[] subparam)
         {
-            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
-            string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
-
-            //获取地址的资产列表
-            Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(nnc_1.api, address);
-            if (dir.ContainsKey(Nep55_1.id_GAS) == false)
-            {
-                Console.WriteLine("no gas");
-                return null;
-            }
+            byte[] data = null;
             //MakeTran
             ThinNeo.Transaction tran = null;
             {
 
-                byte[] data = null;
+                
                 using (ScriptBuilder sb = new ScriptBuilder())
                 {
                     MyJson.JsonNode_Array array = new MyJson.JsonNode_Array();
@@ -179,25 +168,11 @@ namespace smartContractDemo
                     data = sb.ToArray();
                     Console.WriteLine(ThinNeo.Helper.Bytes2HexString(data));
                 }
-
-                tran = Helper.makeTran(dir[Nep55_1.id_GAS], null, new ThinNeo.Hash256(Nep55_1.id_GAS), 0);
-                tran.type = ThinNeo.TransactionType.InvocationTransaction;
-                var idata = new ThinNeo.InvokeTransData();
-                tran.extdata = idata;
-                idata.script = data;
-                idata.gas = 0;
             }
-
-            //sign and broadcast
-            var signdata = ThinNeo.Helper.Sign(tran.GetMessage(), prikey);
-            tran.AddWitness(signdata, pubkey, address);
-            var trandata = tran.GetRawData();
-            var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
-            byte[] postdata;
-            var url = Helper.MakeRpcUrlPost(nnc_1.api_local, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
-            var result = await Helper.HttpPost(url, postdata);
-            return result;
+           
+            return await nns_common.api_SendTransaction(prikey,data);
         }
+
 
         /// <summary>
         /// 重载交易构造方法，对于复杂交易传入脚本
@@ -236,10 +211,12 @@ namespace smartContractDemo
             var trandata = tran.GetRawData();
             var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
             byte[] postdata;
-            var url = Helper.MakeRpcUrlPost(nnc_1.api_local, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
+            var url = Helper.MakeRpcUrlPost(nns_common.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
             var result = await Helper.HttpPost(url, postdata);
             return result;
         }
+
+
         #endregion
 
     }

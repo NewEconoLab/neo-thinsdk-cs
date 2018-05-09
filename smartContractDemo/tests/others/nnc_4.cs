@@ -1,4 +1,5 @@
-﻿using System;
+﻿using smartContractDemo.tests;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,7 +32,7 @@ namespace smartContractDemo
             var fullhash = nns_common.nameHashSub(roothash, "helloworld");
 
             //得到注册器
-            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
+            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             Console.WriteLine("reg=" + reg_sc.ToString());
 

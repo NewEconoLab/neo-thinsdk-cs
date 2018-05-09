@@ -1,4 +1,5 @@
-﻿using System;
+﻿using smartContractDemo.tests;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -17,7 +18,6 @@ namespace smartContractDemo
         public Dictionary<string, testAction> infos = null;// = new Dictionary<string, testAction>();
         string[] submenu;
         private string root = "sell";
-        private string testkey = nns_common.testwif;
         private byte[] pubkey;
         private byte[] prikey;
         private string address = "";
@@ -33,7 +33,7 @@ namespace smartContractDemo
         }
         private void initAccount()
         {
-            this.prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(this.testkey);
+            this.prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(Config.test_wif);
             this.pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             this.scriptHash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
             this.address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
@@ -65,11 +65,11 @@ namespace smartContractDemo
         #region testarea
         async Task test_getsellinfo()
         {
-            var r = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)" + this.root);
+            var r = await nns_common.api_InvokeScript(Config.sc_nns, "nameHash", "(string)" + this.root);
             subPrintLine("得到:" + new Hash256(r.value.subItem[0].data).ToString());
             var mh = nns_common.nameHash(this.root);
             subPrintLine("calc=" + mh.ToString());
-            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + mh.ToString());
+            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + mh.ToString());
             subPrintLine("getinfo owner=" + info.value.subItem[0].subItem[0].AsHash160());
             subPrintLine("getinfo register=" + info.value.subItem[0].subItem[1].AsHash160());
             subPrintLine("getinfo resovler=" + info.value.subItem[0].subItem[2].AsHash160());
@@ -84,16 +84,16 @@ namespace smartContractDemo
             subPrintLine("get [xxx]."+this.root+" 's info:input xxx:");
             var subname = Console.ReadLine();
 
-            var r_test = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHash", "(string)" + this.root);
+            var r_test = await nns_common.api_InvokeScript(Config.sc_nns, "nameHash", "(string)" + this.root);
             var hash_test = r_test.value.subItem[0].AsHash256();
-            var r_abc_test = await nns_common.api_InvokeScript(nns_common.sc_nns, "nameHashSub", "(hex256)" + r_test.value.subItem[0].AsHash256().ToString(), "(string)" + subname);
+            var r_abc_test = await nns_common.api_InvokeScript(Config.sc_nns, "nameHashSub", "(hex256)" + r_test.value.subItem[0].AsHash256().ToString(), "(string)" + subname);
             subPrintLine("得到:" + r_abc_test.value.subItem[0].AsHash256());
 
             var roothash = nns_common.nameHash(this.root);
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             subPrintLine("calc=" + fullhash.ToString());
-            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + fullhash.ToString());
+            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + fullhash.ToString());
             var sh = info.value.subItem[0].subItem[0].AsHash160();
             if (sh != null)
             {
@@ -110,7 +110,7 @@ namespace smartContractDemo
             subPrintLine("getinfo root=" + info.value.subItem[0].subItem[7].AsInteger());
 
             //得到注册器
-            var info_reg = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
+            var info_reg = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info_reg.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
 
@@ -162,7 +162,7 @@ namespace smartContractDemo
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             //得到注册器
-            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
+            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
 
@@ -184,7 +184,7 @@ namespace smartContractDemo
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             //得到注册器
-            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
+            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
 
@@ -210,7 +210,7 @@ namespace smartContractDemo
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             //得到注册器
-            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
+            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
 
@@ -235,7 +235,7 @@ namespace smartContractDemo
             var fullhash = nns_common.nameHashSub(roothash, subname);
 
             //得到注册器
-            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
+            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
             //得到拍卖ID
@@ -256,7 +256,7 @@ namespace smartContractDemo
 
             var who = this.scriptHash;
 
-            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(root).ToString());
+            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(root).ToString());
             var _result = info.value.subItem[0];
             var sell_reg = _result.subItem[1].AsHash160();
 
@@ -269,7 +269,7 @@ namespace smartContractDemo
         /// <returns></returns>
         async Task test_rechargeReg()
         {
-            var info = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(root).ToString());
+            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(root).ToString());
             var _result = info.value.subItem[0];
             var sell_reg = _result.subItem[1].AsHash160();
 
@@ -289,8 +289,7 @@ namespace smartContractDemo
                 array.AddArrayValue("(int)" + amount);//value
                 sb.EmitParamJson(array);//参数倒序入
                 sb.EmitPushString("transfer");//参数倒序入
-                ThinNeo.Hash160 shash = new ThinNeo.Hash160(SGAS.sgas);
-                sb.EmitAppCall(shash);//nep5脚本
+                sb.EmitAppCall(Config.dapp_sgas);//nep5脚本
 
                 ////这个方法是为了在同一笔交易中转账并充值
                 ////当然你也可以分为两笔交易
@@ -301,7 +300,7 @@ namespace smartContractDemo
                 sb.EmitPushNumber(1);
                 sb.Emit(ThinNeo.VM.OpCode.PACK);
                 sb.EmitPushString("setmoneyin");
-                sb.EmitAppCall(sell_reg);
+                sb.EmitAppCall(Config.dapp_coinpool);
                 script = sb.ToArray();
                 Console.WriteLine(ThinNeo.Helper.Bytes2HexString(script));
             }
@@ -324,7 +323,7 @@ namespace smartContractDemo
             subPrintLine("input wif key:");
             var wif = Console.ReadLine();
 
-            this.testkey = wif;
+            Config.changeWif(wif);
             this.initAccount();
             this.initManu();
             this.showMenu();

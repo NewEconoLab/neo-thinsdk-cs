@@ -1,4 +1,5 @@
-﻿using System;
+﻿using smartContractDemo.tests;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace smartContractDemo
             byte[] scripthash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
 
             //得到注册器
-            var info_reg = await nns_common.api_InvokeScript(nns_common.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash("sell").ToString());
+            var info_reg = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash("sell").ToString());
             var reg_sc = new Hash160(info_reg.value.subItem[0].subItem[1].data);
             Console.WriteLine("reg=" + reg_sc.ToString());
 
