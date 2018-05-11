@@ -196,7 +196,7 @@ namespace smartContractDemo
             var result = await nns_common.api_SendTransaction(this.prikey, reg_sc, "addPrice",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString(),//参数2 交易id
-          "(int)10"+"00000000"//参数3，加价多少
+          "(int)1"+"00000000"//参数3，加价多少
           );
             subPrintLine("result=" + result);
         }
@@ -261,7 +261,9 @@ namespace smartContractDemo
             var sell_reg = _result.subItem[1].AsHash160();
 
             var r_abc_test = await nns_common.api_InvokeScript(sell_reg, "balanceOf", "(hex160)" + who.ToString());
-            subPrintLine(root+"注册器里的余额:" + r_abc_test.value.subItem[0].AsInteger());
+            var num = new System.Numerics.BigInteger(r_abc_test.value.subItem[0].data);
+            num = num / 100000000;
+            subPrintLine(root+"注册器里的余额:" + num);
         }
         /// <summary>
         /// 充值注册器
@@ -301,7 +303,7 @@ namespace smartContractDemo
                 sb.EmitPushNumber(1);
                 sb.Emit(ThinNeo.VM.OpCode.PACK);
                 sb.EmitPushString("setmoneyin");
-                sb.EmitAppCall(Config.dapp_coinpool);
+                sb.EmitAppCall(sell_reg);
                 script = sb.ToArray();
                 Console.WriteLine(ThinNeo.Helper.Bytes2HexString(script));
             }
