@@ -125,18 +125,10 @@ namespace smartContractDemo
             subPrintLine("getSellingStateByFullhash domainTTL=" + info3.value.subItem[0].subItem[3].AsInteger());
 
             subPrintLine("getSellingStateByFullhash startBlockSelling=" + info3.value.subItem[0].subItem[4].AsInteger());
-            subPrintLine("getSellingStateByFullhash startBlockRan=" + info3.value.subItem[0].subItem[5].AsInteger());
-            subPrintLine("getSellingStateByFullhash endBlock=" + info3.value.subItem[0].subItem[6].AsInteger());
-
-            subPrintLine("getSellingStateByFullhash maxPrice=" + info3.value.subItem[0].subItem[7].AsInteger());
-            //var addr_hash = ;
-            //if(addr_hash !=null)
-            //{
-            //var addr = ThinNeo.Helper.GetAddressFromScriptHash(addr_hash.AsHash160());
-            subPrintLine("getSellingStateByFullhash maxBuyer=" + info3.value.subItem[0].subItem[8].AsHash160());
-            //}
-
-            subPrintLine("getSellingStateByFullhash lastBlock=" + info3.value.subItem[0].subItem[9].AsInteger());
+            subPrintLine("getSellingStateByFullhash endBlock=" + info3.value.subItem[0].subItem[5].AsInteger());
+            subPrintLine("getSellingStateByFullhash maxPrice=" + info3.value.subItem[0].subItem[6].AsInteger());
+            subPrintLine("getSellingStateByFullhash maxBuyer=" + ThinNeo.Helper.GetAddressFromScriptHash(info3.value.subItem[0].subItem[7].AsHash160()));
+            subPrintLine("getSellingStateByFullhash lastBlock=" + info3.value.subItem[0].subItem[8].AsInteger());
 
             var id = info3.value.subItem[0].subItem[0].AsHash256();
 
