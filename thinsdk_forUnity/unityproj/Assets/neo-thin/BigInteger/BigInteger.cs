@@ -31,7 +31,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using BigMath.Utils;
-
+using System.Linq;
 namespace BigMath.Numerics
 {
 	/// <summary>
@@ -361,7 +361,9 @@ namespace BigMath.Numerics
 
 		public BigInteger(byte[] bytes, int offset, int length)
 		{
-			if (length == 0)
+            bytes = bytes.Reverse().ToArray();
+
+            if (length == 0)
 			{
 				throw new FormatException("Zero length BigInteger");
 			}
@@ -420,7 +422,9 @@ namespace BigMath.Numerics
 
 		public BigInteger(int sign, byte[] bytes, int offset, int length)
 		{
-			if (sign < -1 || sign > 1)
+            bytes = bytes.Reverse().ToArray();
+
+            if (sign < -1 || sign > 1)
 			{
 				throw new FormatException("Invalid sign value");
 			}
@@ -647,7 +651,7 @@ namespace BigMath.Numerics
 		///     Initializes a new instance of the <see cref="BigInteger" /> struct.
 		/// </summary>
 		/// <param name="value">The value.</param>
-		public BigInteger(ulong value) : this(value.ToBytes(false))
+		public BigInteger(ulong value) : this(value.ToBytes(true))
 		{
 		}
 
@@ -663,7 +667,7 @@ namespace BigMath.Numerics
 		///     Initializes a new instance of the <see cref="BigInteger" /> struct.
 		/// </summary>
 		/// <param name="value">The value.</param>
-		public BigInteger(Int128 value) : this(value.ToBytes(false))
+		public BigInteger(Int128 value) : this(value.ToBytes(true))
 		{
 		}
 
@@ -671,7 +675,7 @@ namespace BigMath.Numerics
 		///     Initializes a new instance of the <see cref="BigInteger" /> struct.
 		/// </summary>
 		/// <param name="value">The value.</param>
-		public BigInteger(Int256 value) : this(value.ToBytes(false))
+		public BigInteger(Int256 value) : this(value.ToBytes(true))
 		{
 		}
 		#endregion
@@ -3688,7 +3692,7 @@ namespace BigMath.Numerics
 				}
 			}
 
-			return bytes;
+			return bytes.Reverse().ToArray();
 		}
 
 		public override string ToString()
