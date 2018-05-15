@@ -52,6 +52,7 @@ namespace smartContractDemo
 
             infos["setSGASIn"] = test_setSGASIn;
             infos["countSGASOnBlock"] = test_countSGASOnBlock;
+            infos["claim"] = test_claim;
             infos["test_pool"] = test_pool;
             infos["test_nep2"] = test_helper;
             this.submenu = new List<string>(infos.Keys).ToArray();
@@ -170,6 +171,82 @@ namespace smartContractDemo
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(result.value.subItem[0].AsInteger() + "");
             Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        async Task test_claim()
+        {
+            var txid = ""; //产生utxo的txid
+            var n = 1; //utxo 在txid vout中的index
+            subPrintLine("Input txid:");
+            txid = Console.ReadLine();
+            subPrintLine("Input n:");
+            string str_n = Console.ReadLine();
+            n = int.Parse(str_n);
+            byte[] postdata;
+            var url = Helper.MakeRpcUrlPost(Config.api, "uxtoinfo", out postdata, new MyJson.JsonNode_ValueString(txid),new MyJson.JsonNode_ValueNumber(n));
+            var result = await Helper.HttpPost(url, postdata);
+            subPrintLine("得到的结果是：" + result);
+            var json = MyJson.Parse(result).AsDict();
+            if (json.ContainsKey("result"))
+            {
+                var resultv = json["result"].AsList()[0].AsDict();
+                var starttxid = resultv["starttxid"].ToString();
+                var starttxblockheight = resultv["starttxblockheight"].ToString();
+                var starttxblockindex = resultv["starttxblockindex"].ToString();
+                var voutN = resultv["voutN"].ToString();
+                var endtxid = resultv["endtxid"].ToString();
+                var endtxblockheight = resultv["endtxblockheight"].ToString();
+                var endtxblockindex = resultv["endtxblockindex"].ToString();
+                var vinputN = resultv["vinputN"].ToString();
+
+                ThinNeo.Transaction tran = null;
+                byte[] script;
+                using (var sb = new ThinNeo.ScriptBuilder())
+                {
+                    var array = new MyJson.JsonNode_Array();
+                    //array.AddArrayValue("(hex256)"+ starttxid);
+                    array.AddArrayValue("(int)"+ starttxblockheight);
+                    array.AddArrayValue("(int)" + starttxblockindex);
+                    array.AddArrayValue("(int)" + voutN);
+                    //array.AddArrayValue("(hex256)"+ endtxid);
+                    array.AddArrayValue("(int)" + endtxblockheight);
+                    array.AddArrayValue("(int)" + endtxblockindex);
+                    array.AddArrayValue("(int)" + vinputN);
+                    sb.EmitParamJson(array);//参数倒序入
+                    sb.EmitPushString("claim");//参数倒序入
+                    sb.EmitAppCall(Config.dapp_coinpool);//nep5脚本
+                    script = sb.ToArray();
+                }
+                //生成交易
+                //获取地址的资产列表
+                Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(Config.api, address);
+                if (dir.ContainsKey(Config.id_GAS) == false)
+                {
+                    subPrintLine("no gas");
+                    return;
+                }
+                tran = Helper.makeTran(dir[Config.id_GAS], address, new ThinNeo.Hash256(Config.id_GAS), 0);
+                tran.type = ThinNeo.TransactionType.InvocationTransaction;
+                var idata = new ThinNeo.InvokeTransData();
+                tran.extdata = idata;
+                idata.script = script;
+
+                //sign and broadcast
+                var signdata = ThinNeo.Helper.Sign(tran.GetMessage(), prikey);
+                tran.AddWitness(signdata, pubkey, address);
+                var trandata = tran.GetRawData();
+                var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
+                url = Helper.MakeRpcUrlPost(Config.api_local, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
+                result = await Helper.HttpPost(url, postdata);
+                subPrintLine("得到的结果是：" + result);
+                json = MyJson.Parse(result).AsDict();
+                if (json.ContainsKey("result"))
+                {
+                    resultv = json["result"].AsList()[0].AsDict();
+                    txid = resultv["txid"].AsString();
+                    subPrintLine("txid=" + txid);
+                }
+            }
         }
 
         async Task test_pool()
