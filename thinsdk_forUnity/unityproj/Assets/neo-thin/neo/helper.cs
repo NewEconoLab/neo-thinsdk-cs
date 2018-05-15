@@ -265,85 +265,39 @@ namespace ThinNeo
 
             var PublicKey = ThinNeo.Cryptography.ECC.ECCurve.Secp256r1.G * prikey;
             var pubkey = PublicKey.EncodePoint(false).Skip(1).ToArray();
-            //#if NET461
-            //const int ECDSA_PRIVATE_P256_MAGIC = 0x32534345;
-            byte[] first = { 0x45, 0x43, 0x53, 0x32, 0x20, 0x00, 0x00, 0x00 };
-            var allprikey = first.Concat(pubkey).Concat(prikey).ToArray();
 
             var ecdsa = new ThinNeo.Cryptography.ECC.ECDsa(prikey, ThinNeo.Cryptography.ECC.ECCurve.Secp256r1);
-            var result = ecdsa.GenerateSignature(message);
-            byte[] data1 = result[0].ToByteArrayUnsigned();
-            while (data1.Length < 32)
-            {
-                data1 = data1.Concat(new byte[] { 0x00 }).ToArray();
-                UnityEngine.Debug.Log("add zero");
-            }
-            byte[] data2 = result[1].ToByteArrayUnsigned();
-            while (data2.Length < 32)
-            {
-                data2 = data2.Concat(new byte[] { 0x00 }).ToArray();
-                UnityEngine.Debug.Log("add zero");
-            }
+            var hash = sha256.ComputeHash(message);
+            var result = ecdsa.GenerateSignature(hash);
+            var data1 = result[0].ToByteArray();
+            if (data1.Length > 32)
+                data1 = data1.Take(32).ToArray();
+            var data2 = result[1].ToByteArray();
+            if (data2.Length > 32)
+                data2 = data2.Take(32).ToArray();
 
-            //内部校驗，檢查這玩意咋用
-            var fpkey = GetPublicKeyFromPrivateKey(prikey);
-            var epkey = ThinNeo.Cryptography.ECC.ECPoint.DecodePoint(fpkey, ThinNeo.Cryptography.ECC.ECCurve.Secp256r1);
-            var ecdsav = new ThinNeo.Cryptography.ECC.ECDsa(epkey);
-            var num1 = new BigInteger(1,data1);
-            var num2 = new BigInteger(1,data2);
-            bool bv = ecdsav.VerifySignature(message, num1, num2);
-            UnityEngine.Debug.Log("bv=" + bv);
+            data1 = data1.Reverse().ToArray();
+            data2 = data2.Reverse().ToArray();
 
-            return data1.Concat(data2).ToArray();
-            //return new byte[] { 1 };
-            //using (System.Security.Cryptography.CngKey key = System.Security.Cryptography.CngKey.Import(prikey, System.Security.Cryptography.CngKeyBlobFormat.EccPrivateBlob))
-            //using (System.Security.Cryptography.ECDsaCng ecdsa = new System.Security.Cryptography.ECDsaCng(key))
+            byte[] newdata = new byte[64];
+            Array.Copy(data1, 0, newdata, 32 - data1.Length, data1.Length);
+            Array.Copy(data2, 0, newdata, 64 - data2.Length, data2.Length);
 
-            ////using (var ecdsa = System.Security.Cryptography.ECDsa.Create(new System.Security.Cryptography.ECParameters
-            ////{
-            ////    Curve = System.Security.Cryptography.ECCurve.NamedCurves.nistP256,
-            ////    D = prikey,
-            ////    Q = new System.Security.Cryptography.ECPoint
-            ////    {
-            ////        X = pubkey.Take(32).ToArray(),
-            ////        Y = pubkey.Skip(32).ToArray()
-            ////    }
-            ////}))
-            //{
-            //    var hash = sha256.ComputeHash(message);
-            //    return ecdsa.SignHash(hash);
-            //}
+            return newdata;// data1.Concat(data2).ToArray();
         }
 
         public static bool VerifySignature(byte[] message, byte[] signature, byte[] pubkey)
         {
+            //unity dotnet不完整，不能用dotnet自带的ecdsa
             var PublicKey = ThinNeo.Cryptography.ECC.ECPoint.DecodePoint(pubkey, ThinNeo.Cryptography.ECC.ECCurve.Secp256r1);
-            //var usepk = PublicKey.EncodePoint(false).Skip(1).ToArray();
-
-            //byte[] first = { 0x45, 0x43, 0x53, 0x31, 0x20, 0x00, 0x00, 0x00 };
-            //usepk = first.Concat(usepk).ToArray();
-
-
             var ecdsa = new ThinNeo.Cryptography.ECC.ECDsa(PublicKey);
-            var b1 = signature.Take(32).ToArray();
-            var b2 = signature.Skip(32).Take(32).ToArray();
-            return ecdsa.VerifySignature(message, new BigInteger(1,b1), new BigInteger(1,b2));
-            //using (System.Security.Cryptography.CngKey key = System.Security.Cryptography.CngKey.Import(usepk, System.Security.Cryptography.CngKeyBlobFormat.EccPublicBlob))
-            //using (System.Security.Cryptography.ECDsaCng ecdsa = new System.Security.Cryptography.ECDsaCng(key))
+            var b1 = signature.Take(32).Reverse().Concat(new byte[] { 0x00 }).ToArray();
+            var b2 = signature.Skip(32).Reverse().Concat(new byte[] { 0x00 }).ToArray();
+            var num1 = new BigInteger(b1);
+            var num2 = new BigInteger(b2);
+            var hash = sha256.ComputeHash(message);
+            return ecdsa.VerifySignature(hash, num1, num2);
 
-            ////using (var ecdsa = System.Security.Cryptography.ECDsa.Create(new System.Security.Cryptography.ECParameters
-            ////{
-            ////    Curve = System.Security.Cryptography.ECCurve.NamedCurves.nistP256,
-            ////    Q = new System.Security.Cryptography.ECPoint
-            ////    {
-            ////        X = usepk.Take(32).ToArray(),
-            ////        Y = usepk.Skip(32).ToArray()
-            ////    }
-            ////}))
-            //{
-            //    var hash = sha256.ComputeHash(message);
-            //    return ecdsa.VerifyHash(hash, signature);
-            //}
         }
 
 
