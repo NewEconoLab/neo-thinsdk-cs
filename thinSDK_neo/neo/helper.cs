@@ -352,6 +352,7 @@ namespace ThinNeo
             byte[] encryptedkey = new byte[32];
             Buffer.BlockCopy(data, 7, encryptedkey, 0, 32);
             byte[] prikey = XOR(AES256Decrypt(encryptedkey, derivedhalf2), derivedhalf1);
+            var rea = Helper.Bytes2HexString(prikey);
             var pubkey = GetPublicKeyFromPrivateKey(prikey);
             var address = GetAddressFromPublicKey(pubkey);
             var hash = Sha256(Encoding.ASCII.GetBytes(address));
@@ -366,6 +367,7 @@ namespace ThinNeo
             //string address = ToAddress(script_hash);
             //if (!Encoding.ASCII.GetBytes(address).Sha256().Sha256().Take(4).SequenceEqual(addresshash))
             //    throw new FormatException();
+            var a = Helper.Bytes2HexString(prikey);
             return prikey;
 
 

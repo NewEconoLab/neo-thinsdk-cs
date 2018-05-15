@@ -29,7 +29,18 @@ namespace smartContractDemo.tests
                 Config.test_wif = wif;
         }
         
-
+        public static void LogLn(string content,ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(content);
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+        public static void Log(string content, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(content);
+            Console.ForegroundColor = ConsoleColor.White;
+        }
 
     }
 }
