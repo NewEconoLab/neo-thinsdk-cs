@@ -268,50 +268,82 @@ namespace ThinNeo
             //#if NET461
             //const int ECDSA_PRIVATE_P256_MAGIC = 0x32534345;
             byte[] first = { 0x45, 0x43, 0x53, 0x32, 0x20, 0x00, 0x00, 0x00 };
-            prikey = first.Concat(pubkey).Concat(prikey).ToArray();
-            using (System.Security.Cryptography.CngKey key = System.Security.Cryptography.CngKey.Import(prikey, System.Security.Cryptography.CngKeyBlobFormat.EccPrivateBlob))
-            using (System.Security.Cryptography.ECDsaCng ecdsa = new System.Security.Cryptography.ECDsaCng(key))
+            var allprikey = first.Concat(pubkey).Concat(prikey).ToArray();
 
-            //using (var ecdsa = System.Security.Cryptography.ECDsa.Create(new System.Security.Cryptography.ECParameters
-            //{
-            //    Curve = System.Security.Cryptography.ECCurve.NamedCurves.nistP256,
-            //    D = prikey,
-            //    Q = new System.Security.Cryptography.ECPoint
-            //    {
-            //        X = pubkey.Take(32).ToArray(),
-            //        Y = pubkey.Skip(32).ToArray()
-            //    }
-            //}))
+            var ecdsa = new ThinNeo.Cryptography.ECC.ECDsa(prikey, ThinNeo.Cryptography.ECC.ECCurve.Secp256r1);
+            var result = ecdsa.GenerateSignature(message);
+            byte[] data1 = result[0].ToByteArrayUnsigned();
+            while (data1.Length < 32)
             {
-                var hash = sha256.ComputeHash(message);
-                return ecdsa.SignHash(hash);
+                data1 = data1.Concat(new byte[] { 0x00 }).ToArray();
+                UnityEngine.Debug.Log("add zero");
             }
+            byte[] data2 = result[1].ToByteArrayUnsigned();
+            while (data2.Length < 32)
+            {
+                data2 = data2.Concat(new byte[] { 0x00 }).ToArray();
+                UnityEngine.Debug.Log("add zero");
+            }
+
+            //内部校驗，檢查這玩意咋用
+            var fpkey = GetPublicKeyFromPrivateKey(prikey);
+            var epkey = ThinNeo.Cryptography.ECC.ECPoint.DecodePoint(fpkey, ThinNeo.Cryptography.ECC.ECCurve.Secp256r1);
+            var ecdsav = new ThinNeo.Cryptography.ECC.ECDsa(epkey);
+            var num1 = new BigInteger(1,data1);
+            var num2 = new BigInteger(1,data2);
+            bool bv = ecdsav.VerifySignature(message, num1, num2);
+            UnityEngine.Debug.Log("bv=" + bv);
+
+            return data1.Concat(data2).ToArray();
+            //return new byte[] { 1 };
+            //using (System.Security.Cryptography.CngKey key = System.Security.Cryptography.CngKey.Import(prikey, System.Security.Cryptography.CngKeyBlobFormat.EccPrivateBlob))
+            //using (System.Security.Cryptography.ECDsaCng ecdsa = new System.Security.Cryptography.ECDsaCng(key))
+
+            ////using (var ecdsa = System.Security.Cryptography.ECDsa.Create(new System.Security.Cryptography.ECParameters
+            ////{
+            ////    Curve = System.Security.Cryptography.ECCurve.NamedCurves.nistP256,
+            ////    D = prikey,
+            ////    Q = new System.Security.Cryptography.ECPoint
+            ////    {
+            ////        X = pubkey.Take(32).ToArray(),
+            ////        Y = pubkey.Skip(32).ToArray()
+            ////    }
+            ////}))
+            //{
+            //    var hash = sha256.ComputeHash(message);
+            //    return ecdsa.SignHash(hash);
+            //}
         }
 
         public static bool VerifySignature(byte[] message, byte[] signature, byte[] pubkey)
         {
             var PublicKey = ThinNeo.Cryptography.ECC.ECPoint.DecodePoint(pubkey, ThinNeo.Cryptography.ECC.ECCurve.Secp256r1);
-            var usepk = PublicKey.EncodePoint(false).Skip(1).ToArray();
+            //var usepk = PublicKey.EncodePoint(false).Skip(1).ToArray();
 
-            byte[] first = { 0x45, 0x43, 0x53, 0x31, 0x20, 0x00, 0x00, 0x00 };
-            usepk = first.Concat(usepk).ToArray();
+            //byte[] first = { 0x45, 0x43, 0x53, 0x31, 0x20, 0x00, 0x00, 0x00 };
+            //usepk = first.Concat(usepk).ToArray();
 
-            using (System.Security.Cryptography.CngKey key = System.Security.Cryptography.CngKey.Import(usepk, System.Security.Cryptography.CngKeyBlobFormat.EccPublicBlob))
-            using (System.Security.Cryptography.ECDsaCng ecdsa = new System.Security.Cryptography.ECDsaCng(key))
 
-            //using (var ecdsa = System.Security.Cryptography.ECDsa.Create(new System.Security.Cryptography.ECParameters
+            var ecdsa = new ThinNeo.Cryptography.ECC.ECDsa(PublicKey);
+            var b1 = signature.Take(32).ToArray();
+            var b2 = signature.Skip(32).Take(32).ToArray();
+            return ecdsa.VerifySignature(message, new BigInteger(1,b1), new BigInteger(1,b2));
+            //using (System.Security.Cryptography.CngKey key = System.Security.Cryptography.CngKey.Import(usepk, System.Security.Cryptography.CngKeyBlobFormat.EccPublicBlob))
+            //using (System.Security.Cryptography.ECDsaCng ecdsa = new System.Security.Cryptography.ECDsaCng(key))
+
+            ////using (var ecdsa = System.Security.Cryptography.ECDsa.Create(new System.Security.Cryptography.ECParameters
+            ////{
+            ////    Curve = System.Security.Cryptography.ECCurve.NamedCurves.nistP256,
+            ////    Q = new System.Security.Cryptography.ECPoint
+            ////    {
+            ////        X = usepk.Take(32).ToArray(),
+            ////        Y = usepk.Skip(32).ToArray()
+            ////    }
+            ////}))
             //{
-            //    Curve = System.Security.Cryptography.ECCurve.NamedCurves.nistP256,
-            //    Q = new System.Security.Cryptography.ECPoint
-            //    {
-            //        X = usepk.Take(32).ToArray(),
-            //        Y = usepk.Skip(32).ToArray()
-            //    }
-            //}))
-            {
-                var hash = sha256.ComputeHash(message);
-                return ecdsa.VerifyHash(hash, signature);
-            }
+            //    var hash = sha256.ComputeHash(message);
+            //    return ecdsa.VerifyHash(hash, signature);
+            //}
         }
 
 
