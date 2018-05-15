@@ -58,6 +58,7 @@ namespace smartContractDemo
             infos["change wif key"] = test_change_key;
             infos["get address balanceof "+this.root] = test_getbalanceof;
             infos["recharge reg"] = test_rechargeReg;
+            infos["getMoneyBack"] = test_getMoneyBack;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
 
@@ -302,6 +303,37 @@ namespace smartContractDemo
             var result = await nns_common.api_SendTransaction(prikey, script);
             subPrintLine(result);
 
+        }
+
+
+        /// <summary>
+        /// 取回在注册器下的sgas
+        /// </summary>
+        /// <returns></returns>
+        async Task test_getMoneyBack()
+        {
+            Console.WriteLine("Input amount:");
+            string amount = Console.ReadLine();
+            amount += "00000000";
+
+            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(root).ToString());
+            var _result = info.value.subItem[0];
+            var sell_reg = _result.subItem[1].AsHash160();
+
+            byte[] script;
+            using (var sb = new ThinNeo.ScriptBuilder())
+            {
+                var array = new MyJson.JsonNode_Array();
+
+                array.AddArrayValue("(addr)" + address);//from
+                array.AddArrayValue("(int)" + amount);//value
+                sb.EmitParamJson(array);//参数倒序入
+                sb.EmitPushString("getmoneyback");//参数倒序入
+                sb.EmitAppCall(sell_reg);//nep5脚本
+                script = sb.ToArray();
+            }
+            var result = await nns_common.api_SendTransaction(prikey, script);
+            subPrintLine(result);
         }
         async Task test_switch_root()
         {
