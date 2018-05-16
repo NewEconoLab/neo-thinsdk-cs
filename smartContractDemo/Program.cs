@@ -64,6 +64,7 @@ namespace smartContractDemo
             RegTest(new nns_admin());
             RegTest(new nns_user());
             RegTest(new nns_sell());
+            RegTest(new MultiSign());
 
         }
         static void ShowMenu()
