@@ -26,7 +26,8 @@ namespace ThinNeo
 
         public void Dispose()
         {
-            writer.Dispose();
+            IDisposable w = writer;
+            w.Dispose();
             ms.Dispose();
         }
 

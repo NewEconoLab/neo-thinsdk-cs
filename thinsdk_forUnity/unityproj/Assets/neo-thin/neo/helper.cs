@@ -399,7 +399,13 @@ namespace ThinNeo
         static byte[] XOR(byte[] x, byte[] y)
         {
             if (x.Length != y.Length) throw new ArgumentException();
-            return x.Zip(y, (a, b) => (byte)(a ^ b)).ToArray();
+            byte[] result = new byte[x.Length];
+            for(var i=0;i<x.Length;i++)
+            {
+                result[i] =(byte)( x[i] ^ y[i]);
+            }
+            return result;
+            //return x.Zip(y, (a, b) => (byte)(a ^ b)).ToArray();
         }
         internal static byte[] AES256Encrypt(byte[] block, byte[] key)
         {
