@@ -189,26 +189,24 @@ namespace ThinNeo
             script[script.Length - 1] = 172;//CHECKSIG
             return script;
         }
-        public static byte[] GetScriptHashFromScript(byte[] script)
+        public static Hash160 GetScriptHashFromScript(byte[] script)
         {
             var scripthash = sha256.ComputeHash(script);
             scripthash = ripemd160.ComputeHash(scripthash);
             return scripthash;
         }
-        public static byte[] GetScriptHashFromPublicKey(byte[] publicKey)
+        public static Hash160 GetScriptHashFromPublicKey(byte[] publicKey)
         {
             byte[] script = GetScriptFromPublicKey(publicKey);
             var scripthash = sha256.ComputeHash(script);
             scripthash = ripemd160.ComputeHash(scripthash);
             return scripthash;
         }
-        public static string GetAddressFromScriptHash(byte[] scripthash)
+        public static string GetAddressFromScriptHash(Hash160 scripthash)
         {
-            if (scripthash.Length != 20)
-                throw new Exception("error scripthash length.");
-            byte[] data = new byte[scripthash.Length + 1];
+            byte[] data = new byte[20 + 1];
             data[0] = 0x17;
-            Array.Copy(scripthash, 0, data, 1, scripthash.Length);
+            Array.Copy(scripthash, 0, data, 1, 20);
             var hash = sha256.ComputeHash(data);
             hash = sha256.ComputeHash(hash);
 
@@ -227,7 +225,7 @@ namespace ThinNeo
         //    var hash2 = ripemd160.ComputeHash(hash1);
         //    return hash2;
         //}
-        public static byte[] GetPublicKeyHashFromAddress(string address)
+        public static Hash160 GetPublicKeyHashFromAddress(string address)
         {
             var alldata = Base58.Decode(address);
             if (alldata.Length != 25)
@@ -242,9 +240,9 @@ namespace ThinNeo
             if (hashbts.SequenceEqual(datahashbts) == false)
                 throw new Exception("not match hash");
             var pkhash = data.Skip(1).ToArray();
-            return pkhash;
+            return new Hash160(pkhash);
         }
-        public static byte[] GetPublicKeyHashFromAddress_WithoutCheck(string address)
+        public static Hash160 GetPublicKeyHashFromAddress_WithoutCheck(string address)
         {
             var alldata = Base58.Decode(address);
             if (alldata.Length != 25)
@@ -253,7 +251,7 @@ namespace ThinNeo
                 throw new Exception("not a address");
             var data = alldata.Take(alldata.Length - 4).ToArray();
             var pkhash = data.Skip(1).ToArray();
-            return pkhash;
+            return new Hash160(pkhash);
         }
 
 
@@ -434,5 +432,19 @@ namespace ThinNeo
             }
         }
 
+        public static byte[] nameHash(string domain)
+        {
+            return Sha256(System.Text.Encoding.UTF8.GetBytes(domain));
+        }
+
+        public static byte[] nameHashSub(byte[] roothash, string subdomain)
+        {
+            var bs = System.Text.Encoding.UTF8.GetBytes(subdomain);
+            if (bs.Length == 0)
+                return roothash;
+
+            byte[] domain = Sha256(bs).Concat(roothash).ToArray();
+            return Sha256(domain);
+        }
     }
 }
