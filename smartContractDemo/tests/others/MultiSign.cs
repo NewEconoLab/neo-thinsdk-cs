@@ -34,6 +34,7 @@ namespace smartContractDemo
 
             infos["test_addr"] = test_addr;
             infos["test_multisign"] = test_multisign;
+            infos["test_buildMultiSign"] = test_buildMultiSign;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
 
@@ -99,6 +100,44 @@ namespace smartContractDemo
 
         }
 
+        private async Task test_buildMultiSign()
+        {
+
+            Console.WriteLine("输入公钥数");
+            var pubkeyLen = long.Parse(Console.ReadLine());
+
+            string[] pubkeys = new string[pubkeyLen];
+
+            Console.WriteLine("输入最小签名数");
+            var verifyLen = long.Parse(Console.ReadLine());
+            for(int i = 0; i < pubkeyLen; i++)
+            {
+                pubkeys[i] = Console.ReadLine();
+            }
+
+            byte[] data;
+            using (ScriptBuilder sb = new ScriptBuilder())
+            {
+                sb.EmitPushNumber(verifyLen);
+                for(int m = (int)pubkeyLen - 1; m >= 0; m--)
+                {
+                    sb.EmitPushBytes(ThinNeo.Helper.HexString2Bytes(pubkeys[m]));
+                }
+                sb.EmitPushNumber(pubkeyLen);
+                sb.Emit(ThinNeo.VM.OpCode.CHECKMULTISIG);
+                data = sb.ToArray();
+                //Console.WriteLine(ThinNeo.Helper.Bytes2HexString(data));
+            }
+
+            Config.Log("多签合约哈希: 0x",ConsoleColor.White);
+            var hash = ThinNeo.Helper.GetScriptHashFromScript(data);
+            Config.LogLn(ThinNeo.Helper.Bytes2HexString(hash), ConsoleColor.Yellow);
+
+            Config.Log("多签合约地址:", ConsoleColor.White);
+            Config.LogLn(ThinNeo.Helper.GetAddressFromScriptHash(hash), ConsoleColor.Yellow);
+
+        }
+
         private async Task test_multisign()
         {
             Console.WriteLine("Input wif");
@@ -109,7 +148,7 @@ namespace smartContractDemo
             var prikey0 = ThinNeo.Helper.GetPrivateKeyFromWIF(wif0);
             var prikey1 = ThinNeo.Helper.GetPrivateKeyFromWIF(wif1);
 
-            var result = await MultiSign.api_SendTransaction(prikey0, prikey1, Config.dapp_multisign, "transfer",
+            var result = await api_SendTransaction(prikey0, prikey1, Config.dapp_multisign, "transfer",
               "(int)1000"
               );
         }
@@ -134,7 +173,7 @@ namespace smartContractDemo
                     sb.EmitPushString(methodname);
                     sb.EmitAppCall(schash);
                     data = sb.ToArray();
-                    Console.WriteLine(ThinNeo.Helper.Bytes2HexString(data));
+                    //Console.WriteLine(ThinNeo.Helper.Bytes2HexString(data));
                 }
             }
 
