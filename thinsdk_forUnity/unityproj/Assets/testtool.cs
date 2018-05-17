@@ -66,15 +66,15 @@ public class testtool : MonoBehaviour
             var addr = "ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj";
             var uint8 = ThinNeo.Helper.GetPublicKeyHashFromAddress(addr);
             //.GetPublicKeyScriptHash_FromAddress(addr);
-            var hexstr = ThinNeo.Helper.Bytes2HexString(uint8.Reverse().ToArray());
+            var hexstr = uint8.ToString();
             Debug.Log("addr=" + addr);
             Debug.Log("hex=" + hexstr);
         }
         if (GUILayout.Button("test2 Hash2Address"))
         {
             var hexstr = "0x0b193415c6f098b02e81a3b14d0e3b08e9c3f79a";
-            var hashrev = ThinNeo.Helper.HexString2Bytes(hexstr);
-            var hash = hashrev.Reverse().ToArray();
+            //var hashrev = ThinNeo.Helper.HexString2Bytes(hexstr);
+            var hash = new ThinNeo.Hash160(hexstr);
             var addr = ThinNeo.Helper.GetAddressFromScriptHash(hash);
             Debug.Log("hex=" + hexstr);
             Debug.Log("addr=" + addr);
