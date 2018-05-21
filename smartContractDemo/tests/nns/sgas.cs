@@ -227,15 +227,15 @@ namespace smartContractDemo
                 subPrintLine("no gas");
                 return;
             }
-            ThinNeo.Transaction tran = null;
+            Transaction tran = null;
             {
                 byte[] script = null;
-                using (var sb = new ThinNeo.ScriptBuilder())
+                using (var sb = new ScriptBuilder())
                 {
                     var array = new MyJson.JsonNode_Array();
                     sb.EmitParamJson(array);//参数倒序入
                     sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)mintTokens"));//参数倒序入
-                    ThinNeo.Hash160 shash = Config.dapp_sgas;
+                    Hash160 shash = Config.dapp_sgas;
                     sb.EmitAppCall(shash);//nep5脚本
                     script = sb.ToArray();
                 }
@@ -244,9 +244,9 @@ namespace smartContractDemo
                 subPrintLine("contract address=" + targetaddr);//往合约地址转账
 
                 //生成交易
-                tran = Helper.makeTran(dir[Config.id_GAS], targetaddr, new ThinNeo.Hash256(Config.id_GAS), amount);
-                tran.type = ThinNeo.TransactionType.InvocationTransaction;
-                var idata = new ThinNeo.InvokeTransData();
+                tran = Helper.makeTran(dir[Config.id_GAS], targetaddr, new Hash256(Config.id_GAS), amount);
+                tran.type = TransactionType.InvocationTransaction;
+                var idata = new InvokeTransData();
                 tran.extdata = idata;
                 idata.script = script;
 

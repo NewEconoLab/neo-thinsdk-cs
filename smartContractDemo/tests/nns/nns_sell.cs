@@ -152,7 +152,6 @@ namespace smartContractDemo
 
 
             var roothash = nns_common.nameHash(this.root);
-            var fullhash = nns_common.nameHashSub(roothash, subname);
 
             //得到注册器
             var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
