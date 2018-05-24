@@ -54,6 +54,7 @@ namespace smartContractDemo
             infos["countSGASOnBlock"] = test_countSGASOnBlock;
             infos["claim"] = test_claim;
             infos["test_pool"] = test_pool;
+            infos["test_nep2"] = test_helper;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
 
@@ -253,7 +254,13 @@ namespace smartContractDemo
             var result = await nns_common.api_SendTransaction(prikey, new Hash160("0x1c14b9f24e3999ce46c3b0c64ab3f21d352c6754"), "test_pool");
             subPrintLine(result);
         }
+
         #endregion
+
+        async Task test_helper()
+        {
+            ThinNeo.Helper.GetPrivateKeyFromNEP2("6PYT8kA51ffcAv3bJzbfcT6Uuc32QS5wHEjneRdkPYFxZSrirVHRPEpVwN", "1");
+        }
     }
 
 }

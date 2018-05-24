@@ -27,6 +27,21 @@ namespace smartContractDemo
         }
         static void InitTest()
         {
+            var wif = "L2CmHCqgeNHL1i9XFhTLzUXsdr5LGjag4d56YY98FqEi4j5d83Mv";
+            var prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(wif);
+            var pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
+            var addr = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
+
+            var signdata = "010203ff1122abcd";
+            var message = ThinNeo.Helper.HexString2Bytes(signdata);
+            var data = ThinNeo.Helper.Sign(message, prikey);
+            Console.WriteLine("wif=" + wif);
+            Console.WriteLine("addr=" + addr);
+            Console.WriteLine("sign=" + ThinNeo.Helper.Bytes2HexString(data));
+
+            var b = ThinNeo.Helper.VerifySignature(message, data, pubkey);
+            Console.WriteLine("verify=" + b);
+
             RegTest(new Height());
 
             RegTest(new SCDemo1());
@@ -49,6 +64,7 @@ namespace smartContractDemo
             RegTest(new nns_admin());
             RegTest(new nns_user());
             RegTest(new nns_sell());
+            RegTest(new MultiSign());
 
         }
         static void ShowMenu()

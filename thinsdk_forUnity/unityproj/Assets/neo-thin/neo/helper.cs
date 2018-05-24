@@ -189,26 +189,24 @@ namespace ThinNeo
             script[script.Length - 1] = 172;//CHECKSIG
             return script;
         }
-        public static byte[] GetScriptHashFromScript(byte[] script)
+        public static Hash160 GetScriptHashFromScript(byte[] script)
         {
             var scripthash = sha256.ComputeHash(script);
             scripthash = ripemd160.ComputeHash(scripthash);
             return scripthash;
         }
-        public static byte[] GetScriptHashFromPublicKey(byte[] publicKey)
+        public static Hash160 GetScriptHashFromPublicKey(byte[] publicKey)
         {
             byte[] script = GetScriptFromPublicKey(publicKey);
             var scripthash = sha256.ComputeHash(script);
             scripthash = ripemd160.ComputeHash(scripthash);
             return scripthash;
         }
-        public static string GetAddressFromScriptHash(byte[] scripthash)
+        public static string GetAddressFromScriptHash(Hash160 scripthash)
         {
-            if (scripthash.Length != 20)
-                throw new Exception("error scripthash length.");
-            byte[] data = new byte[scripthash.Length + 1];
+            byte[] data = new byte[20 + 1];
             data[0] = 0x17;
-            Array.Copy(scripthash, 0, data, 1, scripthash.Length);
+            Array.Copy(scripthash, 0, data, 1, 20);
             var hash = sha256.ComputeHash(data);
             hash = sha256.ComputeHash(hash);
 
@@ -227,7 +225,7 @@ namespace ThinNeo
         //    var hash2 = ripemd160.ComputeHash(hash1);
         //    return hash2;
         //}
-        public static byte[] GetPublicKeyHashFromAddress(string address)
+        public static Hash160 GetPublicKeyHashFromAddress(string address)
         {
             var alldata = Base58.Decode(address);
             if (alldata.Length != 25)
@@ -242,9 +240,9 @@ namespace ThinNeo
             if (hashbts.SequenceEqual(datahashbts) == false)
                 throw new Exception("not match hash");
             var pkhash = data.Skip(1).ToArray();
-            return pkhash;
+            return new Hash160(pkhash);
         }
-        public static byte[] GetPublicKeyHashFromAddress_WithoutCheck(string address)
+        public static Hash160 GetPublicKeyHashFromAddress_WithoutCheck(string address)
         {
             var alldata = Base58.Decode(address);
             if (alldata.Length != 25)
@@ -253,7 +251,7 @@ namespace ThinNeo
                 throw new Exception("not a address");
             var data = alldata.Take(alldata.Length - 4).ToArray();
             var pkhash = data.Skip(1).ToArray();
-            return pkhash;
+            return new Hash160(pkhash);
         }
 
 
@@ -265,53 +263,39 @@ namespace ThinNeo
 
             var PublicKey = ThinNeo.Cryptography.ECC.ECCurve.Secp256r1.G * prikey;
             var pubkey = PublicKey.EncodePoint(false).Skip(1).ToArray();
-            //#if NET461
-            //const int ECDSA_PRIVATE_P256_MAGIC = 0x32534345;
-            byte[] first = { 0x45, 0x43, 0x53, 0x32, 0x20, 0x00, 0x00, 0x00 };
-            prikey = first.Concat(pubkey).Concat(prikey).ToArray();
-            using (System.Security.Cryptography.CngKey key = System.Security.Cryptography.CngKey.Import(prikey, System.Security.Cryptography.CngKeyBlobFormat.EccPrivateBlob))
-            using (System.Security.Cryptography.ECDsaCng ecdsa = new System.Security.Cryptography.ECDsaCng(key))
 
-            //using (var ecdsa = System.Security.Cryptography.ECDsa.Create(new System.Security.Cryptography.ECParameters
-            //{
-            //    Curve = System.Security.Cryptography.ECCurve.NamedCurves.nistP256,
-            //    D = prikey,
-            //    Q = new System.Security.Cryptography.ECPoint
-            //    {
-            //        X = pubkey.Take(32).ToArray(),
-            //        Y = pubkey.Skip(32).ToArray()
-            //    }
-            //}))
-            {
-                var hash = sha256.ComputeHash(message);
-                return ecdsa.SignHash(hash);
-            }
+            var ecdsa = new ThinNeo.Cryptography.ECC.ECDsa(prikey, ThinNeo.Cryptography.ECC.ECCurve.Secp256r1);
+            var hash = sha256.ComputeHash(message);
+            var result = ecdsa.GenerateSignature(hash);
+            var data1 = result[0].ToByteArray();
+            if (data1.Length > 32)
+                data1 = data1.Take(32).ToArray();
+            var data2 = result[1].ToByteArray();
+            if (data2.Length > 32)
+                data2 = data2.Take(32).ToArray();
+
+            data1 = data1.Reverse().ToArray();
+            data2 = data2.Reverse().ToArray();
+
+            byte[] newdata = new byte[64];
+            Array.Copy(data1, 0, newdata, 32 - data1.Length, data1.Length);
+            Array.Copy(data2, 0, newdata, 64 - data2.Length, data2.Length);
+
+            return newdata;// data1.Concat(data2).ToArray();
         }
 
         public static bool VerifySignature(byte[] message, byte[] signature, byte[] pubkey)
         {
+            //unity dotnet不完整，不能用dotnet自带的ecdsa
             var PublicKey = ThinNeo.Cryptography.ECC.ECPoint.DecodePoint(pubkey, ThinNeo.Cryptography.ECC.ECCurve.Secp256r1);
-            var usepk = PublicKey.EncodePoint(false).Skip(1).ToArray();
+            var ecdsa = new ThinNeo.Cryptography.ECC.ECDsa(PublicKey);
+            var b1 = signature.Take(32).Reverse().Concat(new byte[] { 0x00 }).ToArray();
+            var b2 = signature.Skip(32).Reverse().Concat(new byte[] { 0x00 }).ToArray();
+            var num1 = new BigInteger(b1);
+            var num2 = new BigInteger(b2);
+            var hash = sha256.ComputeHash(message);
+            return ecdsa.VerifySignature(hash, num1, num2);
 
-            byte[] first = { 0x45, 0x43, 0x53, 0x31, 0x20, 0x00, 0x00, 0x00 };
-            usepk = first.Concat(usepk).ToArray();
-
-            using (System.Security.Cryptography.CngKey key = System.Security.Cryptography.CngKey.Import(usepk, System.Security.Cryptography.CngKeyBlobFormat.EccPublicBlob))
-            using (System.Security.Cryptography.ECDsaCng ecdsa = new System.Security.Cryptography.ECDsaCng(key))
-
-            //using (var ecdsa = System.Security.Cryptography.ECDsa.Create(new System.Security.Cryptography.ECParameters
-            //{
-            //    Curve = System.Security.Cryptography.ECCurve.NamedCurves.nistP256,
-            //    Q = new System.Security.Cryptography.ECPoint
-            //    {
-            //        X = usepk.Take(32).ToArray(),
-            //        Y = usepk.Skip(32).ToArray()
-            //    }
-            //}))
-            {
-                var hash = sha256.ComputeHash(message);
-                return ecdsa.VerifyHash(hash, signature);
-            }
         }
 
 
@@ -413,7 +397,13 @@ namespace ThinNeo
         static byte[] XOR(byte[] x, byte[] y)
         {
             if (x.Length != y.Length) throw new ArgumentException();
-            return x.Zip(y, (a, b) => (byte)(a ^ b)).ToArray();
+            byte[] result = new byte[x.Length];
+            for(var i=0;i<x.Length;i++)
+            {
+                result[i] =(byte)( x[i] ^ y[i]);
+            }
+            return result;
+            //return x.Zip(y, (a, b) => (byte)(a ^ b)).ToArray();
         }
         internal static byte[] AES256Encrypt(byte[] block, byte[] key)
         {
@@ -442,5 +432,19 @@ namespace ThinNeo
             }
         }
 
+        public static byte[] nameHash(string domain)
+        {
+            return Sha256(System.Text.Encoding.UTF8.GetBytes(domain));
+        }
+
+        public static byte[] nameHashSub(byte[] roothash, string subdomain)
+        {
+            var bs = System.Text.Encoding.UTF8.GetBytes(subdomain);
+            if (bs.Length == 0)
+                return roothash;
+
+            byte[] domain = Sha256(bs).Concat(roothash).ToArray();
+            return Sha256(domain);
+        }
     }
 }

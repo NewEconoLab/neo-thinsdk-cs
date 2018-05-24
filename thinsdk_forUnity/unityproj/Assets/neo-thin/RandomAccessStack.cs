@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ThinNeo.VM
 {
-	public class RandomAccessStack<T> :IReadOnlyCollection<T>
+	public class RandomAccessStack<T> //:System.Collections.ObjectModel.ReadOnlyCollection<>
     {
         private readonly List<T> list = new List<T>();
 
@@ -25,10 +25,10 @@ namespace ThinNeo.VM
             return list.GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        //IEnumerator IEnumerable.GetEnumerator()
+        //{
+        //    return GetEnumerator();
+        //}
 
         public void Insert(int index, T item)
         {
