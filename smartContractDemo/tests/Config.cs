@@ -7,18 +7,19 @@ namespace smartContractDemo.tests
     class Config
     {
         public readonly static string superadminAddress = "ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj";
-        public  static string test_wif = "L3tDHnEAvwnnPE4sY4oXpTvNtNhsVhbkY4gmEmWmWWf1ebJhVPVW";
+        public  static string test_wif = "KwZih114osBp58RwpEn4ZAcEcCTLP6yMAhdikb6oPRxqgvWpcqF1";
 
 
-        public readonly static Hash160 dapp_sgas  = new Hash160("0x4ac464f84f50d3f902c2f0ca1658bfaa454ddfbf");//sgas 新合约地址
-        //public readonly static Hash160 dapp_sgas = new Hash160("0xbc0fdb1c1b84601a9c66594cb481b684b90e05bb");//sgas 合约地址
-        //public readonly static Hash160 dapp_coinpool = new Hash160("0x7ef0366e03dfda239981a41e20d25258b07fb19a");//coinpool 合约地址
+        public readonly static Hash160 dapp_sgas  = new Hash160("0xe52a08c20986332ad8dccf9ded38cc493878064a");//sgas 新合约地址
         public readonly static Hash160 dapp_coinpool = new Hash160("0x5d6b91ee7cde1f8bb1868d36d4bf134f6887d231");//coinpool 新合约地址
-        public static readonly Hash160 sc_nns = new Hash160("0x954f285a93eed7b4aed9396a7806a5812f1a5950");//nns 合约地址
+        public static readonly Hash160 sc_nns = new Hash160("0xee46b4f6d2073381dc61ae74099ccf3a56e38dd1");//nns 跳板合约地址
+        public static readonly Hash160 domaincenterhash = new Hash160("0x5cbc9fbd11d7003ca3b47cbec1117caf6224f317");//nns 域名中心合约地址
+
 
         public static readonly Hash160 dapp_multisign = new Hash160("0x4c0f57b61d997297560190b1e397fe6d58fce94a");  //应用合约多签验证测试
 
-        public readonly static string utxo_nnc = "0xc12c6ccc5be5235b90822c4feee70645b9d0bac0636b07bd1d68e34ba8804747";
+        public readonly static Hash160 dapp_nnc = new Hash160("0xd9f8803a66acdd0c4218b4dca21a43c43e28b66c"); //nnc 合约代码
+
         public const string id_GAS = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
 
 
@@ -26,7 +27,7 @@ namespace smartContractDemo.tests
         public readonly static string api = "https://api.nel.group/api/testnet";
         
 
-        public readonly static string root = "sell";
+        public readonly static string root = "wei";
 
         public static void changeWif(string wif)
         {
