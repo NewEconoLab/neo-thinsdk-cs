@@ -56,6 +56,7 @@ namespace smartContractDemo
             infos["canClaimCount"] = test_canClaimCount;
             infos["getTotalMoney"] = test_getTotalMoney;
             infos["transfer"] = test_transfer;
+            infos["useGas"] = test_useGas;
             infos["claim"] = test_claim;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
@@ -170,8 +171,6 @@ namespace smartContractDemo
 
             var result = await nns_common.api_InvokeScript(Config.dapp_nnc, "balanceOf", "(bytes)" + strhash);
             subPrintLine("Total Supply : " + result.value.subItem[0].AsInteger());
-            //var result = await nns_common.api_SendTransaction(prikey,Config.dapp_nnc, "balanceOf", "(bytes)" + strhash);
-            //subPrintLine(result); ;
         }
 
 
@@ -212,7 +211,10 @@ namespace smartContractDemo
             }
 
             var result = await nns_common.api_InvokeScript(Config.dapp_nnc, "getTotalMoney", "(int)" + height);
-            subPrintLine(" = " + result.value.subItem[0].AsInteger() + ""); ;
+            subPrintLine(" = " + result.value.subItem[0].AsInteger() + ""); 
+
+            //var result = await nns_common.api_SendTransaction(prikey, Config.dapp_nnc, "getTotalMoney", "(int)" + height);
+            //subPrintLine(result);
         }
 
         async Task test_transfer()
@@ -231,10 +233,92 @@ namespace smartContractDemo
             subPrintLine(result);
         }
 
+        async Task test_useGas()
+        {
+            //先sgas的transfer  然后把txid 发给nnc
+
+            //获取地址的资产列表
+            Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(Config.api, address);
+            if (dir.ContainsKey(Config.id_GAS) == false)
+            {
+                Console.WriteLine("no gas");
+                return;
+            }
+
+
+            //MakeTran
+            ThinNeo.Transaction tran = null;
+            {
+
+                var who = ThinNeo.Helper.GetAddressFromScriptHash(Config.dapp_nnc);
+
+                byte[] script = null;
+                using (var sb = new ThinNeo.ScriptBuilder())
+                {
+                    var array = new MyJson.JsonNode_Array();
+                    array.AddArrayValue("(addr)" + address);//from
+                    array.AddArrayValue("(addr)" + who);//to
+                    array.AddArrayValue("(int)200000000");//value
+                    sb.EmitParamJson(array);//参数倒序入
+                    sb.EmitPushString("transfer");//参数倒序入
+                    sb.EmitAppCall(Config.dapp_sgas);//nep5脚本
+
+                    //这个方法是为了在同一笔交易中转账并充值
+                    //当然你也可以分为两笔交易
+                    //插入下述两条语句，能得到txid
+                    sb.EmitSysCall("System.ExecutionEngine.GetScriptContainer");
+                    sb.EmitSysCall("Neo.Transaction.GetHash");
+                    //把TXID包进Array里
+                    sb.EmitPushNumber(1);
+                    sb.Emit(ThinNeo.VM.OpCode.PACK);
+                    sb.EmitPushString("useGas");
+                    sb.EmitAppCall(Config.dapp_nnc);
+
+                    script = sb.ToArray();
+                }
+
+                tran = Helper.makeTran(dir[Nep55_1.id_GAS], null, new ThinNeo.Hash256(Nep55_1.id_GAS), 0);
+                tran.type = ThinNeo.TransactionType.InvocationTransaction;
+                var idata = new ThinNeo.InvokeTransData();
+                tran.extdata = idata;
+                idata.script = script;
+                idata.gas = 0;
+            }
+
+            //sign and broadcast
+            var signdata = ThinNeo.Helper.Sign(tran.GetMessage(), prikey);
+            tran.AddWitness(signdata, pubkey, address);
+            var trandata = tran.GetRawData();
+            var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
+            byte[] postdata;
+            var url = Helper.MakeRpcUrlPost(Config.api_local, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
+            var result = await Helper.HttpPost(url, postdata);
+            Console.WriteLine(result);
+        }
+
 
         async Task test_claim()
         {
-            
+            subPrintLine("    Input target address :");
+            string addr;
+            try
+            {
+                addr = Console.ReadLine();
+                if (addr.Length < 34)
+                {
+                    addr = this.address;
+                }
+            }
+            catch (Exception e)
+            {
+                addr = this.address;
+            }
+            byte[] hash = ThinNeo.Helper.GetPublicKeyHashFromAddress(addr);
+            string strhash = ThinNeo.Helper.Bytes2HexString(hash);
+
+
+            var result = await nns_common.api_SendTransaction(prikey,Config.dapp_nnc, "claim", "(bytes)" + strhash);
+            subPrintLine(result);
         }
         #endregion
     }
