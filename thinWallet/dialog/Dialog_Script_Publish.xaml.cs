@@ -138,7 +138,8 @@ namespace thinWallet
             sb.EmitPushString(iName.Text);
             int need_storage = iStorage.IsChecked == true ? 1 : 0;
             int need_nep4 = iDyncall.IsChecked == true ? 2 : 0;
-            sb.EmitPushNumber(need_storage | need_nep4);
+            int can_charge = iCharge.IsChecked == true ? 4 : 0;
+            sb.EmitPushNumber(need_storage | need_nep4 | can_charge);
             var br = ThinNeo.Helper.HexString2Bytes(iRType.Text);
             var bp = ThinNeo.Helper.HexString2Bytes(iPList.Text);
             sb.EmitPushBytes(br);

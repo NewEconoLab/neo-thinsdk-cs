@@ -888,6 +888,11 @@ namespace thinWallet
             }
             listWitness.InvalidateVisual();
         }
+
+        private void Button_Click_11(object sender, RoutedEventArgs e)
+        {
+
+        }
         //witness 和input 严格对应，这两个功能没任何意义
         //private void MenuItem_Click_4(object sender, RoutedEventArgs e)
         //{        //add curkey witness

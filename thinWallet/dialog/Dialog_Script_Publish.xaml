@@ -70,6 +70,7 @@
 
                 <CheckBox x:Name="iStorage" Content="Need Storage" Grid.Row="12" Grid.Column="1" Grid.ColumnSpan="1" Background="White" Foreground="White"></CheckBox>
                 <CheckBox x:Name="iDyncall" Content="Need Dyncall" Grid.Row="12" Grid.Column="2" Grid.ColumnSpan="1" Foreground="White"></CheckBox>
+                <CheckBox x:Name="iCharge" Content="Can Charge" Grid.Row="12" Grid.Column="3" Grid.ColumnSpan="1" Foreground="White"></CheckBox>
             </Grid>
         </GroupBox>
         <GroupBox Header="AVM(Bin)" Margin="25,2,2,25" Background="#7F070B5D" BorderThickness="0" Grid.Row="1" Grid.ColumnSpan="1">
