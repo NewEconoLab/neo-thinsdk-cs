@@ -144,7 +144,7 @@
                                             <TextBlock Text="Make Script" Grid.Row="2" Foreground="White"/>
                                             <Button Content="AppCall" Grid.Row="2" Grid.Column="1" Margin="5,0" Click="Button_Click_4" Height="24" VerticalAlignment="Top"></Button>
                                             <Button Content="Publish SC" Grid.Row="2" Grid.Column="2" Margin="5,0" Click="Button_Click_9"></Button>
-                                            <Button Content="Upgrade SC" Grid.Row="3" Grid.Column="2" Margin="5,0" Click="Button_Click_11"></Button>
+                                            <Button Content="Upgrade SC" Grid.Row="3" Grid.Column="2" Margin="5,0" Click="Button_Click_11" Height="24" VerticalAlignment="Top"></Button>
                                             <Button Content="Custom" Grid.Row="3" Grid.Column="1" Margin="5,0" Click="Button_Click_10"></Button>
                                             <Button Content="Test" Grid.Row="4"  Margin="5,0" Grid.ColumnSpan="1" Click="Button_Click_8"/>
                                             <TextBlock x:Name="labelFee" Text="Fee:" Grid.Row="4" Foreground="White" Grid.Column="1" Grid.ColumnSpan="3"></TextBlock>

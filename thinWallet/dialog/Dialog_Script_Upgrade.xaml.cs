@@ -17,9 +17,9 @@ namespace thinWallet
     /// <summary>
     /// Dialog_Input_password.xaml 的交互逻辑
     /// </summary>
-    public partial class Dialog_Script_Publish : Window
+    public partial class Dialog_Script_Upgrade : Window
     {
-        public Dialog_Script_Publish()
+        public Dialog_Script_Upgrade()
         {
             InitializeComponent();
         }
@@ -37,7 +37,7 @@ namespace thinWallet
         public byte[] script;
         public static byte[] ShowDialog(Window owner, string apiurl)
         {
-            var d = new Dialog_Script_Publish();
+            var d = new Dialog_Script_Upgrade();
             d.Owner = owner;
             d.apiurl = apiurl;
             if (d.ShowDialog() == true)
@@ -128,37 +128,55 @@ namespace thinWallet
 
         }
 
-
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder();
-            sb.EmitPushString(iDescription.Text);
-            sb.EmitPushString(iEmail.Text);
-            sb.EmitPushString(iAuthor.Text);
-            sb.EmitPushString(iVersion.Text);
-            sb.EmitPushString(iName.Text);
             int need_storage = iStorage.IsChecked == true ? 1 : 0;
             int need_nep4 = iDyncall.IsChecked == true ? 2 : 0;
             int can_charge = iCharge.IsChecked == true ? 4 : 0;
-            sb.EmitPushNumber(need_storage | need_nep4 | can_charge);
-            var br = ThinNeo.Helper.HexString2Bytes(iRType.Text);
-            var bp = ThinNeo.Helper.HexString2Bytes(iPList.Text);
-            sb.EmitPushBytes(br);
-            sb.EmitPushBytes(bp);
-            var _ss = ThinNeo.Helper.HexString2Bytes(this.asmBinText.Text);
-            sb.EmitPushBytes(_ss);
 
-            sb.EmitSysCall("Neo.Contract.Create");
-
-            //sb.EmitSysCall("Neo.Contract.Create", script, parameter_list, return_type, need_storage | need_nep4, name, version, author, email, description);
+            ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder();
+            //倒叙插入数据
+            var array = new MyJson.JsonNode_Array();
+            array.AddArrayValue("(bytes)" + this.asmBinText.Text);
+            array.AddArrayValue("(bytes)"+ iPList.Text);
+            array.AddArrayValue("(bytes)"+iRType.Text);
+            array.AddArrayValue("(int)"+ (need_storage | need_nep4 | can_charge));
+            array.AddArrayValue("(str)"+iName.Text);//name
+            array.AddArrayValue("(str)"+iVersion.Text);//version
+            array.AddArrayValue("(str)"+iAuthor.Text);//author
+            array.AddArrayValue("(str)"+iEmail.Text);//email
+            array.AddArrayValue("(str)"+ iDescription.Text);//desc
+            sb.EmitParamJson(array);//参数倒序入
+            sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)upgrade"));//参数倒序入
+            var shash = new ThinNeo.Hash160(iOldScHash.Text); ;
+            sb.EmitAppCall(shash);
             this.script = sb.ToArray();
-
             this.DialogResult = true;
         }
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
             this.DialogResult = false;
+        }
+
+        private void Button_Click4(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
+                ofd.Filter = "*.avm|*.avm";
+                if (ofd.ShowDialog() == true)
+                {
+                    var bin = System.IO.File.ReadAllBytes(ofd.FileName);
+                    var hash = ThinNeo.Helper.Sha256(bin, 0, bin.Length);
+                    var hashstr = ThinNeo.Helper.Bytes2HexString(hash);
+                    iOldScHash.Text = hashstr;
+                }
+            }
+            catch
+            {
+
+            }
         }
     }
 }

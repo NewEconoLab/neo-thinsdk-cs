@@ -62,6 +62,9 @@
     <Compile Include="dialog\Dialog_Script_Custom.xaml.cs">
       <DependentUpon>Dialog_Script_Custom.xaml</DependentUpon>
     </Compile>
+    <Compile Include="dialog\Dialog_Script_Upgrade.xaml.cs">
+      <DependentUpon>Dialog_Script_Upgrade.xaml</DependentUpon>
+    </Compile>
     <Compile Include="dialog\Dialog_Witness_Edit.xaml.cs">
       <DependentUpon>Dialog_Witness_Edit.xaml</DependentUpon>
     </Compile>
@@ -126,6 +129,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="dialog\Dialog_Script_Custom.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialog\Dialog_Script_Upgrade.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -254,6 +261,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="thinwallet\back3.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image1.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

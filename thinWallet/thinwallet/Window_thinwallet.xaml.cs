@@ -657,6 +657,7 @@ namespace thinWallet
             }
             ThinNeo.Transaction trans = new ThinNeo.Transaction();
             trans.attributes = new ThinNeo.Attribute[0];
+            var invokedata = new ThinNeo.InvokeTransData();
             if (tabCType.SelectedIndex == 0)
                 trans.type = ThinNeo.TransactionType.ContractTransaction;
             else if (tabCType.SelectedIndex == 1)
@@ -669,7 +670,7 @@ namespace thinWallet
                 trans.type = ThinNeo.TransactionType.InvocationTransaction;
                 trans.version = 1;
                 trans.extdata = new ThinNeo.InvokeTransData();
-                var invokedata = (trans.extdata as ThinNeo.InvokeTransData);
+                invokedata = (trans.extdata as ThinNeo.InvokeTransData);
                 invokedata.script = lastScript;
                 
                 //gas 系統費衹收整數？
@@ -703,6 +704,7 @@ namespace thinWallet
                 var item = listOutput.Items[i] as Tools.Output;
                 if (string.IsNullOrEmpty(item.Target))
                 {//扔钱
+                    invokedata.gas += item.Fix8;
                     continue;
                 }
                 var output = new ThinNeo.TransactionOutput();
@@ -891,7 +893,14 @@ namespace thinWallet
 
         private void Button_Click_11(object sender, RoutedEventArgs e)
         {
-
+            var ss = Dialog_Script_Upgrade.ShowDialog(this, this.labelApi.Text);
+            if (ss != null)
+            {
+                lastScript = ss;
+                lastFee = null;
+                labelFee.Text = "Fee:";
+                updateScript();
+            }
         }
         //witness 和input 严格对应，这两个功能没任何意义
         //private void MenuItem_Click_4(object sender, RoutedEventArgs e)

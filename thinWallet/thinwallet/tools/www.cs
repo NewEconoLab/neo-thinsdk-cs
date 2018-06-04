@@ -62,8 +62,8 @@ namespace thinWallet
         }
         public static string MakeRpcUrlPost(string url, string method, out byte[] data, params MyJson.IJsonNode[] _params)
         {
-            if (url.Last() != '/')
-                url = url + "/";
+            //if (url.Last() != '/')
+            //    url = url + "/";
             var json = new MyJson.JsonNode_Object();
             json["id"] = new MyJson.JsonNode_ValueNumber(1);
             json["jsonrpc"] = new MyJson.JsonNode_ValueString("2.0");
