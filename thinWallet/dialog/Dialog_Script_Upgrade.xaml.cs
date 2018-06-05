@@ -168,9 +168,9 @@ namespace thinWallet
                 if (ofd.ShowDialog() == true)
                 {
                     var bin = System.IO.File.ReadAllBytes(ofd.FileName);
-                    var hash = ThinNeo.Helper.Sha256(bin, 0, bin.Length);
-                    var hashstr = ThinNeo.Helper.Bytes2HexString(hash);
-                    iOldScHash.Text = hashstr;
+                    var hash = ThinNeo.Helper.GetScriptHashFromScript(bin);
+                    var strHash = ThinNeo.Helper.Bytes2HexString(hash);
+                    iOldScHash.Text = "0x"+strHash;
                 }
             }
             catch
