@@ -7,20 +7,16 @@ namespace smartContractDemo.tests
     class Config
     {
         public readonly static string superadminAddress = "ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj";
-        public  static string test_wif = "KwF2QTMzDEmjEEfkbvkGTZTL8Ch17h1jvQjbLtFj4vHs7KfLrKir";
+        public  static string test_wif = "KwwJMvfFPcRx2HSgQRPviLv4wPrxRaLk7kfQntkH8kCXzTgAts8t";
 
 
-        public readonly static Hash160 dapp_sgas  = new Hash160("0xe52a08c20986332ad8dccf9ded38cc493878064a");//sgas 新合约地址
-        public readonly static Hash160 dapp_coinpool = new Hash160("0x5d6b91ee7cde1f8bb1868d36d4bf134f6887d231");//coinpool 新合约地址
-        public static readonly Hash160 sc_nns = new Hash160("0xee46b4f6d2073381dc61ae74099ccf3a56e38dd1");//nns 跳板合约地址
-        public static readonly Hash160 domaincenterhash = new Hash160("0x5cbc9fbd11d7003ca3b47cbec1117caf6224f317");//nns 域名中心合约地址
+        public readonly static Hash160 dapp_nnc = new Hash160("0xd8fa0cfdd54493dfc9e908b26ba165605363137b");//nnc 合约代码
+        public readonly static Hash160 dapp_sgas  = new Hash160("0xc7816d11287c08135f4e5f907af9e39754910ba3");//sgas 新合约地址
+        public static readonly Hash160 sc_nns = new Hash160("0x537758fbe85505801faa7d7d7b75b37686ad7e2d");//nns 跳板合约地址
+        public static readonly Hash160 domaincenterhash = new Hash160("0xd30348a37fb57b7a61f6637ecfc0da6b4eb08dd0");//nns 域名中心合约地址
 
 
         public static readonly Hash160 dapp_multisign = new Hash160("0x4c0f57b61d997297560190b1e397fe6d58fce94a");  //应用合约多签验证测试
-
-        public readonly static Hash160 dapp_nnc = new Hash160("0x6102a56793c3dc6204eb70f988c46d8e7d25eaa1");
-                                                            //("0xd9f8803a66acdd0c4218b4dca21a43c43e28b66c"); //nnc 合约代码
-
         public const string id_GAS = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
 
 
