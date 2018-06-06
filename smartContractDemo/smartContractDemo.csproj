@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="tests\nns\CoinPool.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="tests\others\Nep5.5_1.cs" />
   </ItemGroup>
   <ItemGroup>

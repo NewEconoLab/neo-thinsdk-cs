@@ -36,16 +36,16 @@ namespace smartContractDemo
                 //倒叙插入数据
                 var array = new MyJson.JsonNode_Array();
                 array.AddArrayValue("(bytes)" + str_script);
-                //array.AddArrayValue("(bytes)0710");
-                //array.AddArrayValue("(bytes)05");
-                //array.AddArrayValue("(int)"+ i);
-                //array.AddArrayValue("(str)合约测试");//name
-                //array.AddArrayValue("(str)1");//version
-                //array.AddArrayValue("(str)ss");//author
-                //array.AddArrayValue("(str)1");//email
-                //array.AddArrayValue("(str)sssss");//desc
+                array.AddArrayValue("(bytes)0710");
+                array.AddArrayValue("(bytes)05");
+                array.AddArrayValue("(int)"+ 5);
+                array.AddArrayValue("(str)合约测试");//name
+                array.AddArrayValue("(str)1");//version
+                array.AddArrayValue("(str)ss");//author
+                array.AddArrayValue("(str)1");//email
+                array.AddArrayValue("(str)sssss");//desc
                 sb.EmitParamJson(array);//参数倒序入
-                sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)migrate"));//参数倒序入
+                sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)upgrade"));//参数倒序入
                 var shash = Config.dapp_sgas;
                 sb.EmitAppCall(shash);
 
@@ -57,7 +57,7 @@ namespace smartContractDemo
                 var consume = (((MyJson.Parse(result) as MyJson.JsonNode_Object)["result"] as MyJson.JsonNode_Array)[0] as MyJson.JsonNode_Object)["gas_consumed"].ToString();
                 decimal gas_consumed = decimal.Parse(consume);
                 ThinNeo.InvokeTransData extdata = new ThinNeo.InvokeTransData();
-                extdata.gas = 1000;// Math.Ceiling(gas_consumed - 10);
+                extdata.gas = 500;// Math.Ceiling(gas_consumed - 10);
                 extdata.script = sb.ToArray();
 
                 //拼装交易体

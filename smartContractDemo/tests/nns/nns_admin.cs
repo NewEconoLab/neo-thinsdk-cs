@@ -28,6 +28,7 @@ namespace smartContractDemo
         {
             infos["set jump _target"] = test_setjumptarget;
             infos["get _target name"] = test_gettargetname;
+            infos["get Domain"] = test_getdomain;
             //infos["initroot .test"] = test_initroot_test;
             //infos["initroot .sell"] = test_initroot_sell;
             infos["initroot .xxx"] = test_initroot_xxx;
@@ -38,20 +39,28 @@ namespace smartContractDemo
         }
         #endregion
         #region testarea
-        string domaincenterhash = "0x1ff70bb2147cf56c8b1ce0eb09323eb2b3f57916";
         async Task test_setjumptarget()
         {
-            var target = new ThinNeo.Hash160(domaincenterhash);
+            var target = new ThinNeo.Hash160(Config.domaincenterhash);
             var result = await nns_common.api_SendTransaction(this.superadminprikey, Config.sc_nns, "_setTarget", "(hex160)" + target.ToString());
             subPrintLine("result=" + result);
         }
 
         async Task test_gettargetname()
         {
-            var target = new ThinNeo.Hash160(domaincenterhash);
+            var target = new ThinNeo.Hash160(Config.domaincenterhash);
             var result = await nns_common.api_InvokeScript(target,"name");
             subPrintLine("result=" + System.Text.Encoding.UTF8.GetString(result.value.subItem[0].data));
         }
+
+        async Task test_getdomain()
+        {
+            var target = new ThinNeo.Hash160(Config.domaincenterhash);
+            var result = await nns_common.api_SendTransaction(this.superadminprikey, target, "getDomain" , "(hex256)0x011d21139589a79a4f20aa72fe91d2399e963e08f638956bc066b0486b89cc75");
+            //subPrintLine("result=" + System.Text.Encoding.UTF8.GetString(result.value.subItem[8].data));
+            //subPrintLine("result=" + System.Text.Encoding.UTF8.GetString(result.value.subItem[9].data));
+        }
+
         async Task test_initroot_xxx()
         {
             subPrintLine("input root domain:");

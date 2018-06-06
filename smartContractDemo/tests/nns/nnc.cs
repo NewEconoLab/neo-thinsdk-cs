@@ -228,7 +228,7 @@ namespace smartContractDemo
             var result = await nns_common.api_SendTransaction(prikey, Config.dapp_nnc, "transfer",
               "(addr)" + address,
               "(addr)" + addressto,
-              "(int)" + amount
+              "(int)" + amount +"00"
               );
             subPrintLine(result);
         }

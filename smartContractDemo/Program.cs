@@ -60,7 +60,6 @@ namespace smartContractDemo
             RegTest(new Tran_1());
             RegTest(new Tran_2());
             RegTest(new SGAS());
-            RegTest(new CoinPool());
             RegTest(new nns_admin());
             RegTest(new nns_user());
             RegTest(new nns_sell());

@@ -34,30 +34,29 @@ namespace smartContractDemo
             Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(api,address);
 
             //从文件中读取合约脚本
-            //byte[] script = System.IO.File.ReadAllBytes("Nep5.avm"); //这里填你的合约所在地址
-            byte[] script = System.IO.File.ReadAllBytes("{合约avm路径}"); //这里填你的合约所在地址
-            //Console.WriteLine("合约脚本:"+ThinNeo.Helper.Bytes2HexString(script));
-            //Console.WriteLine("合约脚本hash："+ThinNeo.Helper.Bytes2HexString(ThinNeo.Helper.GetScriptHashFromScript(script).Reverse().ToArray()));
-            //byte[] parameter__list = ThinNeo.Helper.HexString2Bytes("0610");  //这里填合约入参  例：0610代表（string，[]）
-            byte[] parameter__list = ThinNeo.Helper.HexString2Bytes("{合约入参}");  //这里填合约入参  例：0610代表（string，[]）
-            //byte[] return_type = ThinNeo.Helper.HexString2Bytes("05");  //这里填合约的出参
-            byte[] return_type = ThinNeo.Helper.HexString2Bytes("{合约出参}");  //这里填合约的出参
+            byte[] script = System.IO.File.ReadAllBytes("Nep5.5gas_Contract.avm"); //这里填你的合约所在地址
+            Console.WriteLine("合约脚本:"+ThinNeo.Helper.Bytes2HexString(script));
+            Console.WriteLine("合约脚本hash："+ThinNeo.Helper.Bytes2HexString(ThinNeo.Helper.GetScriptHashFromScript(script).data.ToArray().Reverse().ToArray()));
+            byte[] parameter__list = ThinNeo.Helper.HexString2Bytes("0710");  //这里填合约入参  例：0610代表（string，[]）
+            byte[] return_type = ThinNeo.Helper.HexString2Bytes("05");  //这里填合约的出参
             int need_storage = 1;   
             int need_nep4 = 0;
-            string name = "viko";
-            string version = "0";
-            string auther = "viko";
-            string email = "82604458@qq.com";
-            string description = "*****";
+            int need_canCharge = 4;
+            string name = "sgas";
+            string version = "1.0";
+            string auther = "NEL";
+            string email = "0";
+            string description = "0";
             using (ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder())
             {
+                var ss = need_storage | need_nep4 | need_canCharge;
                 //倒叙插入数据
                 sb.EmitPushString(description);
                 sb.EmitPushString(email);
                 sb.EmitPushString(auther);
                 sb.EmitPushString(version);
                 sb.EmitPushString(name);
-                sb.EmitPushNumber(need_storage|need_nep4);
+                sb.EmitPushNumber(need_storage|need_nep4| need_canCharge);
                 sb.EmitPushBytes(return_type);
                 sb.EmitPushBytes(parameter__list);
                 sb.EmitPushBytes(script);
