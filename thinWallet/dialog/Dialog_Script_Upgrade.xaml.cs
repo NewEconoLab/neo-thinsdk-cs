@@ -169,7 +169,7 @@ namespace thinWallet
                 {
                     var bin = System.IO.File.ReadAllBytes(ofd.FileName);
                     var hash = ThinNeo.Helper.GetScriptHashFromScript(bin);
-                    var strHash = ThinNeo.Helper.Bytes2HexString(hash);
+                    var strHash = ThinNeo.Helper.Bytes2HexString(hash.data.Reverse().ToArray());
                     iOldScHash.Text = "0x"+strHash;
                 }
             }

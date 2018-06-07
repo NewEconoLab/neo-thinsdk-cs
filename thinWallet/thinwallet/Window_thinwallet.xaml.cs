@@ -677,7 +677,7 @@ namespace thinWallet
                 decimal gas = lastFee.Value - (decimal)10.0;
                 if (gas < 0) gas = 0;
                 gas = Math.Ceiling(gas);
-                invokedata.gas = gas;
+                //invokedata.gas = gas;
                 //(trans.extdata as ThinNeo.InvokeTransData).gas = lastFee.Value;
             }
             trans.inputs = new ThinNeo.TransactionInput[this.listInput.Items.Count];
