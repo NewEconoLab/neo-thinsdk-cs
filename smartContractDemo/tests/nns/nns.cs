@@ -20,6 +20,7 @@ namespace smartContractDemo
             byte[] data = System.Text.Encoding.UTF8.GetBytes(domain);
             return new Hash256(sha256.ComputeHash(data));
         }
+
         public static Hash256 nameHashSub(byte[] roothash, string subdomain)
         {
             var bs = System.Text.Encoding.UTF8.GetBytes(subdomain);
@@ -210,7 +211,7 @@ namespace smartContractDemo
             var trandata = tran.GetRawData();
             var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
             byte[] postdata;
-            var url = Helper.MakeRpcUrlPost(nns_common.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
+            var url = Helper.MakeRpcUrlPost(Config.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
             var result = await Helper.HttpPost(url, postdata);
             return result;
         }

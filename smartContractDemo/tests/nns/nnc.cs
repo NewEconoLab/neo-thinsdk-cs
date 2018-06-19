@@ -1,7 +1,9 @@
 ﻿using smartContractDemo.tests;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ThinNeo;
 
@@ -220,8 +222,19 @@ namespace smartContractDemo
         async Task test_transfer()
         {
             subPrintLine("Input target address:");
-            string addressto = Console.ReadLine();
-            addressto = "AeYiwwjiy2nKXoGLDafoTXc1tGvfkTYQcM";
+            string addressto;
+            try
+            {
+                addressto = Console.ReadLine();
+                if (addressto.Length < 34)
+                {
+                    addressto = this.address;
+                }
+            }
+            catch (Exception e)
+            {
+                addressto = "AeYiwwjiy2nKXoGLDafoTXc1tGvfkTYQcM";
+            }
             subPrintLine("Input amount:");
             string amount = Console.ReadLine();
 
