@@ -10,10 +10,10 @@ namespace smartContractDemo.tests
         public  static string test_wif = "KwwJMvfFPcRx2HSgQRPviLv4wPrxRaLk7kfQntkH8kCXzTgAts8t";
 
 
-        public readonly static Hash160 dapp_nnc = new Hash160("0x9c24a26b2dc5b286bdc9069fa894b653d0751e78");//nnc 合约代码
-        public readonly static Hash160 dapp_sgas  = new Hash160("0xa4d35ea30dc61878518c5070352e7c33006b1f28");//sgas 新合约地址
-        public static readonly Hash160 sc_nns = new Hash160("0x31f0f24160c2158704ecb09ecfd0ab7d2f25d035");//nns 跳板合约地址
-        public static readonly Hash160 domaincenterhash = new Hash160("0x304ed6bb5476eb8715c49511e259430ed49eb126");//nns 域名中心合约地址
+        public readonly static Hash160 dapp_nnc = new Hash160("0x12329843449f29a66fb05974c2fb77713eb1689a");//nnc 合约代码
+        public readonly static Hash160 dapp_sgas  = new Hash160("0x07185f19053c0f8a064921d7ca798a5e6ba957cb");//sgas 新合约地址
+        public static readonly Hash160 sc_nns = new Hash160("0x77e193f1af44a61ed3613e6e3442a0fc809bb4b8");//nns 跳板合约地址
+        public static readonly Hash160 domaincenterhash = new Hash160("0x7754b7dbacd840f7b9f1b02277d8745901df8a22");//nns 域名中心合约地址
 
 
         public static readonly Hash160 dapp_multisign = new Hash160("0x4c0f57b61d997297560190b1e397fe6d58fce94a");  //应用合约多签验证测试
