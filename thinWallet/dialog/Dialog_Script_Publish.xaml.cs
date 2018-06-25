@@ -114,6 +114,7 @@ namespace thinWallet
                     }
                     iStorage.IsChecked = bStorage;
                     iDyncall.IsChecked = bDyncall;
+                    this.info1.Text =ThinNeo.Helper.Bytes2HexString(((byte[])ThinNeo.Helper.GetScriptHashFromScript(bin)).Reverse().ToArray());
                     iCharge.IsChecked = true;
                 }
             }
