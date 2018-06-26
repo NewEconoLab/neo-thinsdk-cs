@@ -40,16 +40,55 @@ namespace signtool
                 }
                 else
                 {
-                    var pkey = new List<byte[]>(this.MKey_Pubkeys);
-                    pkey.Sort();
-                    var outstr = "M(" + this.MKey_NeedCount + ")";
-                    for (var i = 0; i < pkey.Count; i++)
-                    {
-                        var address = ThinNeo.Helper.GetAddressFromPublicKey(pkey[i]);
-                        outstr += "[" + address + "]";
-                    }
-                    return outstr;
+                    return GetMultiSignAddress();
                 }
+            }
+            public byte[] GetMultiContract()
+            {
+                if (!(1 <= this.MKey_NeedCount && MKey_NeedCount <= MKey_Pubkeys.Count && MKey_Pubkeys.Count <= 1024))
+                    throw new ArgumentException();
+                using (ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder())
+                {
+                    sb.EmitPushNumber(MKey_NeedCount);
+                    foreach(var pkey in this.MKey_Pubkeys)
+                    {
+                        sb.EmitPushBytes(pkey);
+                    }
+                    sb.EmitPushNumber(MKey_Pubkeys.Count);
+                    sb.Emit(ThinNeo.VM.OpCode.CHECKMULTISIG);
+                    return sb.ToArray();
+                }
+            }
+            public string GetMultiSignAddress()
+            {
+                if (this.multisignkey == false)
+                {
+                    return "<not a multisign key>";
+                }
+                else
+                {//计算多签地址
+                    var contract = GetMultiContract();
+                    var scripthash = ThinNeo.Helper.GetScriptHashFromScript(contract);
+                    var address = ThinNeo.Helper.GetAddressFromScriptHash(scripthash);
+                    return address;
+                }
+            }
+            public void AddPubkey(byte[] pubkey)
+            {
+                foreach(var k in this.MKey_Pubkeys)
+                {
+                    var s1 = ThinNeo.Helper.Bytes2HexString(k);
+                    var s2 = ThinNeo.Helper.Bytes2HexString(pubkey);
+                    if (s1 == s2)
+                        return;
+                }
+                this.MKey_Pubkeys.Add(pubkey);
+                this.MKey_Pubkeys.Sort((a, b) =>
+                {
+                    var pa =  ThinNeo.Cryptography.ECC.ECPoint.DecodePoint(a, ThinNeo.Cryptography.ECC.ECCurve.Secp256r1);
+                    var pb = ThinNeo.Cryptography.ECC.ECPoint.DecodePoint(b, ThinNeo.Cryptography.ECC.ECCurve.Secp256r1);
+                    return pa.CompareTo(pb);
+                });
             }
         }
         List<Key> keys = new List<Key>();
@@ -69,13 +108,9 @@ namespace signtool
 
             UpdateKeyUI();
         }
-        private void AddMultiSignKey(IEnumerable<byte[]> pubkeys, int needcount)
+        private void AddMultiSignKey(Key _key)
         {
-            var _key = new Key();
-            _key.MKey_NeedCount = needcount;
-            _key.MKey_Pubkeys = new List<byte[]>(pubkeys);
-            _key.multisignkey = true;
-            _key.prikey = null;
+
             foreach (var k in keys)
             {
                 if (k.ToString() == _key.ToString())
@@ -122,7 +157,11 @@ namespace signtool
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {//创建多方签名
-
+            var key = dialog_MultiSign.ShowDialog(this);
+            if(key!=null)
+            {
+                AddMultiSignKey(key);
+            }
         }
     }
 }
