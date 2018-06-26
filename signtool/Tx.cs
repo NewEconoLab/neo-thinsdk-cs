@@ -18,7 +18,7 @@ namespace signtool
         public string keyaddress;
         public KeyType type;
         public Key MultiSignKey;
-
+        public byte[] pubkey;
         /// <summary>
         /// unknown 无签名，
         /// simple signdata 只有一个
@@ -90,8 +90,8 @@ namespace signtool
                 this.txraw.witnesses[i] = new ThinNeo.Witness();
                 if (keys[i].type == KeyType.Simple)
                 {
-                    //算出iscript
-                    this.txraw.witnesses[i].VerificationScript = new byte[1];
+                    //算出vscript
+                    this.txraw.witnesses[i].VerificationScript = ThinNeo.Helper.GetScriptFromPublicKey(keys[i].pubkey);
                     using (ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder())
                     {
                         sb.EmitPushBytes(keys[i].signdata[0]);
@@ -100,7 +100,7 @@ namespace signtool
                 }
                 if (keys[i].type == KeyType.MultiSign)
                 {
-                    //算出iscript
+                    //算出vscript
                     this.txraw.witnesses[i].VerificationScript = keys[i].MultiSignKey.GetMultiContract();
                     List<byte[]> signs = new List<byte[]>();
                     foreach (var s in keys[i].signdata)
@@ -150,6 +150,8 @@ namespace signtool
                 {
                     var strsigndata = k.Value.signdata[0] == null ? "<null>" : ThinNeo.Helper.Bytes2HexString(k.Value.signdata[0]);
                     keyitem.SetDictValue("sign0", strsigndata);
+                    var strpubkey = k.Value.pubkey == null ? "<null>" : ThinNeo.Helper.Bytes2HexString(k.Value.pubkey);
+                    keyitem.SetDictValue("pkey0", strpubkey);
                 }
                 else if (k.Value.type == KeyType.MultiSign)
                 {
@@ -195,6 +197,7 @@ namespace signtool
                             if (k.multisignkey == false)
                             {
                                 keyinfos[addr].type = KeyType.Simple;
+                                keyinfos[addr].pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(k.prikey);
                                 if (keyinfos[addr].signdata == null)
                                 {
                                     keyinfos[addr].signdata = new List<byte[]>();
@@ -239,6 +242,8 @@ namespace signtool
                             {
                                 keyinfos[k.Key].signdata[0] = ThinNeo.Helper.HexString2Bytes(data);
                             }
+                            var pkey = k.Value.GetDictItem("pkey0").AsString();
+                            keyinfos[k.Key].pubkey = ThinNeo.Helper.HexString2Bytes(pkey);
                         }
                         if (keyinfos[k.Key].type == KeyType.MultiSign)
                         {
