@@ -92,10 +92,20 @@ namespace thinWallet
             update_labelAccount();
 
         }
-
+        bool isMainNet = false;
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("NEL Mainnet API not ready yet.");
+            if (isMainNet)
+            {
+                this.labelApi.Text = "https://api.nel.group/api/testnet";
+                isMainNet = false;
+            }
+            else
+            {
+                this.labelApi.Text = "https://api.nel.group/api/mainnet";
+                isMainNet = true;
+            }
+            //MessageBox.Show("NEL Mainnet API not ready yet.");
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
