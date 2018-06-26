@@ -91,17 +91,17 @@ namespace signtool
                 if (keys[i].type == KeyType.Simple)
                 {
                     //算出iscript
-                    this.txraw.witnesses[i].InvocationScript = new byte[1];
+                    this.txraw.witnesses[i].VerificationScript = new byte[1];
                     using (ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder())
                     {
                         sb.EmitPushBytes(keys[i].signdata[0]);
-                        this.txraw.witnesses[i].VerificationScript = sb.ToArray();
+                        this.txraw.witnesses[i].InvocationScript = sb.ToArray();
                     }
                 }
                 if (keys[i].type == KeyType.MultiSign)
                 {
                     //算出iscript
-                    this.txraw.witnesses[i].InvocationScript = keys[i].MultiSignKey.GetMultiContract();
+                    this.txraw.witnesses[i].VerificationScript = keys[i].MultiSignKey.GetMultiContract();
                     List<byte[]> signs = new List<byte[]>();
                     foreach (var s in keys[i].signdata)
                     {
@@ -115,7 +115,7 @@ namespace signtool
                         {
                             sb.EmitPushBytes(signs[iss]);
                         }
-                        this.txraw.witnesses[i].VerificationScript = sb.ToArray();
+                        this.txraw.witnesses[i].InvocationScript = sb.ToArray();
                     }
 
                 }
