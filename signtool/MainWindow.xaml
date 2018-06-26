@@ -52,7 +52,7 @@
                     <Rectangle Height="10"></Rectangle>
                     <Button Content="签名" HorizontalAlignment="Left"  Width="150" Click="Button_Click_5"  />
 
-                    <Button Content="导出签名交易Raw" HorizontalAlignment="Left"  Width="150"  />
+                    <Button Content="导出签名交易Raw" HorizontalAlignment="Left"  Width="150" Click="Button_Click_6"  />
                     <Rectangle Height="10"></Rectangle>
                     <Button Content="检查API" HorizontalAlignment="Left"  Width="150"  />
                     <Button Content="广播交易" HorizontalAlignment="Left"  Width="150"  />

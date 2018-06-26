@@ -46,7 +46,81 @@ namespace signtool
                 return false;
             }
         }
+        public bool HasAllKeyInfo
+        {
+            get
+            {
+                foreach (var k in keyinfos)
+                {
+                    if (k.Value.type == KeyType.Unknown)
+                        return false;
+                    if (k.Value.type == KeyType.Simple)
+                    {
+                        if (k.Value.signdata == null || k.Value.signdata[0] == null || k.Value.signdata[0].Length == 0)
+                            return false;
+                    }
+                    if (k.Value.type == KeyType.MultiSign)
+                    {
+                        var m = k.Value.MultiSignKey.MKey_NeedCount;
+                        var c = 0;
+                        for (var i = 0; i < k.Value.MultiSignKey.MKey_Pubkeys.Count; i++)
+                        {
+                            var data = k.Value.signdata[i];
+                            if (data != null && data.Length > 0)
+                                c++;
+                        }
+                        if (c < m)
+                            return false;
+                    }
+                }
+                return true;
+            }
+        }
+        public void FillRaw()
+        {
+            this.txraw.witnesses = new ThinNeo.Witness[keyinfos.Count];
+            List<KeyInfo> keys = new List<KeyInfo>();
+            foreach (var key in keyinfos)
+            {
+                keys.Add(key.Value);
+            }
+            //keys 這個需要排序
+            for (var i = 0; i < keys.Count; i++)
+            {
+                this.txraw.witnesses[i] = new ThinNeo.Witness();
+                if (keys[i].type == KeyType.Simple)
+                {
+                    //算出iscript
+                    this.txraw.witnesses[i].InvocationScript = new byte[1];
+                    using (ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder())
+                    {
+                        sb.EmitPushBytes(keys[i].signdata[0]);
+                        this.txraw.witnesses[i].VerificationScript = sb.ToArray();
+                    }
+                }
+                if (keys[i].type == KeyType.MultiSign)
+                {
+                    //算出iscript
+                    this.txraw.witnesses[i].InvocationScript = keys[i].MultiSignKey.GetMultiContract();
+                    List<byte[]> signs = new List<byte[]>();
+                    foreach (var s in keys[i].signdata)
+                    {
+                        if (s != null && s.Length > 0)
+                            signs.Add(s);
+                    }
+                    //?這個signs 要不要倒序？试一试
+                    using (ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder())
+                    {
+                        for (var iss = 0; iss < keys[i].MultiSignKey.MKey_NeedCount; iss++)
+                        {
+                            sb.EmitPushBytes(signs[iss]);
+                        }
+                        this.txraw.witnesses[i].VerificationScript = sb.ToArray();
+                    }
 
+                }
+            }
+        }
         public override string ToString()
         {
             using (var ms = new System.IO.MemoryStream())

@@ -36,7 +36,7 @@ namespace signtool
             tran.type = ThinNeo.TransactionType.InvocationTransaction;
             tran.version = 0;//0 or 1
 
-            var addrfrom = "AMNFdmGuBrU1iaMbYd63L1zucYMdU9hvQU";
+            var addrfrom = "ANoNDL3dcTTVE4hMeG8NbMQcXraVCwPQ3H";
             using (ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder())
             {
                 MyJson.JsonNode_Array array = new MyJson.JsonNode_Array();

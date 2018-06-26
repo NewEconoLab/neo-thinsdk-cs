@@ -218,5 +218,19 @@ namespace signtool
             }
             UpdateTxUI();
         }
+
+        private void Button_Click_6(object sender, RoutedEventArgs e)
+        {
+            if(tx.HasAllKeyInfo==false)
+            {
+                MessageBox.Show("簽名信息還不完整");
+            }
+            else
+            {
+                tx.FillRaw();
+                var str =  ThinNeo.Helper.Bytes2HexString( tx.txraw.GetRawData());
+                dialog_exportTX.ShowDialog(this, str);
+            }
+        }
     }
 }
