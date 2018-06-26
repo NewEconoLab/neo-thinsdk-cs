@@ -232,7 +232,10 @@ namespace signtool
                 dialog_exportTX.ShowDialog(this, str);
             }
         }
-
+        
+        /**
+         * 广播交易
+         */
         private async void Button_Click_7(object sender, RoutedEventArgs e)
         {
             tx.FillRaw();
@@ -241,7 +244,11 @@ namespace signtool
             var str = HttpHelper.MakeRpcUrlPost(url, "sendrawtransaction", out data, new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(rawData) });
             var result =await HttpHelper.Post(str, data);
             var json = MyJson.Parse(result);
-            MessageBox.Show(json.AsDict()["result"].AsList()[0].AsDict()["txid"].AsString());
+            Console.WriteLine(json);
+            if (json.AsDict()["result"].AsList()[0].AsDict()["sendrawtransaction"].AsBool())
+                MessageBox.Show(json.AsDict()["result"].AsList()[0].AsDict()["txid"].AsString());
+            else
+                MessageBox.Show("交易失败");
         }
 
         private void radioIsMainnet_Checked(object sender, RoutedEventArgs e)
@@ -249,7 +256,13 @@ namespace signtool
             if (!(bool)this.radioIsMainnet.IsChecked)
             {
                 url = "https://api.nel.group/api/testnet";
+                //url = "http://localhost:20332";
             }
+            else
+            {
+                url = "https://api.nel.group/api/mainnet";
+            }
+            Console.WriteLine(url);
         }
     }
 }
