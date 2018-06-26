@@ -59,6 +59,9 @@
     <Compile Include="dialog\dialog_exportTX.xaml.cs">
       <DependentUpon>dialog_exportTX.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HttpHelper.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Tx.cs" />
     <Page Include="dialog\Dialog Import_Nep6.xaml">
       <Generator>MSBuild:Compile</Generator>

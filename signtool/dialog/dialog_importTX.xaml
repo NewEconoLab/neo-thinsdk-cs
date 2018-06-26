@@ -7,12 +7,14 @@
         mc:Ignorable="d"
         Title="dialog_importTX" Height="360.984" Width="643.24">
     <Grid>
-        <TextBox x:Name="textTran" HorizontalAlignment="Left" AcceptsReturn="False" Height="196" Margin="28,60,0,0" TextWrapping="Wrap" Text="00" VerticalAlignment="Top" Width="340"/>
-        <Label Content="交易，二进制hexstring数据，无需包含签名，可以包含导出的附加数据" HorizontalAlignment="Left" Margin="28,10,0,0" VerticalAlignment="Top" Width="415" Height="45"/>
-        <Button Content="OK" HorizontalAlignment="Left" Margin="105,287,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_2"/>
-        <Button Content="Cancel" HorizontalAlignment="Left" Margin="368,287,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
-        <Button Content="Gen Nep5 留给印玮" HorizontalAlignment="Left" Margin="430,36,0,0" VerticalAlignment="Top" Width="170" Click="Button_Click"/>
-        <Button Content="Gen XXX..." HorizontalAlignment="Left" Margin="525,60,0,0" VerticalAlignment="Top" Width="75"/>
-
+        <TextBox x:Name="textTran" HorizontalAlignment="Left" AcceptsReturn="False" Height="218" Margin="10,60,0,0" TextWrapping="Wrap" Text="00" VerticalAlignment="Top" Width="340"/>
+        <Label Content="交易，二进制hexstring数据，无需包含签名，可以包含导出的&#xD;&#xA;附加数据" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="340" Height="45"/>
+        <Button Content="OK" HorizontalAlignment="Left" Margin="108,302,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_2"/>
+        <Button Content="Cancel" HorizontalAlignment="Left" Margin="471,302,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1" RenderTransformOrigin="0.81,0.786"/>
+        <Button Content="LoadScript" HorizontalAlignment="Left" Margin="552,35,0,0" VerticalAlignment="Top" Width="65" Click="Button_Click_3" Height="22"/>
+        <Button Content="Gen Code" HorizontalAlignment="Left" Margin="538,263,0,0" VerticalAlignment="Top" Width="65" Click="Button_Click" Height="22" RenderTransformOrigin="0.5,1.578"/>
+        <TextBox Name="textContractHash" HorizontalAlignment="Left" Height="23" Margin="355,7,0,0" TextWrapping="Wrap" Text="输入合约hash" VerticalAlignment="Top" Width="259"/>
+        <TextBox x:Name="textParams" HorizontalAlignment="Left" AcceptsReturn="True" AcceptsTab="True" Height="194" Margin="359,60,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="258"/>
+        <TextBox x:Name="textAddr" HorizontalAlignment="Left" Height="23" Margin="359,259,0,0" TextWrapping="Wrap" Text="输入发起交易的地址" VerticalAlignment="Top" Width="174"/>
     </Grid>
 </Window>

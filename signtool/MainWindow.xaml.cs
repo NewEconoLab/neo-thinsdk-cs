@@ -26,7 +26,7 @@ namespace signtool
 
         List<Key> keys = new List<Key>();
         Tx tx = null;
-
+        string url = "https://api.nel.group/api/mainnet";
         private void AddSimpleKey(byte[] prikey)
         {
             var _key = new Key();
@@ -167,7 +167,7 @@ namespace signtool
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {//导入交易
-            this.tx = dialog_importTX.ShowDialog(keys, this);
+            this.tx = dialog_importTX.ShowDialog(keys,url, this);
             UpdateKeyUI();
 
             UpdateTxUI();
@@ -230,6 +230,24 @@ namespace signtool
                 tx.FillRaw();
                 var str =  ThinNeo.Helper.Bytes2HexString( tx.txraw.GetRawData());
                 dialog_exportTX.ShowDialog(this, str);
+            }
+        }
+
+        private async void Button_Click_7(object sender, RoutedEventArgs e)
+        {
+            var rawData = ThinNeo.Helper.Bytes2HexString(tx.txraw.GetRawData());
+            byte[] data;
+            var str = HttpHelper.MakeRpcUrlPost(url, "sendrawtransaction", out data, new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(rawData) });
+            var result =await HttpHelper.Post(str, data);
+            var json = MyJson.Parse(result);
+            MessageBox.Show(json.AsDict()["result"].AsList()[0].AsDict()["sendrawtransactionresult"].AsBool().ToString());
+        }
+
+        private void radioIsMainnet_Checked(object sender, RoutedEventArgs e)
+        {
+            if (!(bool)this.radioIsMainnet.IsChecked)
+            {
+                url = "https://api.nel.group/api/testnet";
             }
         }
     }
