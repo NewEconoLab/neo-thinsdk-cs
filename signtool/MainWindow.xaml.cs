@@ -177,5 +177,46 @@ namespace signtool
         {//导出交易
             dialog_exportTX.ShowDialog(this, this.tx.ToString());
         }
+
+        private void Button_Click_5(object sender, RoutedEventArgs e)
+        {//签名
+            var signcount = 0;
+            var data = tx.txraw.GetMessage();
+            foreach (var key in this.keys)
+            {
+                if (key.prikey == null) continue;
+                var addr = key.GetAddress();
+                foreach (var k in tx.keyinfos)
+                {
+                    if (k.Value.type == KeyType.Simple)
+                    {
+                        if (k.Key == addr)//可以签一个
+                        {
+                            k.Value.signdata[0] = ThinNeo.Helper.Sign(data, key.prikey);
+                            signcount++;
+                        }
+                    }
+                    if (k.Value.type == KeyType.MultiSign)
+                    {
+                        for (var i = 0; i < k.Value.MultiSignKey.MKey_Pubkeys.Count; i++)
+                        {
+                            var pub = k.Value.MultiSignKey.MKey_Pubkeys[i];
+                            var signaddr = ThinNeo.Helper.GetAddressFromPublicKey(pub);
+                            if (signaddr == addr)//可以签一个
+                            {
+                                k.Value.signdata[i] = ThinNeo.Helper.Sign(data, key.prikey);
+                                signcount++;
+                            }
+                        }
+
+                    }
+                }
+            }
+            if (signcount == 0)
+            {
+                MessageBox.Show("没找到可以签的");
+            }
+            UpdateTxUI();
+        }
     }
 }

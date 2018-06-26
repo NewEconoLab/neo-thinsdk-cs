@@ -50,7 +50,7 @@
                     <Button Content="导入交易" HorizontalAlignment="Left"  Width="150" Click="Button_Click_3"  />
                     <Button Content="导出交易" HorizontalAlignment="Left"  Width="150" Click="Button_Click_4"  />
                     <Rectangle Height="10"></Rectangle>
-                    <Button Content="签名" HorizontalAlignment="Left"  Width="150"  />
+                    <Button Content="签名" HorizontalAlignment="Left"  Width="150" Click="Button_Click_5"  />
 
                     <Button Content="导出签名交易Raw" HorizontalAlignment="Left"  Width="150"  />
                     <Rectangle Height="10"></Rectangle>
