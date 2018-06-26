@@ -235,12 +235,13 @@ namespace signtool
 
         private async void Button_Click_7(object sender, RoutedEventArgs e)
         {
+            tx.FillRaw();
             var rawData = ThinNeo.Helper.Bytes2HexString(tx.txraw.GetRawData());
             byte[] data;
             var str = HttpHelper.MakeRpcUrlPost(url, "sendrawtransaction", out data, new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(rawData) });
             var result =await HttpHelper.Post(str, data);
             var json = MyJson.Parse(result);
-            MessageBox.Show(json.AsDict()["result"].AsList()[0].AsDict()["sendrawtransactionresult"].AsBool().ToString());
+            MessageBox.Show(json.AsDict()["result"].AsList()[0].AsDict()["txid"].AsString());
         }
 
         private void radioIsMainnet_Checked(object sender, RoutedEventArgs e)
