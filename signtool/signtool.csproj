@@ -56,6 +56,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="dialog\dialog_exportTX.xaml.cs">
+      <DependentUpon>dialog_exportTX.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tx.cs" />
     <Page Include="dialog\Dialog Import_Nep6.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -70,6 +73,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="dialog\dialog_importTX.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="dialog\dialog_exportTX.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

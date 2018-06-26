@@ -166,9 +166,16 @@ namespace signtool
         }
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
-        {
+        {//导入交易
             this.tx = dialog_importTX.ShowDialog(keys, this);
+            UpdateKeyUI();
+
             UpdateTxUI();
+        }
+
+        private void Button_Click_4(object sender, RoutedEventArgs e)
+        {//导出交易
+            dialog_exportTX.ShowDialog(this, this.tx.ToString());
         }
     }
 }
