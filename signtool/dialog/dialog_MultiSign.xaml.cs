@@ -23,12 +23,12 @@ namespace signtool
         {
             InitializeComponent();
         }
-        public MainWindow.Key key;
+        public Key key;
         bool bError = false;
-        public static MainWindow.Key ShowDialog(Window owner)
+        public static Key ShowDialog(Window owner)
         {
             var d = new dialog_MultiSign();
-            d.key = new MainWindow.Key();
+            d.key = new Key();
             d.key.prikey = null;
             d.key.multisignkey = true;
             d.key.MKey_NeedCount = 1;
@@ -52,7 +52,7 @@ namespace signtool
                     if (this.key != null)
                     {
                         this.key.MKey_NeedCount = v;
-                        this._multisign_address.Content = this.key.GetMultiSignAddress();
+                        this._multisign_address.Content = this.key.GetAddress();
                     }
                 }
             }
@@ -98,7 +98,7 @@ namespace signtool
                     return;
                 this.key.AddPubkey(pkey);
                 updateUI();
-                this._multisign_address.Content = this.key.GetMultiSignAddress();
+                this._multisign_address.Content = this.key.GetAddress();
             }
             catch
             {

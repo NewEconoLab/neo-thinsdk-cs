@@ -9,7 +9,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="432*"/>
-            <ColumnDefinition Width="431*"/>
+            <ColumnDefinition Width="231*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="189*"/>
@@ -38,16 +38,16 @@
         <GroupBox Header="交易Transaction" Grid.Column="0" Grid.ColumnSpan="1" Grid.Row="1">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="23*"/>
-                    <ColumnDefinition Width="19*"/>
+                    <ColumnDefinition Width="193*"/>
+                    <ColumnDefinition Width="82*"/>
                 </Grid.ColumnDefinitions>
                 <GroupBox Header="交易详情">
                     <TreeView x:Name="treeTX">
-                        
+
                     </TreeView>
                 </GroupBox>
                 <StackPanel Grid.Column="1">
-                    <Button Content="导入交易" HorizontalAlignment="Left"  Width="150"  />
+                    <Button Content="导入交易" HorizontalAlignment="Left"  Width="150" Click="Button_Click_3"  />
                     <Button Content="导出交易" HorizontalAlignment="Left"  Width="150"  />
                     <Button Content="签名" HorizontalAlignment="Left"  Width="150"  />
                     <Rectangle Height="10"></Rectangle>
@@ -61,7 +61,7 @@
                 <TextBlock Text="欲签名需要先打开一个钱包文件或者导入WIF。"/>
                 <TextBlock Text="如果要操作多方签名，需要先创建多方签名。"/>
             </StackPanel>
-            
+
         </GroupBox>
         <GroupBox Header="交易说明" Grid.Column="1" Grid.Row="1">
             <StackPanel>
