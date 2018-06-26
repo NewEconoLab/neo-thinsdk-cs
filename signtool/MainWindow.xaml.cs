@@ -40,7 +40,14 @@ namespace signtool
                 }
                 else
                 {
-                    return GetMultiSignAddress();
+                    try
+                    {
+                        return "M" + MKey_NeedCount + "/" + MKey_Pubkeys.Count + ":" + GetMultiSignAddress();
+                    }
+                    catch
+                    {
+                        return "M<error>";
+                    }
                 }
             }
             public byte[] GetMultiContract()
@@ -50,7 +57,7 @@ namespace signtool
                 using (ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder())
                 {
                     sb.EmitPushNumber(MKey_NeedCount);
-                    foreach(var pkey in this.MKey_Pubkeys)
+                    foreach (var pkey in this.MKey_Pubkeys)
                     {
                         sb.EmitPushBytes(pkey);
                     }
@@ -75,7 +82,7 @@ namespace signtool
             }
             public void AddPubkey(byte[] pubkey)
             {
-                foreach(var k in this.MKey_Pubkeys)
+                foreach (var k in this.MKey_Pubkeys)
                 {
                     var s1 = ThinNeo.Helper.Bytes2HexString(k);
                     var s2 = ThinNeo.Helper.Bytes2HexString(pubkey);
@@ -85,7 +92,7 @@ namespace signtool
                 this.MKey_Pubkeys.Add(pubkey);
                 this.MKey_Pubkeys.Sort((a, b) =>
                 {
-                    var pa =  ThinNeo.Cryptography.ECC.ECPoint.DecodePoint(a, ThinNeo.Cryptography.ECC.ECCurve.Secp256r1);
+                    var pa = ThinNeo.Cryptography.ECC.ECPoint.DecodePoint(a, ThinNeo.Cryptography.ECC.ECCurve.Secp256r1);
                     var pb = ThinNeo.Cryptography.ECC.ECPoint.DecodePoint(b, ThinNeo.Cryptography.ECC.ECCurve.Secp256r1);
                     return pa.CompareTo(pb);
                 });
@@ -129,6 +136,16 @@ namespace signtool
                 item.Header = k.ToString();
                 item.Tag = k;
                 treeAccounts.Items.Add(item);
+                if(k.multisignkey)
+                {
+                    foreach(var subpubkey in k.MKey_Pubkeys)
+                    {
+                        var address = ThinNeo.Helper.GetAddressFromPublicKey(subpubkey);
+                        TreeViewItem pubkey = new TreeViewItem();
+                        pubkey.Header = address;
+                        item.Items.Add(pubkey);
+                    }
+                }
             }
         }
 
@@ -158,7 +175,7 @@ namespace signtool
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {//创建多方签名
             var key = dialog_MultiSign.ShowDialog(this);
-            if(key!=null)
+            if (key != null)
             {
                 AddMultiSignKey(key);
             }
