@@ -63,6 +63,11 @@ namespace signtool
                         Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(url, this.textAddr.Text);
                         tran = Helper.makeTran(tran, dir["0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"], null, new ThinNeo.Hash256("0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"), extdata.gas);
                     }
+                    else
+                    {
+                        tran.inputs = new ThinNeo.TransactionInput[0];
+                        tran.outputs = new ThinNeo.TransactionOutput[0];
+                    }
                 }
 
                 tran.attributes = new ThinNeo.Attribute[1];
