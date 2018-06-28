@@ -31,13 +31,17 @@ namespace signtool
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
             try
             {
+                int gas = int.Parse(this.textConsume.Text);
                 var tran = new ThinNeo.Transaction();
                 tran.type = ThinNeo.TransactionType.InvocationTransaction;
-                tran.version = 0;//0 or 1
+                if (gas > 0)//0 or 1
+                    tran.version = 1;
+                else
+                    tran.version = 0;
 
                 var json = MyJson.Parse(this.textParams.Text).AsList();
                 using (ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder())
@@ -53,10 +57,14 @@ namespace signtool
                     var extdata = new ThinNeo.InvokeTransData();
                     tran.extdata = extdata;
                     extdata.script = sb.ToArray();
-                    extdata.gas = 0;
+                    extdata.gas = gas;
+                    if (gas > 0)
+                    {
+                        Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(url, this.textAddr.Text);
+                        tran = Helper.makeTran(tran, dir["0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"], null, new ThinNeo.Hash256("0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"), extdata.gas);
+                    }
                 }
-                tran.inputs = new ThinNeo.TransactionInput[0];
-                tran.outputs = new ThinNeo.TransactionOutput[0];
+
                 tran.attributes = new ThinNeo.Attribute[1];
                 tran.attributes[0] = new ThinNeo.Attribute();
                 tran.attributes[0].usage = ThinNeo.TransactionAttributeUsage.Script;
@@ -75,6 +83,73 @@ namespace signtool
             {
                 MessageBox.Show("请填写正确的数据");
             }
+        }
+
+        public static ThinNeo.Transaction makeTran(List<Utxo> utxos, string targetaddr, ThinNeo.Hash256 assetid, decimal sendcount)
+        {
+            var tran = new ThinNeo.Transaction();
+            tran.type = ThinNeo.TransactionType.ContractTransaction;
+            tran.version = 0;//0 or 1
+            tran.extdata = null;
+
+            tran.attributes = new ThinNeo.Attribute[0];
+            var scraddr = "";
+            utxos.Sort((a, b) =>
+            {
+                if (a.value > b.value)
+                    return 1;
+                else if (a.value < b.value)
+                    return -1;
+                else
+                    return 0;
+            });
+            decimal count = decimal.Zero;
+            List<ThinNeo.TransactionInput> list_inputs = new List<ThinNeo.TransactionInput>();
+            for (var i = 0; i < utxos.Count; i++)
+            {
+                ThinNeo.TransactionInput input = new ThinNeo.TransactionInput();
+                input.hash = utxos[i].txid;
+                input.index = (ushort)utxos[i].n;
+                list_inputs.Add(input);
+                count += utxos[i].value;
+                scraddr = utxos[i].addr;
+                if (count >= sendcount)
+                {
+                    break;
+                }
+            }
+            tran.inputs = list_inputs.ToArray();
+            if (count >= sendcount)//输入大于等于输出
+            {
+                List<ThinNeo.TransactionOutput> list_outputs = new List<ThinNeo.TransactionOutput>();
+                //输出
+                if (sendcount > decimal.Zero && targetaddr != null)
+                {
+                    ThinNeo.TransactionOutput output = new ThinNeo.TransactionOutput();
+                    output.assetId = assetid;
+                    output.value = sendcount;
+                    output.toAddress = ThinNeo.Helper.GetPublicKeyHashFromAddress(targetaddr);
+                    list_outputs.Add(output);
+                }
+
+                //找零
+                var change = count - sendcount;
+                if (change > decimal.Zero)
+                {
+                    ThinNeo.TransactionOutput outputchange = new ThinNeo.TransactionOutput();
+                    outputchange.toAddress = ThinNeo.Helper.GetPublicKeyHashFromAddress(scraddr);
+                    outputchange.value = change;
+                    outputchange.assetId = assetid;
+                    list_outputs.Add(outputchange);
+
+                }
+                tran.outputs = list_outputs.ToArray();
+            }
+            else
+            {
+                throw new Exception("no enough money.");
+            }
+            return tran;
         }
 
 
@@ -125,8 +200,8 @@ namespace signtool
                 return;
             }
 
-            var str = HttpHelper.MakeRpcUrl(url, "getcontractstate", new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(sid) });
-            var result = await HttpHelper.Get(str);
+            var str = Helper.MakeRpcUrl(url, "getcontractstate", new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(sid) });
+            var result = await Helper.HttpGet(str);
             if (result == null)
             {
                 MessageBox.Show("合约不存在");

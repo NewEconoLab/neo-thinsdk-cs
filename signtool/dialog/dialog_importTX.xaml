@@ -12,9 +12,12 @@
         <Button Content="OK" HorizontalAlignment="Left" Margin="108,302,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_2"/>
         <Button Content="Cancel" HorizontalAlignment="Left" Margin="471,302,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1" RenderTransformOrigin="0.81,0.786"/>
         <Button Content="LoadScript" HorizontalAlignment="Left" Margin="552,35,0,0" VerticalAlignment="Top" Width="65" Click="Button_Click_3" Height="22"/>
-        <Button Content="Gen Code" HorizontalAlignment="Left" Margin="538,263,0,0" VerticalAlignment="Top" Width="65" Click="Button_Click" Height="22" RenderTransformOrigin="0.5,1.578"/>
+        <Button Content="Gen Code" HorizontalAlignment="Left" Margin="544,265,0,0" VerticalAlignment="Top" Width="65" Click="Button_Click" Height="18" RenderTransformOrigin="0.5,1.578"/>
         <TextBox Name="textContractHash" HorizontalAlignment="Left" Height="23" Margin="355,7,0,0" TextWrapping="Wrap" Text="输入合约hash" VerticalAlignment="Top" Width="259"/>
-        <TextBox x:Name="textParams" HorizontalAlignment="Left" AcceptsReturn="True" AcceptsTab="True" Height="194" Margin="359,60,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="258"/>
-        <TextBox x:Name="textAddr" HorizontalAlignment="Left" Height="23" Margin="359,259,0,0" TextWrapping="Wrap" Text="输入发起交易的地址" VerticalAlignment="Top" Width="174"/>
+        <TextBox x:Name="textParams" HorizontalAlignment="Left" AcceptsReturn="True" AcceptsTab="True" Height="172" Margin="359,60,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="258"/>
+        <TextBox x:Name="textAddr" HorizontalAlignment="Left" Height="23" Margin="450,237,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="159"/>
+        <Label Content="发起交易的地址" Height="23" Margin="359,237,170.8,0" VerticalAlignment="Top"/>
+        <Label Content="花费的钱" Height="23" Margin="359,256,186.8,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="textConsume" HorizontalAlignment="Left" Height="23" Margin="450,260,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="76" RenderTransformOrigin="-0.089,0.441"/>
     </Grid>
 </Window>

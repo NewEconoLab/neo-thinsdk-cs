@@ -241,14 +241,14 @@ namespace signtool
             tx.FillRaw();
             var rawData = ThinNeo.Helper.Bytes2HexString(tx.txraw.GetRawData());
             byte[] data;
-            var str = HttpHelper.MakeRpcUrlPost(url, "sendrawtransaction", out data, new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(rawData) });
-            var result =await HttpHelper.Post(str, data);
+            var str = Helper.MakeRpcUrlPost(url, "sendrawtransaction", out data, new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(rawData) });
+            var result =await Helper.HttpPost(str, data);
             var json = MyJson.Parse(result);
-            Console.WriteLine(json);
-            if (json.AsDict()["result"].AsList()[0].AsDict()["endrawtransactionresult"].AsBool())
-                MessageBox.Show(json.AsDict()["result"].AsList()[0].AsDict()["txid"].AsString());
-            else
-                MessageBox.Show("交易失败");
+            MessageBox.Show(json.ToString());
+            //if (json.AsDict()["result"].AsList()[0].AsDict()["endrawtransactionresult"].AsBool())
+            //    MessageBox.Show(json.AsDict()["result"].AsList()[0].AsDict()["txid"].AsString());
+            //else
+            //    MessageBox.Show("交易失败");
         }
 
         private void radioIsMainnet_Checked(object sender, RoutedEventArgs e)
