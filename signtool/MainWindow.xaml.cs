@@ -245,7 +245,7 @@ namespace signtool
             var result =await HttpHelper.Post(str, data);
             var json = MyJson.Parse(result);
             Console.WriteLine(json);
-            if (json.AsDict()["result"].AsList()[0].AsDict()["sendrawtransaction"].AsBool())
+            if (json.AsDict()["result"].AsList()[0].AsDict()["endrawtransactionresult"].AsBool())
                 MessageBox.Show(json.AsDict()["result"].AsList()[0].AsDict()["txid"].AsString());
             else
                 MessageBox.Show("交易失败");
