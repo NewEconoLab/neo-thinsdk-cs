@@ -2,12 +2,13 @@
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
+using smartContractDemo.tests;
 
 namespace smartContractDemo
 {
     public class Height : ITest
     {
-        public const string api = "https://api.nel.group/api/testnet";
+        public  string api = Config.api; //"https://seed1.spotcoin.com:10332";
 
         public string Name => "show Height";
 

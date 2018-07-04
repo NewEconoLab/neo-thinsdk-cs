@@ -1,6 +1,7 @@
 ﻿using smartContractDemo.tests;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -60,6 +61,8 @@ namespace smartContractDemo
             infos["transfer"] = test_transfer;
             infos["useGas"] = test_useGas;
             infos["claim"] = test_claim;
+            infos["getTrans"] = test_getTrans;
+            infos["getStorage"] = test_getStorage;
             this.submenu = new List<string>(infos.Keys).ToArray();
         }
 
@@ -309,7 +312,32 @@ namespace smartContractDemo
             Console.WriteLine(result);
         }
 
+        async Task test_getTrans()
+        {
+            //getfullloginfo
+            var txid = Console.ReadLine();
+            byte[] postdata;
+            var url = Helper.MakeRpcUrlPost(Config.api_local, "getrawtransaction", out postdata, new MyJson.JsonNode_ValueString(txid));
+            var result = await Helper.HttpPost(url, postdata);
+            Console.WriteLine(result);
+        }
 
+        async Task test_getStorage()
+        {
+            //getfullloginfo
+            var coin = Console.ReadLine();
+            var addr = Console.ReadLine();
+            byte[] postdata;
+           var key = (byte[])ThinNeo.Helper.GetPublicKeyHashFromAddress(addr);
+            key = key.ToArray<byte>();
+            byte[] lenArr = new byte[key.Length + 1];
+            lenArr[0] = 0x11;
+            key.CopyTo(lenArr, 1);
+
+            var url = Helper.MakeRpcUrlPost(Config.api_local, "getstorage", out postdata, new MyJson.IJsonNode[] { new MyJson.JsonNode_ValueString(coin) , new MyJson.JsonNode_ValueString(ThinNeo.Helper.Bytes2HexString(lenArr)) });
+            var result = await Helper.HttpPost(url, postdata);
+            Console.WriteLine(result);
+        }
         async Task test_claim()
         {
             subPrintLine("    Input target address :");
@@ -336,4 +364,5 @@ namespace smartContractDemo
         #endregion
     }
 
+    
 }

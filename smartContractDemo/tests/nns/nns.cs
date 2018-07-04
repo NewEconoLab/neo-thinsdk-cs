@@ -11,7 +11,7 @@ namespace smartContractDemo
 {
     public class nns_common
     {
-        static string api = Config.api_local;//Config.api_local;
+        static string api = Config.api;//Config.api_local;
 
         public static readonly System.Security.Cryptography.SHA256 sha256 = System.Security.Cryptography.SHA256.Create();
 
@@ -139,6 +139,7 @@ namespace smartContractDemo
             MyJson.JsonNode_Object json = MyJson.Parse(text) as MyJson.JsonNode_Object;
 
             Result rest = new Result();
+            Console.WriteLine(json);
             rest.textInfo = text;
             if (json.ContainsKey("result"))
             {
