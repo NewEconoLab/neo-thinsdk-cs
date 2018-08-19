@@ -66,6 +66,7 @@ namespace smartContractDemo
             RegTest(new MultiSign());
             RegTest(new nnc());
             RegTest(new MigrateScDemo());
+            RegTest(new nns_domainTransaction());
 
         }
         static void ShowMenu()

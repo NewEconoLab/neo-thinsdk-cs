@@ -7,13 +7,15 @@ namespace smartContractDemo.tests
     class Config
     {
         public readonly static string superadminAddress = "ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj";
-        public  static string test_wif = "KwwJMvfFPcRx2HSgQRPviLv4wPrxRaLk7kfQntkH8kCXzTgAts8t";
+        public  static string test_wif = "KwZih114osBp58RwpEn4ZAcEcCTLP6yMAhdikb6oPRxqgvWpcqF1";
         //0x8826206138420e79936123a18176c597cd173173
         //0xfc732edee1efdf968c23c20a9628eaa5a6ccb934
         public readonly static Hash160 dapp_nnc = new Hash160("0xfc732edee1efdf968c23c20a9628eaa5a6ccb934");//nnc 合约代码
-        public readonly static Hash160 dapp_sgas  = new Hash160("0x07185f19053c0f8a064921d7ca798a5e6ba957cb");//sgas 新合约地址
+        public readonly static Hash160 dapp_sgas  = new Hash160("0xf5630f4baba6a0333bfb10153e5f853125465b48");//sgas 新合约地址
         public static readonly Hash160 sc_nns = new Hash160("0x77e193f1af44a61ed3613e6e3442a0fc809bb4b8");//nns 跳板合约地址
         public static readonly Hash160 domaincenterhash = new Hash160("0x7754b7dbacd840f7b9f1b02277d8745901df8a22");//nns 域名中心合约地址
+
+        public static readonly Hash160 domainTransactionhash = new Hash160("0xebc451326bba0cb87cabb20d47089add921c638b");//nns 域名交易合约
 
 
         public static readonly Hash160 dapp_multisign = new Hash160("0x4c0f57b61d997297560190b1e397fe6d58fce94a");  //应用合约多签验证测试
@@ -21,11 +23,11 @@ namespace smartContractDemo.tests
 
 
         public readonly static string api_local = "https://seed1.spotcoin.com:10332";// https://api.nel.group/api/mainnet";// "http://localhost:20332";
-        public readonly static string api = Config.api_local;// "https://seed1.spotcoin.com:10332";//"http://localhost:20332";//"http://seed4.aphelion-neo.com:10332";// "https://api.nel.group/api/testnet";
+        public readonly static string api = "https://api.nel.group/api/testnet";// "https://seed1.spotcoin.com:10332";//"http://localhost:20332";//"http://seed4.aphelion-neo.com:10332";// "https://api.nel.group/api/testnet";
 
 
 
-        public readonly static string root = "wei";
+        public readonly static string root = "neo2";
 
         public static void changeWif(string wif)
         {

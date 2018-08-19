@@ -50,13 +50,13 @@ namespace smartContractDemo
             infos = new Dictionary<string, testAction>();
             infos["get ." + this.root + " info"] = test_getRootinfo;
             infos["get [xxx]." + this.root + " info"] = test_get_xxx_sell_info;
-            infos["wantbuy [xxx]." + this.root] = test_wantbuy_xxx_sell;
-            infos["addprice 10 for [xxx]." + this.root] = test_addprice_xxx_sell;
-            infos["endselling [xxx]." + this.root] = test_endselling;//结束拍卖，如果中标我的钱就全没了，没中标退还90%
-            infos["get [xxx]." + this.root + " domain"] = test_getsellingdomaain;//
+            infos["startAuction [xxx]." + this.root] = test_startAuction_xxx_sell;
+            infos["raise 1 for [xxx]." + this.root] = test_raise_xxx_sell;
+            infos["bidSettlement [xxx]." + this.root] = test_bidSettlement;//结束拍卖，如果中标我的钱就全没了，没中标退还90%
+            infos["collect [xxx]." + this.root + " domain"] = test_collectDomain;//
             infos["switch root name"] = test_switch_root;
             infos["change wif key"] = test_change_key;
-            infos["get address balanceof "+this.root] = test_getbalanceof;
+            infos["get address balanceof " + this.root] = test_getbalanceof;
             infos["recharge reg"] = test_rechargeReg;
             infos["getMoneyBack"] = test_getMoneyBack;
             this.submenu = new List<string>(infos.Keys).ToArray();
@@ -82,7 +82,7 @@ namespace smartContractDemo
         }
         async Task test_get_xxx_sell_info()
         {
-            subPrintLine("get [xxx]."+this.root+" 's info:input xxx:");
+            subPrintLine("get [xxx]." + this.root + " 's info:input xxx:");
             var subname = Console.ReadLine();
 
             var r_test = await nns_common.api_InvokeScript(Config.sc_nns, "nameHash", "(string)" + this.root);
@@ -101,6 +101,10 @@ namespace smartContractDemo
                 var owner = ThinNeo.Helper.GetAddressFromScriptHash(sh);
                 subPrintLine("getinfo owner=" + owner);
             }
+            else
+            {
+                subPrintLine("getinfo owner=");
+            }
             subPrintLine("getinfo register=" + info.value.subItem[0].subItem[1].AsHash160());
             subPrintLine("getinfo resovler=" + info.value.subItem[0].subItem[2].AsHash160());
             subPrintLine("getinfo ttl=" + info.value.subItem[0].subItem[3].AsInteger());
@@ -118,18 +122,18 @@ namespace smartContractDemo
             var info2 = await nns_common.api_InvokeScript(reg_sc, "getDomainUseState", "(hex256)" + fullhash.ToString());
             subPrintLine("getDomainUseState=" + info2.value.subItem[0].AsInteger());
 
-  
-            var info3 = await nns_common.api_InvokeScript(reg_sc, "getSellingStateByFullhash", "(hex256)" + fullhash.ToString());
-            subPrintLine("getSellingStateByFullhash id=" + info3.value.subItem[0].subItem[0].AsHash256());
-            subPrintLine("getSellingStateByFullhash parenthash=" + info3.value.subItem[0].subItem[1].AsHash256());
-            subPrintLine("getSellingStateByFullhash domain=" + info3.value.subItem[0].subItem[2].AsString());
-            subPrintLine("getSellingStateByFullhash domainTTL=" + info3.value.subItem[0].subItem[3].AsInteger());
 
-            subPrintLine("getSellingStateByFullhash startBlockSelling=" + info3.value.subItem[0].subItem[4].AsInteger());
-            subPrintLine("getSellingStateByFullhash endBlock=" + info3.value.subItem[0].subItem[5].AsInteger());
-            subPrintLine("getSellingStateByFullhash maxPrice=" + info3.value.subItem[0].subItem[6].AsInteger());
-            subPrintLine("getSellingStateByFullhash maxBuyer=" + ThinNeo.Helper.GetAddressFromScriptHash(info3.value.subItem[0].subItem[7].AsHash160()));
-            subPrintLine("getSellingStateByFullhash lastBlock=" + info3.value.subItem[0].subItem[8].AsInteger());
+            var info3 = await nns_common.api_InvokeScript(reg_sc, "getAuctionStateByFullhash", "(hex256)" + fullhash.ToString());
+            subPrintLine("getAuctionStateByFullhash id=" + info3.value.subItem[0].subItem[0].AsHash256());
+            subPrintLine("getAuctionStateByFullhash parenthash=" + info3.value.subItem[0].subItem[1].AsHash256());
+            subPrintLine("getAuctionStateByFullhash domain=" + info3.value.subItem[0].subItem[2].AsString());
+            subPrintLine("getAuctionStateByFullhash domainTTL=" + info3.value.subItem[0].subItem[3].AsInteger());
+
+            subPrintLine("getAuctionStateByFullhash startBlockSelling=" + info3.value.subItem[0].subItem[4].AsInteger());
+            subPrintLine("getAuctionStateByFullhash endBlock=" + info3.value.subItem[0].subItem[5].AsInteger());
+            subPrintLine("getAuctionStateByFullhash maxPrice=" + info3.value.subItem[0].subItem[6].AsInteger());
+            subPrintLine("getAuctionStateByFullhash maxBuyer=" + ThinNeo.Helper.GetAddressFromScriptHash(info3.value.subItem[0].subItem[7].AsHash160()));
+            subPrintLine("getAuctionStateByFullhash lastBlock=" + info3.value.subItem[0].subItem[8].AsInteger());
 
             var id = info3.value.subItem[0].subItem[0].AsHash256();
 
@@ -145,9 +149,9 @@ namespace smartContractDemo
             subPrintLine("balanceOfSelling=" + info5.value.subItem[0].AsInteger());
 
         }
-        async Task test_wantbuy_xxx_sell()
+        async Task test_startAuction_xxx_sell()
         {
-            subPrintLine("wantbuy [xxx]." + this.root + ".  input xxx:");
+            subPrintLine("startAuction [xxx]." + this.root + ".  input xxx:");
             var subname = Console.ReadLine();
 
 
@@ -160,16 +164,16 @@ namespace smartContractDemo
 
 
             var who = this.scriptHash;
-            var result = await nns_common.api_SendTransaction(prikey, reg_sc, "wantBuy",
+            var result = await nns_common.api_SendTransaction(prikey, reg_sc, "startAuction",
                 "(hex160)" + who.ToString(),
                 "(hex256)" + roothash.ToString(),
                 "(string)" + subname
                 );
             subPrintLine("result=" + result);
         }
-        async Task test_addprice_xxx_sell()
+        async Task test_raise_xxx_sell()
         {
-            subPrintLine("addprice 10 for [xxx]." + this.root + ".  input xxx:");
+            subPrintLine("raise 1 for [xxx]." + this.root + ".  input xxx:");
             var subname = Console.ReadLine();
 
             var roothash = nns_common.nameHash(this.root);
@@ -181,18 +185,19 @@ namespace smartContractDemo
             subPrintLine("reg=" + reg_sc.ToString());
 
             //得到拍卖ID
-            var info3 = await nns_common.api_InvokeScript(reg_sc, "getSellingStateByFullhash", "(hex256)" + fullhash.ToString());
+            var info3 = await nns_common.api_InvokeScript(reg_sc, "getAuctionStateByFullhash", "(hex256)" + fullhash.ToString());
             var id = info3.value.subItem[0].subItem[0].AsHash256();
             var who = this.scriptHash;
 
-            var result = await nns_common.api_SendTransaction(this.prikey, reg_sc, "addPrice",
+            var result = await nns_common.api_SendTransaction(this.prikey, reg_sc, "raise",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString(),//参数2 交易id
-          "(int)1"+"00000000"//参数3，加价多少
+          "(int)1" + "00000000"//参数3，加价多少
+                               //"(int)1"//参数3，加价多少
           );
             subPrintLine("result=" + result);
         }
-        async Task test_endselling()
+        async Task test_bidSettlement()
         {
             subPrintLine("endSelling [xxx]." + this.root + ".  input xxx:");
             var subname = Console.ReadLine();
@@ -207,18 +212,18 @@ namespace smartContractDemo
             subPrintLine("reg=" + reg_sc.ToString());
 
             //得到拍卖ID
-            var info3 = await nns_common.api_InvokeScript(reg_sc, "getSellingStateByFullhash", "(hex256)" + fullhash.ToString());
+            var info3 = await nns_common.api_InvokeScript(reg_sc, "getAuctionStateByFullhash", "(hex256)" + fullhash.ToString());
             var id = info3.value.subItem[0].subItem[0].AsHash256();
 
 
             var who = this.scriptHash;
-            var result = await nns_common.api_SendTransaction(prikey, reg_sc, "endSelling",
+            var result = await nns_common.api_SendTransaction(prikey, reg_sc, "bidSettlement",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString()//参数2 交易id
           );
             subPrintLine("result=" + result);
         }
-        async Task test_getsellingdomaain()
+        async Task test_collectDomain()
         {
             subPrintLine("get [xxx]." + this.root + " domain.  input xxx:");
             var subname = Console.ReadLine();
@@ -231,12 +236,12 @@ namespace smartContractDemo
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
             //得到拍卖ID
-            var info3 = await nns_common.api_InvokeScript(reg_sc, "getSellingStateByFullhash", "(hex256)" + fullhash.ToString());
+            var info3 = await nns_common.api_InvokeScript(reg_sc, "getAuctionStateByFullhash", "(hex256)" + fullhash.ToString());
             var id = info3.value.subItem[0].subItem[0].AsHash256();
 
 
             var who = this.scriptHash;
-            var result = await nns_common.api_SendTransaction(prikey, reg_sc, "getSellingDomain",
+            var result = await nns_common.api_SendTransaction(prikey, reg_sc, "collectDomain",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString()//参数2 交易id
           );
@@ -246,16 +251,14 @@ namespace smartContractDemo
         async Task test_getbalanceof()
         {
 
-            var who = this.scriptHash;
-
             var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(root).ToString());
             var _result = info.value.subItem[0];
             var sell_reg = _result.subItem[1].AsHash160();
 
-            var r_abc_test = await nns_common.api_InvokeScript(sell_reg, "balanceOf", "(hex160)" + who.ToString());
+            var r_abc_test = await nns_common.api_InvokeScript(sell_reg, "balanceOf", "(addr)" + address);
             var num = new System.Numerics.BigInteger(r_abc_test.value.subItem[0].data);
             num = num / 100000000;
-            subPrintLine(root+"注册器里的余额:" + num);
+            subPrintLine(root + "注册器里的余额:" + num);
         }
         /// <summary>
         /// 充值注册器
