@@ -35,8 +35,8 @@ namespace smartContractDemo
 
             //从文件中读取合约脚本
             byte[] script = System.IO.File.ReadAllBytes("Nep5.5gas_Contract.avm"); //这里填你的合约所在地址
-            Console.WriteLine("合约脚本:"+ThinNeo.Helper.Bytes2HexString(script));
-            Console.WriteLine("合约脚本hash："+ThinNeo.Helper.Bytes2HexString(ThinNeo.Helper.GetScriptHashFromScript(script).data.ToArray().Reverse().ToArray()));
+            //Console.WriteLine("合约脚本:"+ThinNeo.Helper.Bytes2HexString(script));
+            //Console.WriteLine("合约脚本hash："+ThinNeo.Helper.Bytes2HexString(ThinNeo.Helper.GetScriptHashFromScript(script).data.ToArray().Reverse().ToArray()));
             byte[] parameter__list = ThinNeo.Helper.HexString2Bytes("0710");  //这里填合约入参  例：0610代表（string，[]）
             byte[] return_type = ThinNeo.Helper.HexString2Bytes("05");  //这里填合约的出参
             int need_storage = 1;   
@@ -49,7 +49,6 @@ namespace smartContractDemo
             string description = "0";
             using (ThinNeo.ScriptBuilder sb = new ThinNeo.ScriptBuilder())
             {
-                var ss = need_storage | need_nep4 | need_canCharge;
                 //倒叙插入数据
                 sb.EmitPushString(description);
                 sb.EmitPushString(email);

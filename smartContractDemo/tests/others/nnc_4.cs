@@ -28,11 +28,11 @@ namespace smartContractDemo
             this.address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
             this.scriptHash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
 
-            var roothash = nns_common.nameHash("sell");
-            var fullhash = nns_common.nameHashSub(roothash, "helloworld");
+            var roothash = nns_tools.nameHash("sell");
+            var fullhash = nns_tools.nameHashSub(roothash, "helloworld");
 
             //得到注册器
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             Console.WriteLine("reg=" + reg_sc.ToString());
 
@@ -56,7 +56,7 @@ namespace smartContractDemo
                 var who = this.scriptHash;
 
                 //得到拍卖ID
-                var info3 = await nns_common.api_InvokeScript(reg_sc, "getSellingStateByFullhash", "(hex256)" + fullhash.ToString());
+                var info3 = await nns_tools.api_InvokeScript(reg_sc, "getSellingStateByFullhash", "(hex256)" + fullhash.ToString());
                 var id = info3.value.subItem[0].subItem[0].AsHash256();
 
 

@@ -7,13 +7,13 @@ namespace smartContractDemo.tests
     class Config
     {
         public readonly static string superadminAddress = "ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj";
-        public  static string test_wif = "KwZih114osBp58RwpEn4ZAcEcCTLP6yMAhdikb6oPRxqgvWpcqF1";
+        public  static string test_wif = "";
         //0x8826206138420e79936123a18176c597cd173173
         //0xfc732edee1efdf968c23c20a9628eaa5a6ccb934
         public readonly static Hash160 dapp_nnc = new Hash160("0xfc732edee1efdf968c23c20a9628eaa5a6ccb934");//nnc 合约代码
-        public readonly static Hash160 dapp_sgas  = new Hash160("0xf5630f4baba6a0333bfb10153e5f853125465b48");//sgas 新合约地址
-        public static readonly Hash160 sc_nns = new Hash160("0x77e193f1af44a61ed3613e6e3442a0fc809bb4b8");//nns 跳板合约地址
-        public static readonly Hash160 domaincenterhash = new Hash160("0x7754b7dbacd840f7b9f1b02277d8745901df8a22");//nns 域名中心合约地址
+        public readonly static Hash160 dapp_sgas  = new Hash160("0x9121e89e8a0849857262d67c8408601b5e8e0524");//sgas 新合约地址
+        public static readonly Hash160 sc_nns = new Hash160("0x348387116c4a75e420663277d9c02049907128c7");//nns 跳板合约地址
+        public static readonly Hash160 domaincenterhash = new Hash160("0xbd3fa97e2bc841292c1e77f9a97a1393d5208b48");//nns 域名中心合约地址
 
         public static readonly Hash160 domainTransactionhash = new Hash160("0xebc451326bba0cb87cabb20d47089add921c638b");//nns 域名交易合约
 
@@ -27,7 +27,7 @@ namespace smartContractDemo.tests
 
 
 
-        public readonly static string root = "neo2";
+        public readonly static string root = "neo";
 
         public static void changeWif(string wif)
         {

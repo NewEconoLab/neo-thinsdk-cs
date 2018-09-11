@@ -43,11 +43,11 @@ namespace smartContractDemo
             subPrintLine("get .[yyy] 's info:input yyy:");
             var rootname = Console.ReadLine();
 
-            var r = await nns_common.api_InvokeScript(Config.sc_nns, "nameHash", "(string)"+ rootname);
+            var r = await nns_tools.api_InvokeScript(Config.sc_nns, "nameHash", "(string)"+ rootname);
             subPrintLine("得到:" + new Hash256(r.value.subItem[0].data).ToString());
-            var mh = nns_common.nameHash(rootname);
+            var mh = nns_tools.nameHash(rootname);
             subPrintLine("calc=" + mh.ToString());
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + mh.ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + mh.ToString());
             subPrintLine("getinfo owner=" + info.value.subItem[0].subItem[0].AsHash160());
             subPrintLine("getinfo register=" + info.value.subItem[0].subItem[1].AsHash160());
             subPrintLine("getinfo resovler=" + info.value.subItem[0].subItem[2].AsHash160());
@@ -64,16 +64,16 @@ namespace smartContractDemo
             var subname = readline[0];
             var rootname = readline[1];
 
-            var r_test = await nns_common.api_InvokeScript(Config.sc_nns, "nameHash", "(string)"+ rootname);
+            var r_test = await nns_tools.api_InvokeScript(Config.sc_nns, "nameHash", "(string)"+ rootname);
             var hash_test = r_test.value.subItem[0].AsHash256();
-            var r_abc_test = await nns_common.api_InvokeScript(Config.sc_nns, "nameHashSub", "(hex256)" + r_test.value.subItem[0].AsHash256().ToString(), "(string)" + subname);
+            var r_abc_test = await nns_tools.api_InvokeScript(Config.sc_nns, "nameHashSub", "(hex256)" + r_test.value.subItem[0].AsHash256().ToString(), "(string)" + subname);
             subPrintLine("得到:" + r_abc_test.value.subItem[0].AsHash256());
 
-            var mh = nns_common.nameHash(rootname);
-            var mh_abc = nns_common.nameHashSub(mh, subname);
+            var mh = nns_tools.nameHash(rootname);
+            var mh_abc = nns_tools.nameHashSub(mh, subname);
 
             subPrintLine("calc=" + mh_abc.ToString());
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + mh_abc.ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + mh_abc.ToString());
             subPrintLine("getinfo owner=" + ThinNeo.Helper.GetAddressFromScriptHash(info.value.subItem[0].subItem[0].AsHash160()));
             subPrintLine("getinfo register=" + info.value.subItem[0].subItem[1].AsHash160());
             subPrintLine("getinfo resovler=" + info.value.subItem[0].subItem[2].AsHash160());
@@ -96,14 +96,14 @@ namespace smartContractDemo
             byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
             string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
 
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(rootname).ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_tools.nameHash(rootname).ToString());
             var _result = info.value.subItem[0];
             var test_reg = _result.subItem[1].AsHash160();//根域名注册器必须获取，写死不行
 
-            var sss = nns_common.nameHash(rootname);
-            var result = await nns_common.api_SendTransaction(prikey, test_reg, "requestSubDomain",
+            var sss = nns_tools.nameHash(rootname);
+            var result = await nns_tools.api_SendTransaction(prikey, test_reg, "requestSubDomain",
                 "(addr)" + address,
-                "(hex256)" + nns_common.nameHash(rootname),
+                "(hex256)" + nns_tools.nameHash(rootname),
                 "(str)" + subname);
 
             subPrintLine("sendrawtransaction得到的结果是：" + result);
@@ -122,9 +122,9 @@ namespace smartContractDemo
             Hash160 hash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
 
             var resolver = new Hash160("0xabb0f1f3f035dd7ad80ca805fce58d62c517cc6b");
-            var testhash = nns_common.nameHash(rootname);
-            var subhash = nns_common.nameHashSub(testhash, subname);
-            var result = await nns_common.api_SendTransaction(prikey, Config.sc_nns, "owner_SetResolver",
+            var testhash = nns_tools.nameHash(rootname);
+            var subhash = nns_tools.nameHashSub(testhash, subname);
+            var result = await nns_tools.api_SendTransaction(prikey, Config.sc_nns, "owner_SetResolver",
                "(hex160)" + hash.ToString(),//参数1 所有者
                "(hex256)" + subhash.ToString(),//参数2 域名fullhash
                "(hex160)" + resolver.ToString()//参数3 解析器地址
@@ -143,9 +143,9 @@ namespace smartContractDemo
             Hash160 hash = ThinNeo.Helper.GetScriptHashFromPublicKey(pubkey);
 
             var newowner = ThinNeo.Helper.GetPublicKeyHashFromAddress("ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj");
-            var testhash = nns_common.nameHash(rootname);
-            var subhash = nns_common.nameHashSub(testhash, subname);
-            var result = await nns_common.api_SendTransaction(prikey, Config.sc_nns, "owner_SetOwner",
+            var testhash = nns_tools.nameHash(rootname);
+            var subhash = nns_tools.nameHashSub(testhash, subname);
+            var result = await nns_tools.api_SendTransaction(prikey, Config.sc_nns, "owner_SetOwner",
                "(hex160)" + hash.ToString(),//参数1 所有者
                "(hex256)" + subhash.ToString(),//参数2 域名fullhash
                "(hex160)" + newowner.ToString()//参数3 新所有者
@@ -159,10 +159,10 @@ namespace smartContractDemo
             var subname = readline[0];
             var rootname = readline[1];
 
-            var testhash = nns_common.nameHash(rootname);
-            var subhash = nns_common.nameHashSub(testhash, subname);
+            var testhash = nns_tools.nameHash(rootname);
+            var subhash = nns_tools.nameHashSub(testhash, subname);
 
-            var _result = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo",
+            var _result = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo",
                 "(hex256)" + subhash.ToString());
             var resolver = new Hash160(_result.value.subItem[0].subItem[2].data);
             subPrintLine("resolver=" + resolver.ToString());
@@ -178,7 +178,7 @@ namespace smartContractDemo
                 return;
             }
             var newowner = ThinNeo.Helper.GetPublicKeyHashFromAddress("ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj");
-            var result = await nns_common.api_SendTransaction(prikey, resolver, "setResolveData",
+            var result = await nns_tools.api_SendTransaction(prikey, resolver, "setResolveData",
                "(hex160)" + hash.ToString(),//参数1 所有者
                "(hex256)" + subhash.ToString(),//参数2 域名fullhash
                "(string)" + "1",//参数3 要设置的子域名
@@ -195,10 +195,10 @@ namespace smartContractDemo
             var subname = readline[0];
             var rootname = readline[1];
 
-            var testhash = nns_common.nameHash(rootname);
-            var subhash = nns_common.nameHashSub(testhash, subname);
+            var testhash = nns_tools.nameHash(rootname);
+            var subhash = nns_tools.nameHashSub(testhash, subname);
 
-            var _result = await nns_common.api_InvokeScript(Config.sc_nns, "resolve",
+            var _result = await nns_tools.api_InvokeScript(Config.sc_nns, "resolve",
                 "(string)"+ rootname,
                 "(hex256)" + subhash.ToString(),
                 "(string)1"

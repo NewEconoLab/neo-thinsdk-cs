@@ -96,11 +96,18 @@ namespace smartContractDemo
             }
             return _dir;
         }
-        public static ThinNeo.Transaction makeTran(List<Utxo> utxos, string targetaddr, ThinNeo.Hash256 assetid, decimal sendcount)
+        public static ThinNeo.Transaction makeTran(List<Utxo> utxos, string targetaddr, ThinNeo.Hash256 assetid, decimal sendcount, decimal extgas = 0, List<Utxo> utxos_ext = null, string extaddr = null)
         {
             var tran = new ThinNeo.Transaction();
             tran.type = ThinNeo.TransactionType.ContractTransaction;
-            tran.version = 0;//0 or 1
+            if (extgas >= 1)
+            {
+                tran.version = 1;//0 or 1
+            }
+            else
+            {
+                tran.version = 0;//0 or 1
+            }
             tran.extdata = null;
 
             tran.attributes = new ThinNeo.Attribute[0];
@@ -129,6 +136,17 @@ namespace smartContractDemo
                     break;
                 }
             }
+            decimal count_ext = decimal.Zero;
+            if (utxos_ext != null)
+            {
+                //手续费
+                ThinNeo.TransactionInput input = new ThinNeo.TransactionInput();
+                input.hash = utxos_ext[0].txid;
+                input.index = (ushort)utxos_ext[0].n;
+                count_ext = utxos_ext[0].value;
+                list_inputs.Add(input);
+            }
+
             tran.inputs = list_inputs.ToArray();
             if (count >= sendcount)//输入大于等于输出
             {
@@ -142,9 +160,18 @@ namespace smartContractDemo
                     output.toAddress = ThinNeo.Helper.GetPublicKeyHashFromAddress(targetaddr);
                     list_outputs.Add(output);
                 }
-
+                var change = count - sendcount - extgas;
+                decimal extchange = decimal.Zero;
                 //找零
-                var change = count - sendcount;
+                if (utxos_ext != null)
+                {
+                    change = count - sendcount;
+                    extchange = count_ext - extgas;
+                }
+                else
+                {
+                    change = count - sendcount - extgas;
+                }
                 if (change > decimal.Zero)
                 {
                     ThinNeo.TransactionOutput outputchange = new ThinNeo.TransactionOutput();
@@ -152,7 +179,14 @@ namespace smartContractDemo
                     outputchange.value = change;
                     outputchange.assetId = assetid;
                     list_outputs.Add(outputchange);
-
+                }
+                if (extchange > decimal.Zero)
+                {
+                    ThinNeo.TransactionOutput outputchange = new ThinNeo.TransactionOutput();
+                    outputchange.toAddress = ThinNeo.Helper.GetPublicKeyHashFromAddress(extaddr);
+                    outputchange.value = extchange;
+                    outputchange.assetId = assetid;
+                    list_outputs.Add(outputchange);
                 }
                 tran.outputs = list_outputs.ToArray();
             }

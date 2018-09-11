@@ -66,12 +66,12 @@ namespace smartContractDemo
         #region testarea
         async Task test_getRootinfo()
         {
-            var r = await nns_common.api_InvokeScript(Config.sc_nns, "nameHash", "(string)" + this.root);
+            var r = await nns_tools.api_InvokeScript(Config.sc_nns, "nameHash", "(string)" + this.root);
             subPrintLine("得到:" + new Hash256(r.value.subItem[0].data).ToString());
-            var mh = nns_common.nameHash(this.root);
+            var mh = nns_tools.nameHash(this.root);
             subPrintLine("calc=" + mh.ToString());
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + mh.ToString());
-            subPrintLine("getinfo owner=" + info.value.subItem[0].subItem[0].AsHash160());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + mh.ToString());
+            subPrintLine("getinfo owner=" + ThinNeo.Helper.GetAddressFromScriptHash(info.value.subItem[0].subItem[0].AsHash160()));
             subPrintLine("getinfo register=" + info.value.subItem[0].subItem[1].AsHash160());
             subPrintLine("getinfo resovler=" + info.value.subItem[0].subItem[2].AsHash160());
             subPrintLine("getinfo ttl=" + info.value.subItem[0].subItem[3].AsInteger());
@@ -85,16 +85,16 @@ namespace smartContractDemo
             subPrintLine("get [xxx]." + this.root + " 's info:input xxx:");
             var subname = Console.ReadLine();
 
-            var r_test = await nns_common.api_InvokeScript(Config.sc_nns, "nameHash", "(string)" + this.root);
+            var r_test = await nns_tools.api_InvokeScript(Config.sc_nns, "nameHash", "(string)" + this.root);
             var hash_test = r_test.value.subItem[0].AsHash256();
-            var r_abc_test = await nns_common.api_InvokeScript(Config.sc_nns, "nameHashSub", "(hex256)" + r_test.value.subItem[0].AsHash256().ToString(), "(string)" + subname);
+            var r_abc_test = await nns_tools.api_InvokeScript(Config.sc_nns, "nameHashSub", "(hex256)" + r_test.value.subItem[0].AsHash256().ToString(), "(string)" + subname);
             subPrintLine("得到:" + r_abc_test.value.subItem[0].AsHash256());
 
-            var roothash = nns_common.nameHash(this.root);
-            var fullhash = nns_common.nameHashSub(roothash, subname);
+            var roothash = nns_tools.nameHash(this.root);
+            var fullhash = nns_tools.nameHashSub(roothash, subname);
 
             subPrintLine("calc=" + fullhash.ToString());
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + fullhash.ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + fullhash.ToString());
             var sh = info.value.subItem[0].subItem[0].AsHash160();
             if (sh != null)
             {
@@ -115,15 +115,15 @@ namespace smartContractDemo
             subPrintLine("getinfo root=" + info.value.subItem[0].subItem[7].AsInteger());
 
             //得到注册器
-            var info_reg = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
+            var info_reg = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info_reg.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
 
-            var info2 = await nns_common.api_InvokeScript(reg_sc, "getDomainUseState", "(hex256)" + fullhash.ToString());
+            var info2 = await nns_tools.api_InvokeScript(reg_sc, "getDomainUseState", "(hex256)" + fullhash.ToString());
             subPrintLine("getDomainUseState=" + info2.value.subItem[0].AsInteger());
 
 
-            var info3 = await nns_common.api_InvokeScript(reg_sc, "getAuctionStateByFullhash", "(hex256)" + fullhash.ToString());
+            var info3 = await nns_tools.api_InvokeScript(reg_sc, "getAuctionStateByFullhash", "(hex256)" + fullhash.ToString());
             subPrintLine("getAuctionStateByFullhash id=" + info3.value.subItem[0].subItem[0].AsHash256());
             subPrintLine("getAuctionStateByFullhash parenthash=" + info3.value.subItem[0].subItem[1].AsHash256());
             subPrintLine("getAuctionStateByFullhash domain=" + info3.value.subItem[0].subItem[2].AsString());
@@ -139,11 +139,11 @@ namespace smartContractDemo
 
 
             var who = this.scriptHash;
-            var info4 = await nns_common.api_InvokeScript(reg_sc, "balanceOf",
+            var info4 = await nns_tools.api_InvokeScript(reg_sc, "balanceOf",
                "(hex160)" + who.ToString());
             subPrintLine("balanceOf=" + info4.value.subItem[0].AsInteger());
 
-            var info5 = await nns_common.api_InvokeScript(reg_sc, "balanceOfSelling",
+            var info5 = await nns_tools.api_InvokeScript(reg_sc, "balanceOfSelling",
                 "(hex160)" + who.ToString(),
                 "(hex256)" + id.ToString());
             subPrintLine("balanceOfSelling=" + info5.value.subItem[0].AsInteger());
@@ -155,16 +155,16 @@ namespace smartContractDemo
             var subname = Console.ReadLine();
 
 
-            var roothash = nns_common.nameHash(this.root);
+            var roothash = nns_tools.nameHash(this.root);
 
             //得到注册器
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
 
 
             var who = this.scriptHash;
-            var result = await nns_common.api_SendTransaction(prikey, reg_sc, "startAuction",
+            var result = await nns_tools.api_SendTransaction(prikey, reg_sc, "startAuction",
                 "(hex160)" + who.ToString(),
                 "(hex256)" + roothash.ToString(),
                 "(string)" + subname
@@ -176,20 +176,20 @@ namespace smartContractDemo
             subPrintLine("raise 1 for [xxx]." + this.root + ".  input xxx:");
             var subname = Console.ReadLine();
 
-            var roothash = nns_common.nameHash(this.root);
-            var fullhash = nns_common.nameHashSub(roothash, subname);
+            var roothash = nns_tools.nameHash(this.root);
+            var fullhash = nns_tools.nameHashSub(roothash, subname);
 
             //得到注册器
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
 
             //得到拍卖ID
-            var info3 = await nns_common.api_InvokeScript(reg_sc, "getAuctionStateByFullhash", "(hex256)" + fullhash.ToString());
+            var info3 = await nns_tools.api_InvokeScript(reg_sc, "getAuctionStateByFullhash", "(hex256)" + fullhash.ToString());
             var id = info3.value.subItem[0].subItem[0].AsHash256();
             var who = this.scriptHash;
 
-            var result = await nns_common.api_SendTransaction(this.prikey, reg_sc, "raise",
+            var result = await nns_tools.api_SendTransaction(this.prikey, reg_sc, "raise",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString(),//参数2 交易id
           "(int)1" + "00000000"//参数3，加价多少
@@ -203,21 +203,21 @@ namespace smartContractDemo
             var subname = Console.ReadLine();
 
 
-            var roothash = nns_common.nameHash(this.root);
-            var fullhash = nns_common.nameHashSub(roothash, subname);
+            var roothash = nns_tools.nameHash(this.root);
+            var fullhash = nns_tools.nameHashSub(roothash, subname);
 
             //得到注册器
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
 
             //得到拍卖ID
-            var info3 = await nns_common.api_InvokeScript(reg_sc, "getAuctionStateByFullhash", "(hex256)" + fullhash.ToString());
+            var info3 = await nns_tools.api_InvokeScript(reg_sc, "getAuctionStateByFullhash", "(hex256)" + fullhash.ToString());
             var id = info3.value.subItem[0].subItem[0].AsHash256();
 
 
             var who = this.scriptHash;
-            var result = await nns_common.api_SendTransaction(prikey, reg_sc, "bidSettlement",
+            var result = await nns_tools.api_SendTransaction(prikey, reg_sc, "bidSettlement",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString()//参数2 交易id
           );
@@ -228,20 +228,20 @@ namespace smartContractDemo
             subPrintLine("get [xxx]." + this.root + " domain.  input xxx:");
             var subname = Console.ReadLine();
 
-            var roothash = nns_common.nameHash(this.root);
-            var fullhash = nns_common.nameHashSub(roothash, subname);
+            var roothash = nns_tools.nameHash(this.root);
+            var fullhash = nns_tools.nameHashSub(roothash, subname);
 
             //得到注册器
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + roothash.ToString());
             var reg_sc = new Hash160(info.value.subItem[0].subItem[1].data);
             subPrintLine("reg=" + reg_sc.ToString());
             //得到拍卖ID
-            var info3 = await nns_common.api_InvokeScript(reg_sc, "getAuctionStateByFullhash", "(hex256)" + fullhash.ToString());
+            var info3 = await nns_tools.api_InvokeScript(reg_sc, "getAuctionStateByFullhash", "(hex256)" + fullhash.ToString());
             var id = info3.value.subItem[0].subItem[0].AsHash256();
 
 
             var who = this.scriptHash;
-            var result = await nns_common.api_SendTransaction(prikey, reg_sc, "collectDomain",
+            var result = await nns_tools.api_SendTransaction(prikey, reg_sc, "collectDomain",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString()//参数2 交易id
           );
@@ -251,11 +251,11 @@ namespace smartContractDemo
         async Task test_getbalanceof()
         {
 
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(root).ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_tools.nameHash(root).ToString());
             var _result = info.value.subItem[0];
             var sell_reg = _result.subItem[1].AsHash160();
 
-            var r_abc_test = await nns_common.api_InvokeScript(sell_reg, "balanceOf", "(addr)" + address);
+            var r_abc_test = await nns_tools.api_InvokeScript(sell_reg, "balanceOf", "(addr)" + address);
             var num = new System.Numerics.BigInteger(r_abc_test.value.subItem[0].data);
             num = num / 100000000;
             subPrintLine(root + "注册器里的余额:" + num);
@@ -266,7 +266,7 @@ namespace smartContractDemo
         /// <returns></returns>
         async Task test_rechargeReg()
         {
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(root).ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_tools.nameHash(root).ToString());
             var _result = info.value.subItem[0];
             var sell_reg = _result.subItem[1].AsHash160();
 
@@ -302,7 +302,7 @@ namespace smartContractDemo
                 script = sb.ToArray();
                 Console.WriteLine(ThinNeo.Helper.Bytes2HexString(script));
             }
-            var result = await nns_common.api_SendTransaction(prikey, script);
+            var result = await nns_tools.api_SendTransaction(prikey, script);
             subPrintLine(result);
 
         }
@@ -318,7 +318,7 @@ namespace smartContractDemo
             string amount = Console.ReadLine();
             amount += "00000000";
 
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_common.nameHash(root).ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_tools.nameHash(root).ToString());
             var _result = info.value.subItem[0];
             var sell_reg = _result.subItem[1].AsHash160();
 
@@ -334,7 +334,7 @@ namespace smartContractDemo
                 sb.EmitAppCall(sell_reg);//nep5脚本
                 script = sb.ToArray();
             }
-            var result = await nns_common.api_SendTransaction(prikey, script);
+            var result = await nns_tools.api_SendTransaction(prikey, script);
             subPrintLine(result);
         }
         async Task test_switch_root()

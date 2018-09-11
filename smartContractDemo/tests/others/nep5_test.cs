@@ -7,11 +7,17 @@ using ThinNeo;
 
 namespace smartContractDemo
 {
-    class nnc_2 : ITest
+    class nep5_test : ITest
     {
-        public string Name => "NNC 向注册器充值";
+        public string Name => "nep5test";
 
-        public string ID => "nc 2";
+        public string ID => "test";
+
+        void subPrintLine(string line)
+        {
+            Console.WriteLine("    " + line);
+        }
+        Hash160 sc = new Hash160("0x4ac464f84f50d3f902c2f0ca1658bfaa454ddfbf");
 
         public async Task Demo()
         {
@@ -20,18 +26,10 @@ namespace smartContractDemo
             string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
             byte[] scripthash = ThinNeo.Helper.GetPublicKeyHashFromAddress(address);
 
-            Console.WriteLine("Input root name:");
-            var root = Console.ReadLine();
+            subPrintLine("Get Total Supply for " + this.ID + ":");
 
-            //得到注册器
-            var info_reg = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_tools.nameHash(root).ToString());
-            var reg_sc = new Hash160(info_reg.value.subItem[0].subItem[1].data);
-            Console.WriteLine("reg=" + reg_sc.ToString());
-
-            Console.WriteLine("address=" + address);
-
-            string addressto = ThinNeo.Helper.GetAddressFromScriptHash(reg_sc);
-            Console.WriteLine("addressto=" + addressto);
+            var result = await nns_tools.api_InvokeScript(sc, "totalSupply");
+            subPrintLine("Total Supply : " + result.value.subItem[0].AsInteger());
 
             //获取地址的资产列表
             Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(Nep55_1.api, address);
@@ -49,23 +47,12 @@ namespace smartContractDemo
                 {
                     var array = new MyJson.JsonNode_Array();
                     array.AddArrayValue("(addr)" + address);//from
-                    array.AddArrayValue("(addr)" + addressto);//to
-                    array.AddArrayValue("(int)10000000000");//value
+                    array.AddArrayValue("(str)" + "totalSupply");//to
+                    array.AddArrayValue("(int)22");//value
                     sb.EmitParamJson(array);//参数倒序入
                     sb.EmitParamJson(new MyJson.JsonNode_ValueString("(str)transfer"));//参数倒序入
-                    ThinNeo.Hash160 shash = new ThinNeo.Hash160(nnc_1.sc_nnc);
+                    ThinNeo.Hash160 shash = new ThinNeo.Hash160(sc);
                     sb.EmitAppCall(shash);//nep5脚本
-
-                    //这个方法是为了在同一笔交易中转账并充值
-                    //当然你也可以分为两笔交易
-                    //插入下述两条语句，能得到txid
-                    sb.EmitSysCall("System.ExecutionEngine.GetScriptContainer");
-                    sb.EmitSysCall("Neo.Transaction.GetHash");
-                    //把TXID包进Array里
-                    sb.EmitPushNumber(1);
-                    sb.Emit(ThinNeo.VM.OpCode.PACK);
-                    sb.EmitPushString("setmoneyin");
-                    sb.EmitAppCall(reg_sc);
                     script = sb.ToArray();
                 }
 
@@ -75,6 +62,7 @@ namespace smartContractDemo
                 tran.extdata = idata;
                 idata.script = script;
             }
+
             //sign and broadcast
             var signdata = ThinNeo.Helper.Sign(tran.GetMessage(), prikey);
             tran.AddWitness(signdata, pubkey, address);
@@ -82,9 +70,9 @@ namespace smartContractDemo
             var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
             byte[] postdata;//Nep55_1.api
             var url = Helper.MakeRpcUrlPost(nnc_1.api_local, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
-            var result = await Helper.HttpPost(url, postdata);
-            Console.WriteLine("得到的结果是：" + result);
-        }
+            var result2 = await Helper.HttpPost(url, postdata);
+            Console.WriteLine("得到的结果是：" + result2);
 
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace smartContractDemo
         public string ID => "N5 4";
         async public Task Demo()
         {
-            var lasthash = Nep55_3.lasttxid;
+            var lasthash = "0x0963614006fda9ebb3ecbc1a7bd604a393cfe66cf9234882abc860cdb4694970";
             if (lasthash == null)
             {
                 Console.WriteLine("你还没有正确执行N5 3");
@@ -40,7 +40,7 @@ namespace smartContractDemo
             List<Utxo> newlist = new List<Utxo>();
             foreach (var utxo in dir[Nep55_1.id_GAS])
             {
-                if (utxo.n == 0 && utxo.txid.Equals(lasthash))
+                if (utxo.n == 0 && utxo.txid.ToString().Equals(lasthash))
                     newlist.Add(utxo);
             }
             if (newlist.Count == 0)
@@ -72,11 +72,11 @@ namespace smartContractDemo
                     return;
                 }
                 var hash = new ThinNeo.Hash160(ThinNeo.Helper.HexString2Bytes(value));
-                if (hash.ToString()!= scripthash.ToString())
-                {
-                    Console.WriteLine("这个utxo不是标记给你用的");
-                    return;
-                }
+                //if (hash.ToString()!= scripthash.ToString())
+                //{
+                //    Console.WriteLine("这个utxo不是标记给你用的");
+                //    return;
+                //}
             }
 
 

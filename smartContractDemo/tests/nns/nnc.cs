@@ -128,13 +128,13 @@ namespace smartContractDemo
         #region 接口
         async Task test_name()
         {
-            var result = await nns_common.api_InvokeScript(Config.dapp_nnc, "name");
+            var result = await nns_tools.api_InvokeScript(Config.dapp_nnc, "name");
             subPrintLine("Name : " + result.value.subItem[0].AsString());
         }
 
         async Task test_totalSupply()
         {
-            var result = await nns_common.api_InvokeScript(Config.dapp_nnc, "totalSupply");
+            var result = await nns_tools.api_InvokeScript(Config.dapp_nnc, "totalSupply");
             subPrintLine("Total Supply : " + result.value.subItem[0].AsInteger());
         }
 
@@ -151,7 +151,7 @@ namespace smartContractDemo
                 script = sb.ToArray();
                 Console.WriteLine(ThinNeo.Helper.Bytes2HexString(script));
             }
-            var result = await nns_common.api_SendTransaction(prikey, script);
+            var result = await nns_tools.api_SendTransaction(prikey, script);
             subPrintLine(result);
         }
 
@@ -174,7 +174,7 @@ namespace smartContractDemo
             byte[] hash = ThinNeo.Helper.GetPublicKeyHashFromAddress(addr);
             string strhash = ThinNeo.Helper.Bytes2HexString(hash);
 
-            var result = await nns_common.api_InvokeScript(Config.dapp_nnc, "balanceOf", "(bytes)" + strhash);
+            var result = await nns_tools.api_InvokeScript(Config.dapp_nnc, "balanceOf", "(bytes)" + strhash);
             subPrintLine("Total Supply : " + result.value.subItem[0].AsInteger());
         }
 
@@ -198,7 +198,7 @@ namespace smartContractDemo
             byte[] hash = ThinNeo.Helper.GetPublicKeyHashFromAddress(addr);
             string strhash = ThinNeo.Helper.Bytes2HexString(hash);
 
-            var result = await nns_common.api_InvokeScript(Config.dapp_nnc, "canClaimCount", "(bytes)" + strhash);
+            var result = await nns_tools.api_InvokeScript(Config.dapp_nnc, "canClaimCount", "(bytes)" + strhash);
             subPrintLine(" = " + result.value.subItem[0].AsInteger() + ""); ;
         }
 
@@ -215,7 +215,7 @@ namespace smartContractDemo
                 height = 0;
             }
 
-            var result = await nns_common.api_InvokeScript(Config.dapp_nnc, "getTotalMoney", "(int)" + height);
+            var result = await nns_tools.api_InvokeScript(Config.dapp_nnc, "getTotalMoney", "(int)" + height);
             subPrintLine(" = " + result.value.subItem[0].AsInteger() + ""); 
 
             //var result = await nns_common.api_SendTransaction(prikey, Config.dapp_nnc, "getTotalMoney", "(int)" + height);
@@ -241,7 +241,7 @@ namespace smartContractDemo
             subPrintLine("Input amount:");
             string amount = Console.ReadLine();
 
-            var result = await nns_common.api_SendTransaction(prikey, Config.dapp_nnc, "transfer",
+            var result = await nns_tools.api_SendTransaction(prikey, Config.dapp_nnc, "transfer",
               "(addr)" + address,
               "(addr)" + addressto,
               "(int)" + amount +"00"
@@ -358,7 +358,7 @@ namespace smartContractDemo
             string strhash = ThinNeo.Helper.Bytes2HexString(hash);
 
 
-            var result = await nns_common.api_SendTransaction(prikey,Config.dapp_nnc, "claim", "(bytes)" + strhash);
+            var result = await nns_tools.api_SendTransaction(prikey,Config.dapp_nnc, "claim", "(bytes)" + strhash);
             subPrintLine(result);
         }
         #endregion

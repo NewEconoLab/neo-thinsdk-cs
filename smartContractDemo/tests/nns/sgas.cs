@@ -129,7 +129,7 @@ namespace smartContractDemo
         {
             subPrintLine("Get Total Supply for " + this.ID + ":");
 
-            var result = await nns_common.api_InvokeScript(Config.dapp_sgas, "totalSupply");
+            var result = await nns_tools.api_InvokeScript(Config.dapp_sgas, "totalSupply");
             subPrintLine("Total Supply : " + result.value.subItem[0].AsInteger());
         }
 
@@ -137,7 +137,7 @@ namespace smartContractDemo
         {
             subPrintLine("Get Name for " + this.ID + ":");
 
-            var result = await nns_common.api_InvokeScript(Config.dapp_sgas, "name");
+            var result = await nns_tools.api_InvokeScript(Config.dapp_sgas, "name");
             subPrintLine("Name : " + result.value.subItem[0].AsString());
         }
 
@@ -145,7 +145,7 @@ namespace smartContractDemo
         {
             subPrintLine("Get Symbol for " + this.ID + ":");
 
-            var result = await nns_common.api_InvokeScript(Config.dapp_sgas, "symbol");
+            var result = await nns_tools.api_InvokeScript(Config.dapp_sgas, "symbol");
             subPrintLine("Symbol : " + result.value.subItem[0].AsString());
         }
 
@@ -153,7 +153,7 @@ namespace smartContractDemo
         {
             subPrintLine("Get decimals for " + this.ID + ":");
 
-            var result = await nns_common.api_InvokeScript(Config.dapp_sgas, "decimals");
+            var result = await nns_tools.api_InvokeScript(Config.dapp_sgas, "decimals");
             subPrintLine("decimals : " + result.value.subItem[0].AsInteger());
         }
 
@@ -178,7 +178,7 @@ namespace smartContractDemo
             byte[] hash = ThinNeo.Helper.GetPublicKeyHashFromAddress(addr);
             string strhash = ThinNeo.Helper.Bytes2HexString(hash);
 
-            var result = await nns_common.api_InvokeScript(Config.dapp_sgas, "balanceOf", "(bytes)" + strhash);
+            var result = await nns_tools.api_InvokeScript(Config.dapp_sgas, "balanceOf", "(bytes)" + strhash);
             Console.Write("    Balance of ");
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write(addr);
@@ -193,7 +193,7 @@ namespace smartContractDemo
             subPrintLine("Input amount:");
             string amount = Console.ReadLine();
 
-            var result = await nns_common.api_SendTransaction(prikey, Config.dapp_sgas, "transfer",
+            var result = await nns_tools.api_SendTransaction(prikey, Config.dapp_sgas, "transfer",
               "(addr)" + address,
               "(addr)" + addressto,
               "(int)" + amount
@@ -244,18 +244,24 @@ namespace smartContractDemo
                 subPrintLine("contract address=" + targetaddr);//往合约地址转账
 
                 //生成交易
-                tran = Helper.makeTran(dir[Config.id_GAS], targetaddr, new Hash256(Config.id_GAS), amount);
+                tran = Helper.makeTran(dir[Config.id_GAS], targetaddr, new Hash256(Config.id_GAS), amount,(decimal)0.00000001);
                 tran.type = TransactionType.InvocationTransaction;
                 var idata = new InvokeTransData();
                 tran.extdata = idata;
                 idata.script = script;
-
+                idata.gas = (decimal)0.00000001;
                 //sign and broadcast
                 var signdata = ThinNeo.Helper.Sign(tran.GetMessage(), prikey);
                 tran.AddWitness(signdata, pubkey, address);
                 var trandata = tran.GetRawData();
                 var strtrandata = ThinNeo.Helper.Bytes2HexString(trandata);
                 byte[] postdata;
+
+                var a = "d1012200c10a6d696e74546f6b656e7367be0da5478954f03c44c06d63bf613dc98c621e96010000000000000000011a47bddefb7d8fff356c939a1fed120d2848464f4ed719cf9134767a822dc936010002e72d286979ee6cb1b7e65dfddfb2e384100b8d148e7758de42e4168b71792c6000e1f50500000000be0da5478954f03c44c06d63bf613dc98c621e96e72d286979ee6cb1b7e65dfddfb2e384100b8d148e7758de42e4168b71792c603e5dd190000000005ffb879d70015f9f8407eaad6adc3e196d8fbeac014140e6f9f97d589a6353f21ba25da7c1f430af10206d7a10597af22dc7d9c8aecef52338da3d1880a7edcc2178823fc7251ff3cb693e39da8da1c352eb3cc4f27045232103aa9038ee904c71cecf450c88a7ff0d23891d6cdc24b1eeb50bfd0e305fbec26bac";
+                var aa = ThinNeo.Helper.HexString2Bytes(a);
+                var tran2 = new Transaction();
+                tran2.Deserialize(new System.IO.MemoryStream(aa));
+
                 var url = Helper.MakeRpcUrlPost(Config.api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(strtrandata));
                 var result = await Helper.HttpPost(url, postdata);
                 subPrintLine("得到的结果是：" + result);
@@ -327,6 +333,10 @@ namespace smartContractDemo
             }
 
 
+            //添加系统费
+            Dictionary<string, List<Utxo>> dir2 = await Helper.GetBalanceByAddress(Config.api,address);
+            List<Utxo> newlist2 = new List<Utxo>(dir2[Config.id_GAS]);
+
             ThinNeo.Transaction tran = null;
             {
                 byte[] script = null;
@@ -342,7 +352,7 @@ namespace smartContractDemo
                 }
 
                 //sgas 自己给自己转账   用来生成一个utxo  合约会把这个utxo标记给发起的地址使用
-                tran = Helper.makeTran(newlist, sgas_address, new ThinNeo.Hash256(Config.id_GAS), amount);
+                tran = Helper.makeTran(newlist, sgas_address, new ThinNeo.Hash256(Config.id_GAS), amount,(decimal)0.00000001, newlist2,address);
                 tran.type = ThinNeo.TransactionType.InvocationTransaction;
                 var idata = new ThinNeo.InvokeTransData();
                 tran.extdata = idata;
@@ -429,7 +439,7 @@ namespace smartContractDemo
 
         private async void TranGas(List<Utxo> list,decimal value)
         {
-            var tran = Helper.makeTran(list, address, new ThinNeo.Hash256(Config.id_GAS), value);
+            var tran = Helper.makeTran(list, address, new ThinNeo.Hash256(Config.id_GAS), value-(decimal)0.00000001);
             tran.type = ThinNeo.TransactionType.ContractTransaction;
             tran.version = 0;
             //sign and broadcast

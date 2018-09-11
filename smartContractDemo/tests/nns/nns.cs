@@ -9,7 +9,7 @@ using static MyJson;
 
 namespace smartContractDemo
 {
-    public class nns_common
+    public class nns_tools
     {
         static string api = Config.api;//Config.api_local;
 
@@ -171,7 +171,7 @@ namespace smartContractDemo
                 }
             }
            
-            return await nns_common.api_SendTransaction(prikey,data);
+            return await nns_tools.api_SendTransaction(prikey,data);
         }
 
 

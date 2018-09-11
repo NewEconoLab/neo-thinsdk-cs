@@ -67,6 +67,7 @@ namespace smartContractDemo
             RegTest(new nnc());
             RegTest(new MigrateScDemo());
             RegTest(new nns_domainTransaction());
+            RegTest(new nns_common());
 
         }
         static void ShowMenu()

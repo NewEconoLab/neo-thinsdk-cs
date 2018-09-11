@@ -104,7 +104,7 @@ namespace smartContractDemo
 
         async Task balanceOf()
         {
-            var result = await nns_common.api_InvokeScript(Config.domainTransactionhash, "balanceOf","(addr)"+address);
+            var result = await nns_tools.api_InvokeScript(Config.domainTransactionhash, "balanceOf","(addr)"+address);
             subPrintLine("balanceOf : " + result.value.subItem[0].AsInteger());
         }
 
@@ -128,17 +128,17 @@ namespace smartContractDemo
                 subPrintLine("    Input incorret fulldomain");
                 return;
             }
-            Hash256 rootHash = nns_common.nameHash(domains[domains.Length - 1]);
+            Hash256 rootHash = nns_tools.nameHash(domains[domains.Length - 1]);
             Hash256 fullHash = rootHash;
             for (var i = domains.Length - 2; i == 0; i--)
             {
-                fullHash = nns_common.nameHashSub(rootHash, domains[i]);
+                fullHash = nns_tools.nameHashSub(rootHash, domains[i]);
                 if (i != 0)
                     rootHash = fullHash;
             }
             subPrintLine("calc=" + fullHash.ToString());
             //先查询这个域名的所有者是不是自己
-            var info = await nns_common.api_InvokeScript(Config.domainTransactionhash, "getDomainSellingInfo", "(hex256)" + fullHash.ToString());
+            var info = await nns_tools.api_InvokeScript(Config.domainTransactionhash, "getDomainSellingInfo", "(hex256)" + fullHash.ToString());
             subPrintLine("getDomainSellingInfo hash=" + info.value.subItem[0].subItem[0].AsHash256());
             subPrintLine("getDomainSellingInfo owner=" + ThinNeo.Helper.GetAddressFromScriptHash(info.value.subItem[0].subItem[1].AsHash160()));
             subPrintLine("getDomainSellingInfo price=" + info.value.subItem[0].subItem[2].AsInteger());
@@ -164,17 +164,17 @@ namespace smartContractDemo
                 subPrintLine("    Input incorret fulldomain");
                 return;
             }
-            Hash256 rootHash = nns_common.nameHash(domains[domains.Length-1]);
+            Hash256 rootHash = nns_tools.nameHash(domains[domains.Length-1]);
             Hash256 fullHash = rootHash;
             for (var i = domains.Length - 2; i == 0; i--)
             {
-                fullHash = nns_common.nameHashSub(rootHash, domains[i]);
+                fullHash = nns_tools.nameHashSub(rootHash, domains[i]);
                 if (i != 0)
                     rootHash = fullHash;
             }
             subPrintLine("calc=" + fullHash.ToString());
             //先查询这个域名的所有者是不是自己
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + fullHash.ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + fullHash.ToString());
             var sh = info.value.subItem[0].subItem[0].AsHash160();
             if (sh == null)
             {
@@ -200,7 +200,7 @@ namespace smartContractDemo
                 subPrintLine("    Input incorret price");
                 return;
             }
-            var result = await nns_common.api_SendTransaction(prikey, Config.domainTransactionhash, "putaway","(hex256)" + fullHash.ToString(), "(int)" + price+"00000000");
+            var result = await nns_tools.api_SendTransaction(prikey, Config.domainTransactionhash, "putaway","(hex256)" + fullHash.ToString(), "(int)" + price+"00000000");
             subPrintLine("result=" + result);
         }
         async Task cancel()
@@ -223,17 +223,17 @@ namespace smartContractDemo
                 subPrintLine("    Input incorret fulldomain");
                 return;
             }
-            Hash256 rootHash = nns_common.nameHash(domains[domains.Length - 1]);
+            Hash256 rootHash = nns_tools.nameHash(domains[domains.Length - 1]);
             Hash256 fullHash = rootHash;
             for (var i = domains.Length - 2; i == 0; i--)
             {
-                fullHash = nns_common.nameHashSub(rootHash, domains[i]);
+                fullHash = nns_tools.nameHashSub(rootHash, domains[i]);
                 if (i != 0)
                     rootHash = fullHash;
             }
             subPrintLine("calc=" + fullHash.ToString());
             //先查询这个域名的所有者是不是自己
-            var info = await nns_common.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + fullHash.ToString());
+            var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + fullHash.ToString());
             var sh = info.value.subItem[0].subItem[0].AsHash160();
             if (sh == null)
             {
@@ -248,7 +248,7 @@ namespace smartContractDemo
                 return;
             }
 
-            var result = await nns_common.api_SendTransaction(prikey, Config.domainTransactionhash, "cancel", "(hex256)" + fullHash.ToString());
+            var result = await nns_tools.api_SendTransaction(prikey, Config.domainTransactionhash, "cancel", "(hex256)" + fullHash.ToString());
             subPrintLine("result=" + result);
         }
         async Task buy()
@@ -271,20 +271,20 @@ namespace smartContractDemo
                 subPrintLine("    Input incorret fulldomain");
                 return;
             }
-            Hash256 rootHash = nns_common.nameHash(domains[domains.Length - 1]);
+            Hash256 rootHash = nns_tools.nameHash(domains[domains.Length - 1]);
             Hash256 fullHash = rootHash;
             for (var i = domains.Length - 2; i == 0; i--)
             {
-                fullHash = nns_common.nameHashSub(rootHash, domains[i]);
+                fullHash = nns_tools.nameHashSub(rootHash, domains[i]);
                 if (i != 0)
                     rootHash = fullHash;
             }
             subPrintLine("calc=" + fullHash.ToString());
 
-            var info = await nns_common.api_InvokeScript(Config.domainTransactionhash, "getDomainSellingInfo", "(hex256)" + fullHash.ToString());
+            var info = await nns_tools.api_InvokeScript(Config.domainTransactionhash, "getDomainSellingInfo", "(hex256)" + fullHash.ToString());
             var price = info.value.subItem[0].subItem[2].AsInteger();
 
-            var result = await nns_common.api_SendTransaction(prikey, Config.domainTransactionhash, "buy","(addr)"+address, "(hex256)" + fullHash.ToString());
+            var result = await nns_tools.api_SendTransaction(prikey, Config.domainTransactionhash, "buy","(addr)"+address, "(hex256)" + fullHash.ToString());
             subPrintLine("result=" + result);
 
         }
@@ -315,12 +315,12 @@ namespace smartContractDemo
                 script = sb.ToArray();
                 Console.WriteLine(ThinNeo.Helper.Bytes2HexString(script));
             }
-            var result = await nns_common.api_SendTransaction(prikey, script);
+            var result = await nns_tools.api_SendTransaction(prikey, script);
             subPrintLine(result);
         }
         async Task getmoneyback()
         {
-            var result = await nns_common.api_SendTransaction(prikey, Config.domainTransactionhash, "getmoneyback", "(string)" + address);
+            var result = await nns_tools.api_SendTransaction(prikey, Config.domainTransactionhash, "getmoneyback", "(string)" + address);
             subPrintLine("result=" + result);
         }
     }

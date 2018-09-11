@@ -1,53 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace smartContractDemo
 {
-    //发布智能合约的例子
-    class Tran_1 : ITest
+    class pressure : ITest
     {
 
         string api = "https://api.nel.group/api/testnet";
 
         string id_GAS = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
 
-        public string Name => "转账";
+        public string Name => "轮询";
 
-        public string ID => "tran 1";
+        public string ID => "pressure";
 
         async public Task Demo()
         {
-            string wif1 = "KwwJMvfFPcRx2HSgQRPviLv4wPrxRaLk7kfQntkH8kCXzTgAts8t";
-            string targetAddr = "AdsNmzKPPG7HfmQpacZ4ixbv9XJHJs2ACz";
-
-            byte[] prikey = ThinNeo.Helper.GetPrivateKeyFromWIF(wif1);
-            byte[] pubkey = ThinNeo.Helper.GetPublicKeyFromPrivateKey(prikey);
-            string address = ThinNeo.Helper.GetAddressFromPublicKey(pubkey);
-
-            Dictionary<string, List<Utxo>> dir = await Helper.GetBalanceByAddress(api, address);
-
-            //拼装交易体
-            string[] targetAddrs = new string[1] { targetAddr};
-            ThinNeo.Transaction tran = makeTran(dir, targetAddrs, new ThinNeo.Hash256(id_GAS), (decimal)1);
-            tran.version = 0;
-            tran.type = ThinNeo.TransactionType.ContractTransaction;
-            byte[] msg = tran.GetMessage();
-            string msgstr = ThinNeo.Helper.Bytes2HexString(msg);
-            byte[] signdata = ThinNeo.Helper.Sign(msg, prikey);
-            tran.AddWitness(signdata, pubkey, address);
-            string txid = tran.GetHash().ToString();
-            byte[] data = tran.GetRawData();
-            string rawdata = ThinNeo.Helper.Bytes2HexString(data);
-
             byte[] postdata;
-            var url = Helper.MakeRpcUrlPost(api, "sendrawtransaction", out postdata, new MyJson.JsonNode_ValueString(rawdata));
-            var result = await Helper.HttpPost(url, postdata);
-            MyJson.JsonNode_Object resJO = (MyJson.JsonNode_Object)MyJson.Parse(result);
-            Console.WriteLine(resJO.ToString());
+            var url = Helper.MakeRpcUrlPost(api, "getblock", out postdata, new MyJson.JsonNode_ValueNumber(1000));
+            for (var i = 0; i < 1000; i++)
+            {
+                Console.WriteLine("i:"+i);
+                var result = await Helper.HttpPost(url, postdata);
+                MyJson.JsonNode_Object resJO = (MyJson.JsonNode_Object)MyJson.Parse(result);
+                Console.WriteLine(resJO.ToString());
+            }
         }
 
         //拼交易体
