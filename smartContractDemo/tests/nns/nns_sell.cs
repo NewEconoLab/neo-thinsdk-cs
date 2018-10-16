@@ -125,15 +125,16 @@ namespace smartContractDemo
 
             var info3 = await nns_tools.api_InvokeScript(reg_sc, "getAuctionStateByFullhash", "(hex256)" + fullhash.ToString());
             subPrintLine("getAuctionStateByFullhash id=" + info3.value.subItem[0].subItem[0].AsHash256());
-            subPrintLine("getAuctionStateByFullhash parenthash=" + info3.value.subItem[0].subItem[1].AsHash256());
-            subPrintLine("getAuctionStateByFullhash domain=" + info3.value.subItem[0].subItem[2].AsString());
-            subPrintLine("getAuctionStateByFullhash domainTTL=" + info3.value.subItem[0].subItem[3].AsInteger());
+            subPrintLine("getAuctionStateByFullhash auctionstarter=" + ThinNeo.Helper.GetAddressFromScriptHash(info3.value.subItem[0].subItem[1].AsHash160()));
+            subPrintLine("getAuctionStateByFullhash parenthash=" + info3.value.subItem[0].subItem[2].AsHash256());
+            subPrintLine("getAuctionStateByFullhash domain=" + info3.value.subItem[0].subItem[3].AsString());
+            subPrintLine("getAuctionStateByFullhash domainTTL=" + info3.value.subItem[0].subItem[4].AsInteger());
 
-            subPrintLine("getAuctionStateByFullhash startBlockSelling=" + info3.value.subItem[0].subItem[4].AsInteger());
-            subPrintLine("getAuctionStateByFullhash endBlock=" + info3.value.subItem[0].subItem[5].AsInteger());
-            subPrintLine("getAuctionStateByFullhash maxPrice=" + info3.value.subItem[0].subItem[6].AsInteger());
-            subPrintLine("getAuctionStateByFullhash maxBuyer=" + ThinNeo.Helper.GetAddressFromScriptHash(info3.value.subItem[0].subItem[7].AsHash160()));
-            subPrintLine("getAuctionStateByFullhash lastBlock=" + info3.value.subItem[0].subItem[8].AsInteger());
+            subPrintLine("getAuctionStateByFullhash startBlockSelling=" + info3.value.subItem[0].subItem[5].AsInteger());
+            subPrintLine("getAuctionStateByFullhash endBlock=" + info3.value.subItem[0].subItem[6].AsInteger());
+            subPrintLine("getAuctionStateByFullhash maxPrice=" + info3.value.subItem[0].subItem[7].AsInteger());
+            subPrintLine("getAuctionStateByFullhash maxBuyer=" + ThinNeo.Helper.GetAddressFromScriptHash(info3.value.subItem[0].subItem[8].AsHash160()));
+            subPrintLine("getAuctionStateByFullhash lastBlock=" + info3.value.subItem[0].subItem[9].AsInteger());
 
             var id = info3.value.subItem[0].subItem[0].AsHash256();
 
@@ -173,6 +174,9 @@ namespace smartContractDemo
         }
         async Task test_raise_xxx_sell()
         {
+            subPrintLine("input value");
+            var value = Console.ReadLine();
+
             subPrintLine("raise 1 for [xxx]." + this.root + ".  input xxx:");
             var subname = Console.ReadLine();
 
@@ -192,7 +196,7 @@ namespace smartContractDemo
             var result = await nns_tools.api_SendTransaction(this.prikey, reg_sc, "raise",
           "(hex160)" + who.ToString(),//参数1 who
           "(hex256)" + id.ToString(),//参数2 交易id
-          "(int)1" + "00000000"//参数3，加价多少
+          "(int)" + value//参数3，加价多少
                                //"(int)1"//参数3，加价多少
           );
             subPrintLine("result=" + result);
@@ -257,7 +261,7 @@ namespace smartContractDemo
 
             var r_abc_test = await nns_tools.api_InvokeScript(sell_reg, "balanceOf", "(addr)" + address);
             var num = new System.Numerics.BigInteger(r_abc_test.value.subItem[0].data);
-            num = num / 100000000;
+            num = num ;
             subPrintLine(root + "注册器里的余额:" + num);
         }
         /// <summary>
@@ -275,7 +279,7 @@ namespace smartContractDemo
 
             Console.WriteLine("Input amount:");
             string amount = Console.ReadLine();
-            amount += "00000000";
+            //amount += "00000000";
 
             byte[] script;
             using (var sb = new ThinNeo.ScriptBuilder())
@@ -316,7 +320,7 @@ namespace smartContractDemo
         {
             Console.WriteLine("Input amount:");
             string amount = Console.ReadLine();
-            amount += "00000000";
+            //amount += "00000000";
 
             var info = await nns_tools.api_InvokeScript(Config.sc_nns, "getOwnerInfo", "(hex256)" + nns_tools.nameHash(root).ToString());
             var _result = info.value.subItem[0];
