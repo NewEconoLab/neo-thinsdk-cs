@@ -7,7 +7,7 @@ namespace smartContractDemo.tests
     class Config
     {
         public readonly static string superadminAddress = "ALjSnMZidJqd18iQaoCgFun6iqWRm2cVtj";
-        public  static string test_wif = "KwZih114osBp58RwpEn4ZAcEcCTLP6yMAhdikb6oPRxqgvWpcqF1";
+        public  static string test_wif = "";
         //0x8826206138420e79936123a18176c597cd173173
         //0xfc732edee1efdf968c23c20a9628eaa5a6ccb934
         public readonly static Hash160 dapp_nnc = new Hash160("0xfc732edee1efdf968c23c20a9628eaa5a6ccb934");//nnc 合约代码
