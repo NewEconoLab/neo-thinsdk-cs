@@ -16,7 +16,7 @@ namespace ThinNeo.Debug
     {
         public string pathScript;
         public Dictionary<string, DebugScript> scripts = new Dictionary<string, DebugScript>();
-        public SmartContract.Debug.FullLog fullLog;
+        public SmartContract.Debug.DumpInfo dumpInfo;
         public SimVM simvm = new SimVM();
         public bool LoadScript(string scriptid)
         {
@@ -59,10 +59,10 @@ namespace ThinNeo.Debug
                 var outms = llvm.QuickFile.FromFile(ms);
                 var text = System.Text.Encoding.UTF8.GetString(outms.ToArray());
                 var json = MyJson.Parse(text) as MyJson.JsonNode_Object;
-                fullLog = SmartContract.Debug.FullLog.FromJson(json);
+                dumpInfo = SmartContract.Debug.DumpInfo.FromJson(json);
             }
             //循环所有的
-            simvm.Execute(fullLog);
+            simvm.Execute(dumpInfo);
         }
         public static byte[] HexString2Bytes(string str)
         {

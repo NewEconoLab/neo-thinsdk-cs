@@ -378,7 +378,7 @@ namespace ThinNeo.SmartContract.Debug
     }
 
 
-    public class FullLog
+    public class DumpInfo
     {
         public LogScript script = null;
         public string error = null;
@@ -455,21 +455,21 @@ namespace ThinNeo.SmartContract.Debug
         //    System.IO.File.Delete(filename + ".json");
 
         //}
-        public static FullLog FromJson(MyJson.JsonNode_Object json)
+        public static DumpInfo FromJson(MyJson.JsonNode_Object json)
         {
-            FullLog fulllog = new FullLog();
+            DumpInfo dumpInfo = new DumpInfo();
             if (json.ContainsKey("error"))
-                fulllog.error = json["error"].AsString();
+                dumpInfo.error = json["error"].AsString();
             if (json.ContainsKey("VMState"))
             {
                 var state = json["VMState"].AsString();
-                fulllog.state = (VMState)Enum.Parse(typeof(VMState), state);
+                dumpInfo.state = (VMState)Enum.Parse(typeof(VMState), state);
             }
             if (json.ContainsKey("script"))
             {
-                fulllog.script = LogScript.FromJson(json["script"] as MyJson.JsonNode_Object);
+                dumpInfo.script = LogScript.FromJson(json["script"] as MyJson.JsonNode_Object);
             }
-            return fulllog;
+            return dumpInfo;
         }
     }
 }

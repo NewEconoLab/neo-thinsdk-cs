@@ -65,6 +65,17 @@ namespace ThinNeo.Debug
                 StateID++;
                 return true;
             }
+            if(op== VM.OpCode.ROT)
+            {
+                var v3 = CalcStack.Pop();
+                var v2 = CalcStack.Pop();
+                var v1 = CalcStack.Pop();
+                CalcStack.Push(v2);
+                CalcStack.Push(v3);
+                CalcStack.Push(v1);
+                StateID++;
+                return true;
+            }
             //if (op == VM.OpCode.ROLL)
             //{
             //    int n = (int)CalcStack.Pop().AsInt();
@@ -165,7 +176,8 @@ namespace ThinNeo.Debug
                 }
                 else
                 {
-                    throw new Exception("can't conver this.");
+                    this.item.strvalue = "can't convert this.";
+                    //throw new Exception("can't conver this.");
                 }
             }
             else if (name == "Neo.Storage.Put")
@@ -196,7 +208,7 @@ namespace ThinNeo.Debug
     //模拟虚拟机
     public class SimVM
     {
-        public void Execute(SmartContract.Debug.FullLog FullLog)
+        public void Execute(SmartContract.Debug.DumpInfo DumpInfo)
         {
             State runstate = new State();
             runstate.SetId(0);
@@ -205,10 +217,10 @@ namespace ThinNeo.Debug
             mapState = new Dictionary<SmartContract.Debug.LogOp, int>();
             careinfo = new List<CareItem>();
 
-            regenScript = new SmartContract.Debug.LogScript(FullLog.script.hash);
+            regenScript = new SmartContract.Debug.LogScript(DumpInfo.script.hash);
             lastScript = regenScript;
 
-            ExecuteScript(runstate, FullLog.script);
+            ExecuteScript(runstate, DumpInfo.script);
         }
         SmartContract.Debug.LogScript lastScript = null;
         public SmartContract.Debug.LogScript regenScript;
