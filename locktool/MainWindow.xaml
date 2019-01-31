@@ -5,24 +5,48 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:locktool"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="580.106" Width="1212.997">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="16*"/>
-            <ColumnDefinition Width="83*"/>
-        </Grid.ColumnDefinitions>
-        <TextBlock HorizontalAlignment="Left" Margin="68,82,0,0" TextWrapping="Wrap" Text="pubkey" VerticalAlignment="Top" Width="83" Grid.Column="1"/>
-        <Button Content="gen LockAddress" HorizontalAlignment="Left" Margin="68,215,0,0" VerticalAlignment="Top" Width="178" Click="Button_Click" Grid.Column="1"/>
-        <TextBox x:Name="txt_pubkey" HorizontalAlignment="Left" Height="23" Margin="128,81,0,0" TextWrapping="Wrap" Text="02bf055764de0320c8221920d856d3d9b93dfc1dcbc759a560fd42553aa025ba5c" VerticalAlignment="Top" Width="489" Grid.Column="1"/>
-        <TextBlock x:Name="label_addr" HorizontalAlignment="Left" Margin="92,104,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Grid.Column="1"/>
-        <TextBlock x:Name="label_lockscript" HorizontalAlignment="Left" Margin="105,38,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <DatePicker x:Name="datepicker" Grid.Column="1" HorizontalAlignment="Left" Margin="92,124,0,0" VerticalAlignment="Top" Width="309"/>
-        <TextBlock x:Name="label_time" Grid.Column="1" HorizontalAlignment="Left" Margin="92,163,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top"/>
-        <TextBox x:Name="txt_time" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="429,124,0,0" TextWrapping="Wrap" Text="12:00:00" VerticalAlignment="Top" Width="120"/>
-        <TextBlock x:Name="label_timeutc" Grid.Column="1" HorizontalAlignment="Left" Margin="92,183,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top"/>
-        <TextBlock x:Name="txt_addrout" Grid.Column="1" HorizontalAlignment="Left" Margin="68,358,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top"/>
-        <Label Content="锁仓合约脚本生成" HorizontalAlignment="Left" Margin="105,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.113,0.141" Grid.ColumnSpan="2"/>
-        <TextBox x:Name="txt_contract" Grid.Column="1" HorizontalAlignment="Left" Height="114" Margin="68,239,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="333" IsReadOnlyCaretVisible="True"/>
+        <GroupBox Header="锁仓合约设置" HorizontalAlignment="Left" Height="396" VerticalAlignment="Top" Width="574">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="16*"/>
+                    <ColumnDefinition Width="83*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock HorizontalAlignment="Left" Margin="11,71,0,0" TextWrapping="Wrap" Text="pubkey" VerticalAlignment="Top" Width="83"/>
+                <Button Content="gen LockAddress" HorizontalAlignment="Left" Margin="71,199,0,0" VerticalAlignment="Top" Width="178" Click="Button_Click" Grid.ColumnSpan="2"/>
+                <TextBox x:Name="txt_pubkey" HorizontalAlignment="Left" Height="23" Margin="71,70,0,0" TextWrapping="Wrap" Text="02bf055764de0320c8221920d856d3d9b93dfc1dcbc759a560fd42553aa025ba5c" VerticalAlignment="Top" Width="489" Grid.ColumnSpan="2"/>
+                <TextBlock x:Name="label_addr" HorizontalAlignment="Left" Margin="39,98,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="499"/>
+                <TextBlock x:Name="label_lockscript" HorizontalAlignment="Left" Margin="6,32,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="532"/>
+                <DatePicker x:Name="datepicker" HorizontalAlignment="Left" Margin="41,119,0,0" VerticalAlignment="Top" Width="309" Grid.ColumnSpan="2"/>
+                <TextBlock x:Name="label_time" HorizontalAlignment="Left" Margin="41,159,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="439"/>
+                <TextBox x:Name="txt_time" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="255,119,0,0" TextWrapping="Wrap" Text="12:00:00" VerticalAlignment="Top" Width="120"/>
+                <TextBlock x:Name="label_timeutc" HorizontalAlignment="Left" Margin="41,179,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="439"/>
+                <TextBox x:Name="txt_contract" HorizontalAlignment="Left" Height="73" Margin="41,223,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="519" IsReadOnlyCaretVisible="True" Grid.ColumnSpan="2" IsReadOnly="True"/>
+                <TextBox x:Name="txt_addrout" HorizontalAlignment="Left" Height="23" Margin="41,327,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="519" Grid.ColumnSpan="2" IsReadOnly="True"/>
+
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="提款" HorizontalAlignment="Left" Height="510" Margin="579,10,0,0" VerticalAlignment="Top" Width="569">
+            <Grid>
+                <Button Content="资产查询" HorizontalAlignment="Left" Margin="13,42,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1" RenderTransformOrigin="0.496,1.873"/>
+                <ListBox x:Name="listAsset" HorizontalAlignment="Left" Height="100" Margin="13,66,0,0" VerticalAlignment="Top" Width="537"/>
+                <TextBox HorizontalAlignment="Left" Height="23" Margin="48,3,0,0" TextWrapping="Wrap" Text="https://api.nel.group/api/testnet" VerticalAlignment="Top" Width="439"/>
+                <Button Content="提取Nep5，广播 慎点" HorizontalAlignment="Left" Margin="10,225,0,0" VerticalAlignment="Top" Width="111" RenderTransformOrigin="-0.782,-1.254" Click="Button_Click_2" Background="#FFFFBF37"/>
+                <TextBlock HorizontalAlignment="Left" Margin="13,166,0,0" TextWrapping="Wrap" Text="提取目标地址" VerticalAlignment="Top"/>
+                <TextBox x:Name="txt_get_addr" HorizontalAlignment="Left" Height="23" Margin="114,166,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="387"/>
+                <TextBlock HorizontalAlignment="Left" Margin="13,192,0,0" TextWrapping="Wrap" Text="提取数量" VerticalAlignment="Top" RenderTransformOrigin="1.011,1.571"/>
+                <TextBox x:Name="txt_get_balance" HorizontalAlignment="Left" Height="23" Margin="114,194,0,0" TextWrapping="Wrap" Text="9.9" VerticalAlignment="Top" Width="387"/>
+                <TextBox x:Name="txt_get_result" HorizontalAlignment="Left" Height="105" Margin="13,249,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="534" IsReadOnlyCaretVisible="True" IsReadOnly="True"/>
+                <TextBox x:Name="txt_get_srcaddr" HorizontalAlignment="Left" Height="23" Margin="114,38,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="373" IsReadOnly="True"/>
+                <TextBlock HorizontalAlignment="Left" Margin="126,225,0,0" TextWrapping="Wrap" Text="wif" VerticalAlignment="Top" RenderTransformOrigin="1.973,0.167"/>
+                <TextBox x:Name="txt_wifGetter" HorizontalAlignment="Left" Height="23" Margin="148,221,0,0" TextWrapping="Wrap" Text="L2CmHCqgeNHL1i9XFhTLzUXsdr5LGjag4d56YY98FqEi4j5d83Mv" VerticalAlignment="Top" Width="402"/>
+                <TextBox x:Name="txt_bc_result" HorizontalAlignment="Left" Height="95" Margin="13,383,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="534" IsReadOnly="True" IsReadOnlyCaretVisible="True"/>
+                <Button Content="生成交易Only，不签名不广播" HorizontalAlignment="Left" Margin="13,359,0,0" VerticalAlignment="Top" Width="187" Click="Button_Click_5"/>
+                <Button Content="生成交易Only，只签名不广播" HorizontalAlignment="Left" Margin="227,359,0,0" VerticalAlignment="Top" Width="187" Click="Button_Click_4"/>
+
+            </Grid>
+        </GroupBox>
 
     </Grid>
 </Window>
