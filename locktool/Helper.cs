@@ -75,6 +75,9 @@ namespace Demo
         {
             MyJson.JsonNode_Object response = (MyJson.JsonNode_Object)MyJson.Parse(await Helper.HttpGet(api + "?method=getutxostopay&id=1&params=["
                 + "'" + _addr + "','" + assetid + "'," + number + "]"));
+            if (response.ContainsKey("result") == false)
+                return new List<Utxo>();
+
             MyJson.JsonNode_Array resJA = (MyJson.JsonNode_Array)response["result"];
             List<Utxo> list = new List<Utxo>();
             foreach (MyJson.JsonNode_Object j in resJA)

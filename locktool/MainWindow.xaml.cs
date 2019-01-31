@@ -202,7 +202,10 @@ namespace locktool
         }
         public async Task<byte[]> MakeScript(bool sign)
         {
-            if (hasGas == false)
+            var payaddr = label_addr.Text;
+            var paygas = 0.001;
+            var utxos = await Demo.Helper.GetUtxosToPay(api, payaddr, id_GAS, paygas);
+            if (utxos.Count == 0)
             {
                 MessageBox.Show("you do not have gas for sendraw.");
                 return null;
@@ -221,9 +224,7 @@ namespace locktool
                 targetbalance *= 10;
             }
 
-            var payaddr = label_addr.Text;
-            var paygas = 0.001;
-            var utxos = await Demo.Helper.GetUtxosToPay(api, payaddr, id_GAS, paygas);
+
             if (sign)
             {
                 var paywif = txt_wifGetter.Text;
@@ -311,6 +312,19 @@ namespace locktool
 
             var txt = ThinNeo.Helper.Bytes2HexString(rawdata);
             this.txt_get_result.Text = txt;
+        }
+
+        private void Button_Click_3(object sender, RoutedEventArgs e)
+        {
+            if(this.api.Contains("testnet"))
+            {
+                this.api = "https://api.nel.group/api/mainnet";
+            }
+            else
+            {
+                this.api = "https://api.nel.group/api/testnet";
+            }
+            this.txt_API.Text = api;
         }
     }
 }
