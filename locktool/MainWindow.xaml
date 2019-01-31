@@ -24,6 +24,9 @@
                 <TextBlock x:Name="label_timeutc" HorizontalAlignment="Left" Margin="41,179,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="439"/>
                 <TextBox x:Name="txt_contract" HorizontalAlignment="Left" Height="73" Margin="41,223,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="519" IsReadOnlyCaretVisible="True" Grid.ColumnSpan="2" IsReadOnly="True"/>
                 <TextBox x:Name="txt_addrout" HorizontalAlignment="Left" Height="23" Margin="41,327,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="519" Grid.ColumnSpan="2" IsReadOnly="True"/>
+                <TextBlock HorizontalAlignment="Left" Margin="6,162,0,0" TextWrapping="Wrap" Text="TIME" VerticalAlignment="Top"/>
+                <TextBlock HorizontalAlignment="Left" Margin="6,179,0,0" TextWrapping="Wrap" Text="UTC" VerticalAlignment="Top"/>
+                <TextBlock HorizontalAlignment="Left" Margin="380,123,0,0" TextWrapping="Wrap" Text="只认小时，分秒不用改" VerticalAlignment="Top" Grid.Column="1"/>
 
             </Grid>
         </GroupBox>
