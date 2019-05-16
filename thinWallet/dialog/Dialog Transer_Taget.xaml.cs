@@ -64,9 +64,13 @@ namespace thinWallet
                 this.output = new Tools.Output();
                 this.output.isTheChange = false;
                 this.output.assetID = (this.tokens.SelectedItem as Asset).assetid;
-                if (this.dropMoney.IsChecked==true)
+                if (this.netfee.IsChecked == true)
                 {
-                    this.output.Target = "";
+                    this.output.Target = "netfee";
+                }
+                else if (this.systemfee.IsChecked == true)
+                {
+                    this.output.Target = "systemfee";
                 }
                 else
                 {
@@ -90,20 +94,19 @@ namespace thinWallet
             this.DialogResult = false;
         }
 
-        private void dropMoney_Checked(object sender, RoutedEventArgs e)
+        private void netfee_Checked(object sender, RoutedEventArgs e)
         {
-            if(this.dropMoney.IsChecked==true)
-            {
-                this.tboxAddr.Text = "";
-                this.tboxAddr.IsEnabled = false;
-            }
-            else
-            {
-                this.tboxAddr.IsEnabled = true;
-            }
+            this.tboxAddr.Text = "";
+            this.tboxAddr.IsEnabled = false;
         }
 
-        private void dropMoney_Unchecked(object sender, RoutedEventArgs e)
+        private void systemfee_Checked(object sender, RoutedEventArgs e)
+        {
+            this.tboxAddr.Text = "";
+            this.tboxAddr.IsEnabled = false;
+        }
+
+        private void null_Checked(object sender, RoutedEventArgs e)
         {
             this.tboxAddr.IsEnabled = true;
         }

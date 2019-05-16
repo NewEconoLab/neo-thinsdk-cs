@@ -687,7 +687,7 @@ namespace thinWallet
                 decimal gas = lastFee.Value - (decimal)10.0;
                 if (gas < 0) gas = 0;
                 gas = Math.Ceiling(gas);
-                //invokedata.gas = gas;
+                invokedata.gas = gas;
                 //(trans.extdata as ThinNeo.InvokeTransData).gas = lastFee.Value;
             }
             trans.inputs = new ThinNeo.TransactionInput[this.listInput.Items.Count];
@@ -712,9 +712,13 @@ namespace thinWallet
             for (var i = 0; i < listOutput.Items.Count; i++)
             {
                 var item = listOutput.Items[i] as Tools.Output;
-                if (string.IsNullOrEmpty(item.Target))
+                if (item.Target=="systemfee")
                 {//扔钱
                     invokedata.gas += item.Fix8;
+                    continue;
+                }
+                if (item.Target == "netfee")
+                {
                     continue;
                 }
                 var output = new ThinNeo.TransactionOutput();

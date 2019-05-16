@@ -10,17 +10,23 @@
         <Grid.Background>
             <ImageBrush ImageSource="/thinWallet;component/thinwallet/back2.jpg" Stretch="UniformToFill"/>
         </Grid.Background>
-        <GroupBox Header="input" Background="#7F373C07" Margin="44,25,61,34" BorderBrush="{x:Null}" BorderThickness="1">
+        <GroupBox Header="input" Background="#7F373C07" Margin="44,25,73.8,19.8" BorderBrush="{x:Null}" BorderThickness="1">
             <Grid>
-                <Button Content="OK" HorizontalAlignment="Left" Margin="47,136,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.027,0.687" Click="Button_Click"/>
-                <Button Content="Cancel" HorizontalAlignment="Left" Margin="194,136,0,0" VerticalAlignment="Top" Width="71" RenderTransformOrigin="0.027,0.687" Click="Button_Click_1"/>
-                <TextBox x:Name="tboxAddr" HorizontalAlignment="Left" Margin="20,26,0,0" VerticalAlignment="Top" Width="308"/>
-                <Label Content="Target" HorizontalAlignment="Left" Margin="27,0,0,0" VerticalAlignment="Top" Foreground="White" RenderTransformOrigin="0.485,-0.131"/>
-                <Label Content="Value" HorizontalAlignment="Left" Margin="32,100,0,0" VerticalAlignment="Top" Foreground="White"/>
-                <TextBox x:Name="tboxValue" HorizontalAlignment="Left" Margin="80,105,0,0" VerticalAlignment="Top" Width="248"/>
-                <ComboBox x:Name="tokens" HorizontalAlignment="Left" Margin="80,75,0,0" VerticalAlignment="Top" Width="248"/>
-                <Label Content="Token type" HorizontalAlignment="Left" Margin="1,75,0,0" VerticalAlignment="Top" Foreground="White"/>
-                <CheckBox x:Name="dropMoney" Content="Drop Money" HorizontalAlignment="Left" Margin="20,46,0,0" VerticalAlignment="Top" Foreground="White" Checked="dropMoney_Checked" Unchecked="dropMoney_Unchecked"/>
+                <Button Content="OK" HorizontalAlignment="Left" Margin="46,152,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.027,0.687" Click="Button_Click"/>
+                <Button Content="Cancel" HorizontalAlignment="Left" Margin="198,152,0,0" VerticalAlignment="Top" Width="71" RenderTransformOrigin="0.027,0.687" Click="Button_Click_1"/>
+                <TextBox x:Name="tboxAddr" HorizontalAlignment="Left" Margin="20,19,0,0" VerticalAlignment="Top" Width="308" Height="19"/>
+                <Label Content="Target" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Foreground="White" RenderTransformOrigin="0.485,-0.131"/>
+                <Label Content="Value" HorizontalAlignment="Left" Margin="33,121,0,0" VerticalAlignment="Top" Foreground="White" RenderTransformOrigin="0.517,1.373"/>
+                <TextBox x:Name="tboxValue" HorizontalAlignment="Left" Margin="80,121,0,0" VerticalAlignment="Top" Width="248"/>
+                <ComboBox x:Name="tokens" HorizontalAlignment="Left" Margin="80,95,0,0" VerticalAlignment="Top" Width="248"/>
+                <Label Content="Token type" HorizontalAlignment="Left" Margin="1,90,0,0" VerticalAlignment="Top" Foreground="White"/>
+
+                <StackPanel Margin="20,38,99.2,76.2">
+                    <Label FontWeight="Bold"></Label>
+                    <RadioButton Name="netfee" Click="netfee_Checked">netfee</RadioButton>
+                    <RadioButton Name="systemfee" Click="systemfee_Checked">systemfee</RadioButton>
+                    <RadioButton Click="null_Checked" IsChecked="True">null</RadioButton>
+                </StackPanel>
             </Grid>
         </GroupBox>
     </Grid>
