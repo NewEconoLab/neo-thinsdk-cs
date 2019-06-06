@@ -684,10 +684,10 @@ namespace thinWallet
                 invokedata.script = lastScript;
                 
                 //gas 系統費衹收整數？
-                decimal gas = lastFee.Value - (decimal)10.0;
-                if (gas < 0) gas = 0;
-                gas = Math.Ceiling(gas);
-                invokedata.gas = gas;
+                //decimal gas = lastFee.Value - (decimal)10.0;
+                //if (gas < 0) gas = 0;
+                //gas = Math.Ceiling(gas);
+                //invokedata.gas = gas;
                 //(trans.extdata as ThinNeo.InvokeTransData).gas = lastFee.Value;
             }
             trans.inputs = new ThinNeo.TransactionInput[this.listInput.Items.Count];
@@ -712,7 +712,7 @@ namespace thinWallet
             for (var i = 0; i < listOutput.Items.Count; i++)
             {
                 var item = listOutput.Items[i] as Tools.Output;
-                if (item.Target=="systemfee")
+                if (item.Target=="systemfee"|| item.Target == "")
                 {//扔钱
                     invokedata.gas += item.Fix8;
                     continue;
@@ -829,7 +829,7 @@ namespace thinWallet
                     Tools.Output newsb = new Tools.Output();
                     newsb.assetID = Tools.CoinTool.id_GAS;
                     newsb.isTheChange = false;
-                    newsb.Target = "";
+                    newsb.Target = "systemfee";
                     newsb.Fix8 = (lastFee.Value - (decimal)10.0);
                     listOutput.Items.Add(newsb);
                     updateOutput();
